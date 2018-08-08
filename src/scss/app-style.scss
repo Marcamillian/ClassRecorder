@@ -1,0 +1,49 @@
+$rec-dark-pri-color: #689F38;
+$rec-light-pri-color: #DCEDC8;
+$rec-pri-color: #8BC34A;
+$rec-accent-color: #00BCD4;
+
+$listen-dark-pri-color: #0097A7;
+$listen-light-pri-color: #B2EBF2;
+$listen-pri-color: #00BCD4;
+$listen-accent-color: #8BC34A;
+
+
+$text-icons: #212121;
+$pri-text: #212121;
+$sec-text: #757575;
+$divider-color: #BDBDBD;
+
+
+nav{
+
+    .tab-label{
+        list-style:none;   
+    }
+    .record{
+        background-color:$rec-pri-color;
+    }
+
+    .listen{
+        background-color:$listen-pri-color;
+    }
+    
+}
+
+.tab-body.record{
+  background-color:$rec-pri-color;
+
+  .button-record{
+      border: 10px solid $rec-dark-pri-color;
+      background-color: white;
+      border-radius:100%;
+  }
+
+  
+}
+
+.shadow {
+    -moz-box-shadow:     6px 6px 10px #0000007e;
+    -webkit-box-shadow:  6px 6px 10px #0000007e;
+    box-shadow:          6px 6px 10px #0000007e;
+ }

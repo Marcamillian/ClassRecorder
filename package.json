@@ -12,5 +12,8 @@
     "gulp": "^3.9.1",
     "gulp-sass": "^4.0.1",
     "gulp-serve": "^1.4.0"
+  },
+  "dependencies": {
+    "idb": "^2.1.3"
   }
 }
