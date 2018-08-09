@@ -10,6 +10,7 @@ const recorderApp = function RecorderApp(){
   var mediaRecorder;
   var chunks = [];
   var dbHelper = new DBHelper();
+  dbHelper.populateDatabase();
 
   // if there are media devices to pull from and the interface available in browser
   if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){

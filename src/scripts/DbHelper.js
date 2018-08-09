@@ -134,7 +134,7 @@ class DBHelper{
   getClasses(){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
-      let classStore = ts.objectStore(DBHelper.CLASS_STORE_NAME);
+      let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
       return classStore.getAll()
     })
   }
