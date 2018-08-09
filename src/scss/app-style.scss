@@ -14,6 +14,10 @@ $pri-text: #212121;
 $sec-text: #757575;
 $divider-color: #BDBDBD;
 
+html{
+    font-family: 'Varela Round', sans-serif;
+}
+
 
 nav{
 
@@ -39,6 +43,27 @@ nav{
       border-radius:100%;
   }
 
+  .student-select{
+    background-color:white;
+
+    .title{
+        font-size:0.75em;
+        color:$sec-text;
+        font-weight: normal;
+    }
+
+    .sselect-page{
+        /* hide the unchecked labels */
+        label{
+            color:$sec-text;
+        };
+        /* show the checked labels */
+        input[type="checkbox"]:checked+label{
+            color:$pri-text;
+        }  
+    }
+    
+  }
   
 }
 

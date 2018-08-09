@@ -55,15 +55,59 @@ body{
         }
     }
 
-    .clip-label{
+    .student-select{
         width:70%;
         
+        display:flex;
+        flex-direction:column;
+
         font-size:2rem;
         text-align:center;
         padding-top:1rem;
         padding-bottom:1rem;
 
         border-radius:4rem;
+
+        transition: height 1s, width 1s;
+
+        /* styling a label by checked value
+        https://stackoverflow.com/questions/4641752/css-how-to-style-a-selected-radio-buttons-label */
+        
+        .sselect-page{
+            display:flex;
+            flex-direction: column;
+            justify-content:center;
+
+            /* hide the checkboxes*/
+            input[type="checkbox"]{
+                display:none;
+            }
+
+            /* when not active hide labels that arn't checked*/
+            label{
+                display:none;
+            }
+
+            input[type="checkbox"]:checked+label{
+                display:block;
+            }
+            
+        }
+    }
+
+    .student-select.active{
+        position:absolute;
+        height:80%;
+
+        .sselect-page{
+            flex-grow:1;
+
+            /* show all labels when active*/
+            label{
+                display:block;
+            }
+        }
+
     }
 }
 
