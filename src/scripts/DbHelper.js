@@ -127,8 +127,16 @@ class DBHelper{
     })
   }
 
-  getStudentsFromClass(){
+  getStudentsFromClass(classIndex){
+    
+  }
 
+  getClass(classIndex){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
+      let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
+      return classStore.get(classIndex)
+    })
   }
 
   getClasses(){

@@ -1,32 +1,45 @@
 'use strict';
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
-const recorderApp = function RecorderApp(){
+const recorderApp = function RecorderApp(){ 
   var record = document.querySelector('.record');
   var stop = document.querySelector('.stop');
   var soundClips = document.querySelector('.sound-clips');
   var mainControls = document.querySelector('.main-controls')
+  var studentSelect = document.querySelector('.student-select');
 
   var mediaRecorder;
   var chunks = [];
   var dbHelper = new DBHelper();
-  dbHelper.populateDatabase();
+  dbHelper.populateDatabase()
+  
+  // get the students for a class
+
+  // create the elements
+
+
 
   // if there are media devices to pull from and the interface available in browser
   if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
     console.log('getUserMedia supported');
     
-    navigator.mediaDevices.getUserMedia(
-      // only audio needed for this app
-      {
-        audio:true
-      }
-    // success callback
-    ).then((stream)=>{
-      // set up the recorder
+    // get the stream to listen to
+    navigator.mediaDevices.getUserMedia({ audio:true }) // only audio needed for this app
+    // attach the stream to the recorder
+    .then((stream)=>{
       mediaRecorder = createRecorder(stream);
-    // set up the recorder buttons
-    }).then(()=>{
+    })
+    // populate the database
+    .then(()=>{
+      console.log(dbHelper)
+      console.log("do we have a dbHelper?")
+    })
+    // fill the students list
+    .then(()=>{
+
+    })
+    // add events to the recorder buttons
+    .then(()=>{
         
       // record button clicking
       record.onclick = ()=>{
@@ -133,7 +146,31 @@ const recorderApp = function RecorderApp(){
     return newBlob(audioChunks, {'type': 'audio/ogg; codecs=opus'})
   }
 
+  const generateStudents = (studentList = [])=>{
+    const studentElements = [];
+
+    studentList.forEach((student)=>{
+      const element= document.createElement('input');
+      const elementLabel = document.createElement('label');
+      const elementId = `select-${student.studentId}`;
+
+
+      element.id = elementId;
+      element.type = 'checkbox';
+      element.value = student.studentId;
+
+      elementLabel.setAttribute('for',elementId)
+      elementLabel.innerText = "Some Student";
+
+      studentElements.push(element)
+      studentElements.push(elementLabel)
+    })
+
+    return studentElements
+  }
+
   return {
     dbHelper,
+    generateStudents
   }
 }();
