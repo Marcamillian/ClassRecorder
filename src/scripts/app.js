@@ -7,11 +7,25 @@ const recorderApp = function RecorderApp(){
   var soundClips = document.querySelector('.sound-clips');
   var mainControls = document.querySelector('.main-controls')
   var studentSelect = document.querySelector('.student-select');
+  var studentSelect_studentList = document.querySelector('.sselect-page.student')
+  var studentSelect_title = document.querySelector('.student-select .title')
 
   var mediaRecorder;
   var chunks = [];
   var dbHelper = new DBHelper();
   dbHelper.populateDatabase()
+  
+  dbHelper.getClass(2)
+  .then((classObject)=>{
+    return Promise.all(classObject.attachedStudents.map((studentId)=>{
+      return dbHelper.getStudent(studentId);
+    }))
+  })
+  .then( (studentArray)=>{
+    generateStudents(studentArray).forEach((element)=>{
+      studentSelect_studentList.appendChild(element)
+    })
+  })
   
   // get the students for a class
 
@@ -149,18 +163,28 @@ const recorderApp = function RecorderApp(){
   const generateStudents = (studentList = [])=>{
     const studentElements = [];
 
-    studentList.forEach((student)=>{
+    studentList.forEach(({studentId, studentName})=>{
       const element= document.createElement('input');
       const elementLabel = document.createElement('label');
-      const elementId = `select-${student.studentId}`;
+      const elementId = `select-${studentId}`;
 
 
       element.id = elementId;
       element.type = 'checkbox';
-      element.value = student.studentId;
+      element.value = studentId;
 
       elementLabel.setAttribute('for',elementId)
-      elementLabel.innerText = "Some Student";
+      elementLabel.innerText = studentName;
+      elementLabel.addEventListener('click', (event)=>{
+        // stop the nornal operation if not active
+        if(!studentSelect.classList.contains('active')){
+          console.log("not active")
+          event.preventDefault()
+          studentSelect.classList.toggle('active')
+        }else{
+          console.log("its active now")
+        }
+      });
 
       studentElements.push(element)
       studentElements.push(elementLabel)
@@ -168,6 +192,19 @@ const recorderApp = function RecorderApp(){
 
     return studentElements
   }
+
+
+  // event listeners on elements
+  studentSelect_title.addEventListener('click',(event)=>{
+    if(!studentSelect.classList.contains('active')){
+      event.preventDefault();
+      studentSelect.classList.toggle('active')
+    }else{
+      // move to previous page
+    }
+  })
+
+
 
   return {
     dbHelper,
