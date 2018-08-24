@@ -27,7 +27,8 @@ class DBHelper{
       lessonId: undefined,
       attachedClass: undefined,
       attachedStudents: [],
-      lessonDate: undefined
+      lessonDate: undefined,
+      lessonName: 'unnamed lesson'
     }
   }
 
@@ -99,12 +100,13 @@ class DBHelper{
     lessonId = DBHelper.LESSON_MODEL.lessonId,
     attachedClass = DBHelper.LESSON_MODEL.attachedClass,
     attachedStudents = DBHelper.LESSON_MODEL.attachedStudents,
-    lessonDate = DBHelper.LESSON_MODEL.lessonDate
+    lessonDate = DBHelper.LESSON_MODEL.lessonDate,
+    lessonName = DBHelper.LESSON_MODEL.lessonName
   }){
     var dateMilisecond = new Date(lessonDate);
     lessonDate = dateMilisecond.valueOf();
 
-    this.addRecord(DBHelper.LESSON_STORE_NAME, {lessonId, attachedClass, attachedStudents, lessonDate})
+    this.addRecord(DBHelper.LESSON_STORE_NAME, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
   addStudent({
@@ -140,6 +142,15 @@ class DBHelper{
       let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
       let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
       return classStore.get(classIndex)
+    })
+  }
+
+  getLessons(classId){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(DBHelper.LESSON_STORE_NAME);
+      let lessonStore = tx.objectStore(DBHelper.LESSON_STORE_NAME);
+      
+      return lessonStore.index('by-class').getAll(classId)
     })
   }
 

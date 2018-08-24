@@ -17,8 +17,11 @@
     {"classId": 3, "className":"Julians", "attachedStudents": [7,8,9]}
   ],
   "lessons":[
-    {"lessonId":1, "attachedClass": 1, "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":2, "attachedClass": 1, "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":3, "attachedClass": 1, "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3,4]}
+    {"lessonId":1, "attachedClass": 1, "lessonName": "Mon 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
+    {"lessonId":2, "attachedClass": 1, "lessonName": "Tue 22 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
+    {"lessonId":3, "attachedClass": 1, "lessonName": "Wed 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3,4]},
+    {"lessonId":4, "attachedClass": 2, "lessonName": "Thur 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
+    {"lessonId":5, "attachedClass": 2, "lessonName": "Fri 24 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
+    {"lessonId":6, "attachedClass": 3, "lessonName": "Sat 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3,4]}
   ]
 }

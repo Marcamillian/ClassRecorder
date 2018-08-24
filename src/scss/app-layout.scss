@@ -74,7 +74,7 @@ body{
         https://stackoverflow.com/questions/4641752/css-how-to-style-a-selected-radio-buttons-label */
         
         .sselect-page{
-            display:flex;
+            display:none;
             flex-direction: column;
             justify-content:center;
 
@@ -91,7 +91,10 @@ body{
             input[type="checkbox"]:checked+label{
                 display:block;
             }
-            
+        }
+
+        .sselect-page.active{
+            display:flex;
         }
     }
 
