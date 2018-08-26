@@ -230,7 +230,7 @@ const recorderApp = function RecorderApp(){
     return studentElements
   }
 
-  const generateOptionElements = (optionLabel= "option", optionList = [])=>{
+  const generateOptionElements = (optionLabel= "option", optionList = [], multiSelect = false)=>{
     const optionElements = [];
 
     optionList.forEach(({id, labelText})=>{
@@ -249,11 +249,19 @@ const recorderApp = function RecorderApp(){
       elementLabel.addEventListener('click', (event)=>{
         // stop the nornal operation if not active
         if(!studentSelect.classList.contains('active')){
-          console.log("not active")
           event.preventDefault()
           studentSelect.classList.toggle('active')
         }else{
           console.log("its active now")
+          if(multiSelect == false){
+            // clear the setting on the other options
+            // get the container they are in
+            let optionContainer = event.target.parentNode;
+            // get all of the checkboxes in the container
+            let optionCheckboxes = optionContainer.querySelectorAll('input')
+            // clear them of the checked setting
+            optionCheckboxes.forEach(element => element.checked = false);
+          }
         }
       });
 
