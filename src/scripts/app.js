@@ -19,7 +19,8 @@ const recorderApp = function RecorderApp(){
     let currentPageIndex = 2;
 
     let nextPage = ()=>{
-      if(curentPageIndex < pages.length){
+      console.log(currentPageIndex)
+      if(currentPageIndex < pages.length){
         currentPageIndex++;
         return pages[currentPageIndex]
       }else{
@@ -241,6 +242,7 @@ const recorderApp = function RecorderApp(){
       element.id = elementId;
       element.type = 'checkbox';
       element.value = id;
+      element.onclick = progressPageOnSelect;
 
       elementLabel.setAttribute('for',elementId)
       elementLabel.innerText = labelText;
@@ -263,7 +265,8 @@ const recorderApp = function RecorderApp(){
   }
 
   const progressPageOnSelect = (event)=>{
-    console.log(event.target.value);
+    let activePage = studentSelectPageModel.nextPage();
+    showStudentSelectPage(activePage)
   }
 
   const fillOptions = ({fillPage, searchValue})=>{
@@ -327,6 +330,16 @@ const recorderApp = function RecorderApp(){
     }
   }
 
+  const showStudentSelectPage = (selectedPageName)=>{
+      // remove active class from all pages
+      let sselectPages = document.querySelectorAll('.sselect-page');
+      sselectPages.forEach( page => page.classList.remove('active'));
+
+      // add the active class to the appropriate page
+      let activePage = document.querySelector(`.sselect-page.${selectedPageName}`);
+      activePage.classList.add('active');
+  }
+
   // == EVENT LISTENERS ON STATIC ELEMENTS
 
   // event listener on the student select title
@@ -368,6 +381,10 @@ const recorderApp = function RecorderApp(){
       studentSelect.classList.add('active')
     }
   })
+
+  fillOptions({ fillPage:'class' });
+  fillOptions({ fillPage: 'lesson', searchValue: 1 });
+  fillOptions({ fillPage: 'student', searchValue: 1 })
   
 
   return {
