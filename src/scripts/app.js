@@ -13,10 +13,15 @@ const recorderApp = function RecorderApp(){
   var studentSelect_classList = document.querySelector('.sselect-page.class');
   var studentSelect_title = document.querySelector('.student-select .title');
 
-  // model for rotating page of the student selector
+  // module for selecting the players
   var studentSelectPageModel = function(){
-    let pages = ['class', 'lesson', 'student'];
-    let currentPageIndex = 2;
+    let pages = ['class', 'lesson', 'student']; // list of pages
+    let currentPageIndex = 2; // current page the student select is on
+    let selectedOptions = {
+      class: undefined, // classId from the database
+      lesson: undefined,  // lessonID from the database
+      student:[] // studentIDs from the database
+    }
 
     let nextPage = ()=>{
       console.log(currentPageIndex)
@@ -43,6 +48,7 @@ const recorderApp = function RecorderApp(){
     let getPageNames = ()=>{
       return pages.slice(0)
     }
+    let selectOption
 
     return {
       nextPage,
