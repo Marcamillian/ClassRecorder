@@ -47,7 +47,8 @@ class StudentSelectPageModel {
     }
 
     selectOption(option){
-      let modelSlot = this.selectedOptions[this.pages[this.currentPageIndex]];
+      let optionName = this.pages[this.currentPageIndex]
+      let modelSlot = this.selectedOptions[optionName];
 
       // == dealing with options with more than one value
       if(Array.isArray(modelSlot)){
@@ -57,23 +58,24 @@ class StudentSelectPageModel {
           modelSlot.push(option)
         }else{
           // filter out the ones that match (toggle option off)
-          modelSlot = modelSlot.filter((optionId)=>{ return optionId != option  })
+          this.selectedOptions[optionName] = modelSlot.filter((optionId)=>{ return optionId != option  })
         }
         
       }else{
-        this.selectedOptions[this.pages[this.currentPageIndex]] = option;
+        this.selectedOptions[optionName] = option;
       }
 
-      return this.selectedOptions[this.pages[this.currentPageIndex]]
+      return this.selectedOptions[optionName]
     }
 
     clearOption(){
-      let modelSlot = this.selectedOptions[this.pages[this.currentPageIndex]];
+      let optionName = this.pages[this.currentPageIndex]
+      let modelSlot = this.selectedOptions[optionName];
 
       if(Array.isArray(modelSlot)){ // if the option is an array
-        this.selectedOptions[this.pages[this.currentPageIndex]] = []
+        this.selectedOptions[optionName] = []
       }else{
-        this.selectedOptions[this.pages[this.currentPageIndex]] = undefined;
+        this.selectedOptions[optionName] = undefined;
       }
     }
     

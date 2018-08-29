@@ -159,7 +159,7 @@ const recorderApp = function RecorderApp(){
     return studentElements
   }
 
-  const generateOptionElements = (optionLabel= "option", optionList = [], multiSelect = false)=>{
+  const generateOptionElements = ({optionLabel= "option", optionList = [], multiSelect = false, selectedOptions = []})=>{
     const optionElements = [];
 
     optionList.forEach(({id, labelText})=>{
@@ -172,6 +172,7 @@ const recorderApp = function RecorderApp(){
       element.type = 'checkbox';
       element.value = id;
       element.onclick = selectOption;
+      if(selectedOptions.includes(id)) element.checked = true;
 
       elementLabel.setAttribute('for',elementId)
       elementLabel.innerText = labelText;
@@ -217,7 +218,7 @@ const recorderApp = function RecorderApp(){
     updateStudentSelectDisplay();
   }
 
-  const fillOptions = ({fillPage, selectedClass})=>{
+  const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
     var options;
 
     switch(fillPage){
@@ -225,7 +226,7 @@ const recorderApp = function RecorderApp(){
         // clear the class page
 
           // fill the class list
-        dbHelper.getClasses()
+        return dbHelper.getClasses()
         .then( classObjects =>{
           return classObjects.map( classObject =>{
             return {id:classObject.classId, labelText: classObject.className}
@@ -234,7 +235,10 @@ const recorderApp = function RecorderApp(){
         .then( optionObjects =>{
 
           emptyHTML(studentSelect_classList);
-          generateOptionElements('class',optionObjects).forEach(( element )=>{
+          return generateOptionElements({optionLabel:'class', optionList:optionObjects, selectedOptions})
+        })
+        .then( optionElements =>{
+          optionElements.forEach(( element )=>{
             studentSelect_classList.appendChild(element)
           })
         })
@@ -243,7 +247,7 @@ const recorderApp = function RecorderApp(){
 
         // TODO: clear the lesson page
         
-        dbHelper.getLessons(selectedClass)
+        return dbHelper.getLessons(selectedClass)
         .then((lessonsForClass)=>{
           // format data for options generator
           return lessonsForClass.map( lessonObject =>{
@@ -252,7 +256,7 @@ const recorderApp = function RecorderApp(){
         })
         .then( (optionObjects)=>{
           // generate the elements
-          return generateOptionElements('lesson', optionObjects)
+          return generateOptionElements({optionLabel:'lesson', optionList:optionObjects, selectedOptions})
         })
         .then( lessonElements =>{
           emptyHTML(studentSelect_lessonList);
@@ -266,7 +270,7 @@ const recorderApp = function RecorderApp(){
       case 'student':
         // TODO: Remove the students
 
-        dbHelper.getClass(selectedClass)
+        return dbHelper.getClass(selectedClass)
         .then((classObject)=>{
           return Promise.all(classObject.attachedStudents.map((studentId)=>{
             return dbHelper.getStudent(studentId);
@@ -278,7 +282,7 @@ const recorderApp = function RecorderApp(){
           })
         })
         .then(( optionObjects )=>{
-          return generateOptionElements('student', optionObjects)
+          return generateOptionElements({optionLabel:'student', optionList:optionObjects, multiSelect:true, selectedOptions})
         })
         .then( (studentElements)=>{
           emptyHTML(studentSelect_studentList)
@@ -314,16 +318,20 @@ const recorderApp = function RecorderApp(){
 
     // if no class selected - show the classes
     if(selectState.class == undefined){
-      fillOptions({fillPage:'class'})
-      showStudentSelectPage('class')
+      fillOptions({fillPage:'class', selectedOptions: [selectState.class]}).then(()=>{
+        showStudentSelectPage('class')
+      })
     }else if(selectState.lesson == undefined){
       // no lesson selected - show the lessons
-      fillOptions({fillPage: 'lesson', selectedClass: selectState.class})
-      showStudentSelectPage('lesson')
+      fillOptions({fillPage: 'lesson', selectedClass: selectState.class, selectedOptions:[selectState.lesson] }).then(()=>{
+        showStudentSelectPage('lesson')
+      })
+      
     }else{
       // students are selected - show the students
-      fillOptions({fillPage: 'student', selectedClass: selectState.class})
-      showStudentSelectPage('student')
+      fillOptions({fillPage: 'student', selectedClass: selectState.class, selectedOptions:selectState.student }).then(()=>{
+        showStudentSelectPage('student')
+      })
     }
 
   }
