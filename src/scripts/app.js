@@ -14,108 +14,24 @@ const recorderApp = function RecorderApp(){
   var studentSelect_title = document.querySelector('.student-select .title');
 
   // module for selecting the players
-  var studentSelectPageModel = function(){
-    let pages = ['class', 'lesson', 'student']; // list of pages
-    let currentPageIndex = 2; // current page the student select is on
-    let selectedOptions = {
-      class: undefined, // classId from the database
-      lesson: undefined,  // lessonID from the database
-      student:[] // studentIDs from the database
-    }
+  var studentSelectModel = new StudentSelectPageModel();
 
-    let nextPage = ()=>{
-      console.log(currentPageIndex)
-      if(currentPageIndex < pages.length){
-        currentPageIndex++;
-        return pages[currentPageIndex]
-      }else{
-        throw new Error('Page limit reached - At end of page')
-        return pages.slice(-1)
-      }
-    }
-    let prevPage = ()=>{
-      if(currentPageIndex > 0 ){
-        currentPageIndex --;
-        return pages[currentPageIndex]
-      }else{
-        throw new Error('Page limit reached - At start of pages')
-        return pages.slice(0,1);
-      }
-    }
-    let getPage = ()=>{
-      return pages[currentPageIndex]
-    }
-    let getPageNames = ()=>{
-      return pages.slice(0)
-    }
-    let selectOption
-
-    return {
-      nextPage,
-      prevPage,
-      getPage,
-      getPageNames
-    }
-  }();
+  // data helper
+  var dbHelper = new DBHelper();
 
   // media recording things
   var mediaRecorder;
   var chunks = [];
-  var dbHelper = new DBHelper();
-  var selectedClass = undefined;
   
   // populate data to the database
   dbHelper.populateDatabase()
 
 
 
-  // if there are media devices to pull from and the interface available in browser
-  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-    console.log('getUserMedia supported');
-    
-    // get the stream to listen to
-    navigator.mediaDevices.getUserMedia({ audio:true }) // only audio needed for this app
-    // attach the stream to the recorder
-    .then((stream)=>{
-      mediaRecorder = createRecorder(stream);
-    })
-    // populate the database
-    .then(()=>{
-      console.log(dbHelper)
-      console.log("do we have a dbHelper?")
-    })
-    // fill the students list
-    .then(()=>{
 
-    })
-    // add events to the recorder buttons
-    .then(()=>{
-        
-      // record button clicking
-      record.onclick = ()=>{
-        mediaRecorder.start();
-        console.log(mediaRecorder.state);
-        console.log(`recorder started`);
-        mainControls.classList.add('recording');
-      }
 
-        // stop button clicking
-      stop.onclick = ()=>{
-        mediaRecorder.stop();
-        console.log(mediaRecorder.state)
-        console.log("recorder stopped")
-        mainControls.classList.remove('recording');
-      }
-    })
-    // error handler
-    .catch((err)=>{
-      console.log(`The following getUserMedia error occured: ${err}`)
-    })
-  }else{
-      console.log(`getUserMedia not supported on your browser`)
-  }
+  // == RECORDER FUNCTIONS == 
 
-  // == FUNCTIONS
 
   // create the media recorder object from a stream
   const createRecorder = (stream)=>{
@@ -191,16 +107,23 @@ const recorderApp = function RecorderApp(){
   // store an audio clip in the database
   const storeAudioClip = ({
     audioBlob,
-    clipName = `audio clip ${new Date()}`,
+    clipName,
     clipTags = []
   })=>{
-    
+    clipName = (clipName == undefined) ? `audioclip-${new Date()}` : clipName;
   }
 
   // combine audio chunks into one file
   const mergeChunks = (audioChunks)=>{
     return newBlob(audioChunks, {'type': 'audio/ogg; codecs=opus'})
   }
+
+
+
+
+
+  // === DISPLAY FUNCTIONS === 
+
 
   // generate html for student elements to select
   const generateStudents = (studentList = [])=>{
@@ -248,7 +171,7 @@ const recorderApp = function RecorderApp(){
       element.id = elementId;
       element.type = 'checkbox';
       element.value = id;
-      element.onclick = progressPageOnSelect;
+      element.onclick = selectOption;
 
       elementLabel.setAttribute('for',elementId)
       elementLabel.innerText = labelText;
@@ -278,12 +201,23 @@ const recorderApp = function RecorderApp(){
     return optionElements
   }
 
-  const progressPageOnSelect = (event)=>{
-    let activePage = studentSelectPageModel.nextPage();
-    showStudentSelectPage(activePage)
+  const selectOption = (event)=>{
+    // set the option
+    studentSelectModel.selectOption(Number(event.target.value))
+    // change the page
+    try{
+      let activePage = studentSelectModel.nextPage();
+    }catch(e){
+      if(/Page limit reached/i.test(e.message)){
+        console.log("end page")
+      }
+    }
+    
+    // display the new page
+    updateStudentSelectDisplay();
   }
 
-  const fillOptions = ({fillPage, searchValue})=>{
+  const fillOptions = ({fillPage, selectedClass})=>{
     var options;
 
     switch(fillPage){
@@ -298,6 +232,8 @@ const recorderApp = function RecorderApp(){
           })
         })
         .then( optionObjects =>{
+
+          emptyHTML(studentSelect_classList);
           generateOptionElements('class',optionObjects).forEach(( element )=>{
             studentSelect_classList.appendChild(element)
           })
@@ -307,7 +243,7 @@ const recorderApp = function RecorderApp(){
 
         // TODO: clear the lesson page
         
-        dbHelper.getLessons(searchValue)
+        dbHelper.getLessons(selectedClass)
         .then((lessonsForClass)=>{
           // format data for options generator
           return lessonsForClass.map( lessonObject =>{
@@ -319,6 +255,7 @@ const recorderApp = function RecorderApp(){
           return generateOptionElements('lesson', optionObjects)
         })
         .then( lessonElements =>{
+          emptyHTML(studentSelect_lessonList);
           // add each element to the right page
           lessonElements.forEach(lessonElement => {
             studentSelect_lessonList.appendChild(lessonElement)
@@ -329,15 +266,24 @@ const recorderApp = function RecorderApp(){
       case 'student':
         // TODO: Remove the students
 
-        dbHelper.getClass(searchValue)
+        dbHelper.getClass(selectedClass)
         .then((classObject)=>{
           return Promise.all(classObject.attachedStudents.map((studentId)=>{
             return dbHelper.getStudent(studentId);
           }))
         })
         .then( (studentArray)=>{
-          generateStudents(studentArray).forEach((element)=>{
-            studentSelect_studentList.appendChild(element)
+          return studentArray.map( studentObject =>{
+            return {id: studentObject.studentId, labelText: studentObject.studentName}
+          })
+        })
+        .then(( optionObjects )=>{
+          return generateOptionElements('student', optionObjects)
+        })
+        .then( (studentElements)=>{
+          emptyHTML(studentSelect_studentList)
+          studentElements.forEach( studentElement =>{
+            studentSelect_studentList.appendChild(studentElement)
           })
         })
       break
@@ -354,7 +300,84 @@ const recorderApp = function RecorderApp(){
       activePage.classList.add('active');
   }
 
-  // == EVENT LISTENERS ON STATIC ELEMENTS
+  const emptyHTML = (htmlElement)=>{
+    while(htmlElement.children.length > 0){
+      htmlElement.children[0].remove()
+    }
+    return htmlElement
+  }
+
+  // === populate the studentSelectPages from the current studentSelectModel
+  const updateStudentSelectDisplay = ()=>{
+
+    let selectState = studentSelectModel.getSelectedOptions();
+
+    // if no class selected - show the classes
+    if(selectState.class == undefined){
+      fillOptions({fillPage:'class'})
+      showStudentSelectPage('class')
+    }else if(selectState.lesson == undefined){
+      // no lesson selected - show the lessons
+      fillOptions({fillPage: 'lesson', selectedClass: selectState.class})
+      showStudentSelectPage('lesson')
+    }else{
+      // students are selected - show the students
+      fillOptions({fillPage: 'student', selectedClass: selectState.class})
+      showStudentSelectPage('student')
+    }
+
+  }
+
+
+
+  //    ==   IMPLEMENTATION DETAILS    == 
+
+
+ // if there are media devices to pull from and the interface available in browser
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    console.log('getUserMedia supported');
+    
+    // get the stream to listen to
+    navigator.mediaDevices.getUserMedia({ audio:true }) // only audio needed for this app
+    // attach the stream to the recorder
+    .then((stream)=>{
+      mediaRecorder = createRecorder(stream);
+    })
+    // populate the database
+    .then(()=>{
+      console.log(dbHelper)
+      console.log("do we have a dbHelper?")
+    })
+    // fill the students list
+    .then(()=>{
+
+    })
+    // add events to the recorder buttons
+    .then(()=>{
+        
+      // record button clicking
+      record.onclick = ()=>{
+        mediaRecorder.start();
+        console.log(mediaRecorder.state);
+        console.log(`recorder started`);
+        mainControls.classList.add('recording');
+      }
+
+        // stop button clicking
+      stop.onclick = ()=>{
+        mediaRecorder.stop();
+        console.log(mediaRecorder.state)
+        console.log("recorder stopped")
+        mainControls.classList.remove('recording');
+      }
+    })
+    // error handler
+    .catch((err)=>{
+      console.log(`The following getUserMedia error occured: ${err}`)
+    })
+  }else{
+      console.log(`getUserMedia not supported on your browser`)
+  }
 
   // event listener on the student select title
   studentSelect_title.addEventListener('click',(event)=>{
@@ -366,15 +389,11 @@ const recorderApp = function RecorderApp(){
       event.cancelBubble = true;
       // move to previous page
       try{
-        selectedPageName = studentSelectPageModel.prevPage() || 'class'
-
-        // remove active class from all pages
-        let sselectPages = document.querySelectorAll('.sselect-page');
-        sselectPages.forEach( page => page.classList.remove('active'));
-
-        // add the active class to the appropriate page
-        let activePage = document.querySelector(`.sselect-page.${selectedPageName}`);
-        activePage.classList.add('active');
+        // clear the selected option
+        studentSelectModel.clearOption();
+        // go to next page
+        selectedPageName = studentSelectModel.prevPage() || 'class'
+        showStudentSelectPage(selectedPageName);
           
       }catch(error){
         if(/Page limit reached/i.test(error.message)){
@@ -396,16 +415,16 @@ const recorderApp = function RecorderApp(){
     }
   })
 
-  fillOptions({ fillPage:'class' });
-  fillOptions({ fillPage: 'lesson', searchValue: 1 });
-  fillOptions({ fillPage: 'student', searchValue: 1 })
-  
+  // display the current student select list
+  updateStudentSelectDisplay();
+
 
   return {
     dbHelper,
     generateStudents,
     generateOptionElements,
-    studentSelectPageModel,
-    fillOptions
+    studentSelectModel,
+    fillOptions,
+    updateStudentSelectDisplay
   }
 }();

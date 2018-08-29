@@ -1,3 +1,5 @@
+'use strict';
+
 class StudentSelectPageModel {
 
     constructor( initalPage = 0 ){
@@ -78,4 +80,4 @@ class StudentSelectPageModel {
 
 }
 
-module.exports = StudentSelectPageModel;
+//module.exports = StudentSelectPageModel;
