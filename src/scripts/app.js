@@ -3,31 +3,27 @@
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
   // html elements
-  var record = document.querySelector('.record');
-  var stop = document.querySelector('.stop');
-  var soundClips = document.querySelector('.sound-clips');
-  var mainControls = document.querySelector('.main-controls')
+  var recordButton = document.querySelector('button.button-record');
+
   var studentSelect = document.querySelector('.student-select');
   var studentSelect_studentList = document.querySelector('.sselect-page.student');
   var studentSelect_lessonList = document.querySelector('.sselect-page.lesson');
   var studentSelect_classList = document.querySelector('.sselect-page.class');
   var studentSelect_title = document.querySelector('.student-select .title');
 
+  var playbackContainer = document.querySelector('.tab-body.playback');
+
   // module for selecting the players
-  var studentSelectModel = new StudentSelectPageModel();
+  let studentSelectModel = new StudentSelectPageModel();
 
   // data helper
-  var dbHelper = new DBHelper();
+  let dbHelper = new DBHelper();
 
   // media recording things
   var mediaRecorder;
-  var chunks = [];
+  let chunks = [];
+
   
-  // populate data to the database
-  dbHelper.populateDatabase()
-
-
-
 
 
   // == RECORDER FUNCTIONS == 
@@ -36,7 +32,7 @@ const recorderApp = function RecorderApp(){
   // create the media recorder object from a stream
   const createRecorder = (stream)=>{
 
-    let recorder = new MediaRecorder(stream);
+    let recorder = new MediaRecorder(stream)
 
     // event listener for when each chunk is ready
     recorder.ondataavailable = (e)=>{
@@ -73,8 +69,21 @@ const recorderApp = function RecorderApp(){
       }
     }
 
-
     return recorder;
+  }
+
+  const getStream = ()=>{
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      console.log('getUserMedia supported');
+      
+      // get the stream to listen to
+      return navigator.mediaDevices.getUserMedia({ audio:true }) // only audio needed for this app
+      .catch((err)=>{
+        console.log(`The following getUserMedia error occured: ${err}`)
+      })
+    }else{
+      console.log(`getUserMedia not supported on your browser`)
+    }
   }
 
   // generate a html block for the playback of an element
@@ -118,6 +127,26 @@ const recorderApp = function RecorderApp(){
     return newBlob(audioChunks, {'type': 'audio/ogg; codecs=opus'})
   }
 
+  const toggleRecord = (event)=>{
+
+    mediaRecorder.then((recorder)=>{
+      switch(recorder.state){
+        case 'inactive':
+          recorder.start()
+          event.target.parentNode.classList.add('recording');
+        break;
+        case 'recording':
+          recorder.stop();
+          event.target.parentNode.classList.remove('recording');
+        break;
+        case 'paused':
+        break;
+      }
+      
+      console.log(recorder.state)
+    })
+    
+  }
 
 
 
@@ -125,40 +154,7 @@ const recorderApp = function RecorderApp(){
   // === DISPLAY FUNCTIONS === 
 
 
-  // generate html for student elements to select
-  const generateStudents = (studentList = [])=>{
-    const studentElements = [];
-
-    studentList.forEach(({studentId, studentName})=>{
-      const element= document.createElement('input');
-      const elementLabel = document.createElement('label');
-      const elementId = `select-${studentId}`;
-
-
-      element.id = elementId;
-      element.type = 'checkbox';
-      element.value = studentId;
-
-      elementLabel.setAttribute('for',elementId)
-      elementLabel.innerText = studentName;
-      elementLabel.addEventListener('click', (event)=>{
-        // stop the nornal operation if not active
-        if(!studentSelect.classList.contains('active')){
-          console.log("not active")
-          event.preventDefault()
-          studentSelect.classList.toggle('active')
-        }else{
-          console.log("its active now")
-        }
-      });
-
-      studentElements.push(element)
-      studentElements.push(elementLabel)
-    })
-
-    return studentElements
-  }
-
+  // generate elements to fill the list with clickable options
   const generateOptionElements = ({optionLabel= "option", optionList = [], multiSelect = false, selectedOptions = []})=>{
     const optionElements = [];
 
@@ -369,53 +365,12 @@ const recorderApp = function RecorderApp(){
   //    ==   IMPLEMENTATION DETAILS    == 
 
 
- // if there are media devices to pull from and the interface available in browser
-  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-    console.log('getUserMedia supported');
-    
-    // get the stream to listen to
-    navigator.mediaDevices.getUserMedia({ audio:true }) // only audio needed for this app
-    // attach the stream to the recorder
-    .then((stream)=>{
-      mediaRecorder = createRecorder(stream);
-    })
-    // populate the database
-    .then(()=>{
-      console.log(dbHelper)
-      console.log("do we have a dbHelper?")
-    })
-    // fill the students list
-    .then(()=>{
+  // populate data to the database
+  dbHelper.populateDatabase()
 
-    })
-    // add events to the recorder buttons
-    .then(()=>{
-        
-      // record button clicking
-      record.onclick = ()=>{
-        mediaRecorder.start();
-        console.log(mediaRecorder.state);
-        console.log(`recorder started`);
-        mainControls.classList.add('recording');
-      }
+  mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
 
-        // stop button clicking
-      stop.onclick = ()=>{
-        mediaRecorder.stop();
-        console.log(mediaRecorder.state)
-        console.log("recorder stopped")
-        mainControls.classList.remove('recording');
-      }
-    })
-    // error handler
-    .catch((err)=>{
-      console.log(`The following getUserMedia error occured: ${err}`)
-    })
-  }else{
-      console.log(`getUserMedia not supported on your browser`)
-  }
-
-  // event listener on the student select title
+  // event listener on the student select title to go back a page
   studentSelect_title.addEventListener('click',(event)=>{
 
     let selectedPageName;
@@ -442,7 +397,7 @@ const recorderApp = function RecorderApp(){
     }
   })
 
-  // event listener to expand the student select if necessary
+  // event listener to expand the student select 
   studentSelect.addEventListener('click',()=>{
     if(studentSelect.classList.contains('active')){
       studentSelect.classList.remove('active')
@@ -451,16 +406,21 @@ const recorderApp = function RecorderApp(){
     }
   })
 
+  // add eventListener to the record button
+  recordButton.onclick = toggleRecord;
+
+  
+
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
 
 
   return {
     dbHelper,
-    generateStudents,
-    generateOptionElements,
     studentSelectModel,
-    fillOptions,
-    updateStudentSelectDisplay
+    mediaRecorder,
+    updateStudentSelectDisplay,
+    createRecorder,
+    getStream
   }
 }();

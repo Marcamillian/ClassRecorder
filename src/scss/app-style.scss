@@ -42,6 +42,9 @@ nav{
       background-color: white;
       border-radius:100%;
   }
+  .button-record.recording{
+      background-color:$rec-accent-color;
+  }
 
   .student-select{
     background-color:white;
@@ -65,6 +68,10 @@ nav{
     
   }
   
+}
+
+.tab-body.playback{
+    background-color:$listen-pri-color;
 }
 
 .shadow {
