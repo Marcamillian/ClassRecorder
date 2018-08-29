@@ -145,6 +145,15 @@ class DBHelper{
     })
   }
 
+  getLesson(lessonId){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(DBHelper.LESSON_STORE_NAME);
+      let lessonStore = tx.objectStore(DBHelper.LESSON_STORE_NAME)
+
+      return lessonStore.get(lessonId)
+    })
+  }
+
   getLessons(classId){
     return this.dbPromise.then( db =>{
       let tx = db.transaction(DBHelper.LESSON_STORE_NAME);

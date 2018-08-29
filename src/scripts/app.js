@@ -215,7 +215,7 @@ const recorderApp = function RecorderApp(){
     }
     
     // display the new page
-    updateStudentSelectDisplay();
+    updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
   }
 
   const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
@@ -311,10 +311,12 @@ const recorderApp = function RecorderApp(){
     return htmlElement
   }
 
-  // === populate the studentSelectPages from the current studentSelectModel
-  const updateStudentSelectDisplay = ()=>{
+  const setSelectTitle = (titleText)=>{
+    studentSelect_title.innerText = titleText;
+  }
 
-    let selectState = studentSelectModel.getSelectedOptions();
+  // === populate the studentSelectPages from the current studentSelectModel
+  const updateStudentSelectDisplay = (selectState)=>{
 
     // if no class selected - show the classes
     if(selectState.class == undefined){
@@ -333,6 +335,32 @@ const recorderApp = function RecorderApp(){
         showStudentSelectPage('student')
       })
     }
+
+    updateStudentSelectTitle(selectState);
+  }
+  
+  const updateStudentSelectTitle = (selectState)=>{
+    
+    let requests = []
+
+    if(selectState.class) requests.push(dbHelper.getClass(selectState.class))
+    if(selectState.lesson) requests.push(dbHelper.getLesson(selectState.lesson))
+
+    Promise.all(requests)
+    .then((response)=>{
+      let titleText = "";
+      
+      switch(response.length){
+        case 2: // class & lesson
+          titleText = ' | '.concat(response[1].lessonName)
+        case 1: // class only
+          titleText = response[0].className.concat(titleText)
+        default:
+          titleText = "◀ ".concat(titleText)
+      }
+
+      setSelectTitle(titleText);  
+    })
 
   }
 
@@ -424,7 +452,7 @@ const recorderApp = function RecorderApp(){
   })
 
   // display the current student select list
-  updateStudentSelectDisplay();
+  updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
 
 
   return {
