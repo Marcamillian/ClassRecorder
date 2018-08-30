@@ -41,25 +41,21 @@ const recorderApp = function RecorderApp(){
 
       // event listener when all of the data is recorded
     recorder.onstop = (e)=>{
-      var clipName = prompt('Enter a name for your sound clip');
 
-      var clipContainer = document.createElement('article');
-      var clipLabel = document.createElement('p');
-      var audio = document.createElement('audio');
-      var deleteButton = document.createElement('button');
+      // TODO : Update this to work with the new format
 
-      clipContainer.classList.add('clip');
-      audio.setAttribute('controls', '');
-      deleteButton.innerHTML = "Delete";
-      clipLabel.innerHTML = clipName;
-
-      clipContainer.appendChild(audio);
-      clipContainer.appendChild(clipLabel);
-      clipContainer.appendChild(deleteButton);
-      soundClips.appendChild(clipContainer);
-
+      // combine the audio chunks into a single blob
       var blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'});
+      let tags = studentSelectModel.getSelectedOptions()
+
+
+      // reset the chunks
       chunks = [];
+
+      // store the audio clip in the database
+      storeAudioClip({audioBlob: blob, classId: tags.class, lessonId: tags.lesson, studentIds: tags.student})
+
+      /*
       var audioURL = window.URL.createObjectURL(blob);
       audio.src= audioURL;
 
@@ -67,6 +63,7 @@ const recorderApp = function RecorderApp(){
         var evtTgt = e.target;
         evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode)
       }
+      */
     }
 
     return recorder;
@@ -86,40 +83,14 @@ const recorderApp = function RecorderApp(){
     }
   }
 
-  // generate a html block for the playback of an element
-  const genPlaybackBlock = ({
-    clipName = "audio clip",
-    audioURL = undefined,
-  }= {})=>{
-    var clipContainer = document.createElement('article');
-    var clipLabel = document.createElement('p');
-    var audio = document.createElement('audio');
-    var deleteButton = document.createElement('button');
-
-    clipContainer.classList.add('audio-clip');
-    audio.setAttribute('controls','');
-    deleteButton.innerText = "Delete Clip";
-    clipName.innerText = clipName;
-
-    deleteButton.onclick = (e)=>{
-      var evtTgt = e.target;
-      evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
-    }
-
-    clipContainer.appendChild(deleteButton);
-    clipContainer.appendChild(clipLabel);
-    clipContainer.appendChild(audio);
-    
-    return clipContainer;
-  }
-
   // store an audio clip in the database
   const storeAudioClip = ({
     audioBlob,
-    clipName,
-    clipTags = []
+    classId,
+    lessonId,
+    studentIds
   })=>{
-    clipName = (clipName == undefined) ? `audioclip-${new Date()}` : clipName;
+    return dbHelper.addClip({classId, lessonId, studentIds, audioData:audioBlob})
   }
 
   // combine audio chunks into one file
@@ -240,8 +211,6 @@ const recorderApp = function RecorderApp(){
         })
       break;
       case 'lesson':
-
-        // TODO: clear the lesson page
         
         return dbHelper.getLessons(selectedClass)
         .then((lessonsForClass)=>{
@@ -264,7 +233,6 @@ const recorderApp = function RecorderApp(){
         
       break;
       case 'student':
-        // TODO: Remove the students
 
         return dbHelper.getClass(selectedClass)
         .then((classObject)=>{
@@ -360,6 +328,46 @@ const recorderApp = function RecorderApp(){
 
   }
 
+  const updateClipList = (clipId)=>{
+    dbHelper.getClip(clipId).then((clipObject)=>{
+      var audioURL = window.URL.createObjectURL(clipObject.audioData);
+      let clipElement = generatePlaybackBlock({clipName: "some clip", audioURL})
+  
+      playbackContainer.appendChild(clipElement);
+    })
+  }
+
+  // generate a html block for the playback of an element
+  const generatePlaybackBlock = ({
+    clipName = "audio clip",
+    audioURL = undefined,
+  }= {})=>{
+    var clipContainer = document.createElement('article');
+    var clipLabel = document.createElement('p');
+    var audioElement = document.createElement('audio');
+    var deleteButton = document.createElement('button');
+
+    clipContainer.classList.add('audio-clip');
+
+    clipLabel.innerText = clipName;
+
+    audioElement.setAttribute('controls','');
+    audioElement.src= audioURL;
+
+    deleteButton.innerText = "Delete Clip";
+
+    deleteButton.onclick = (e)=>{
+      var evtTgt = e.target;
+      evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
+    }
+
+    clipContainer.appendChild(deleteButton);
+    clipContainer.appendChild(clipLabel);
+    clipContainer.appendChild(audioElement);
+    
+    return clipContainer;
+  }
+
 
 
   //    ==   IMPLEMENTATION DETAILS    == 
@@ -409,7 +417,6 @@ const recorderApp = function RecorderApp(){
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
 
-  
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
@@ -420,7 +427,6 @@ const recorderApp = function RecorderApp(){
     studentSelectModel,
     mediaRecorder,
     updateStudentSelectDisplay,
-    createRecorder,
-    getStream
+    updateClipList
   }
 }();

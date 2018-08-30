@@ -34,6 +34,7 @@ class DBHelper{
 
   static get CLIP_MODEL(){
     return {
+      clipId: undefined,
       attachedLesson: undefined,
       attachedStudents: [],
       audioData: undefined
@@ -65,6 +66,9 @@ class DBHelper{
       switch(upgradeDb.oldVersion){
         case 0:
           var clipStore = upgradeDb.createObjectStore( DBHelper.CLIP_STORE_NAME, {autoIncrement:true})
+          clipStore.createIndex('by-date', 'recordedDate');
+          clipStore.createIndex('by-class','classId');
+          clipStore.createIndex('by-lesson','lessonId');
 
           var studentStore = upgradeDb.createObjectStore( DBHelper.STUDENT_STORE_NAME, {keyPath: 'studentId'});
           studentStore.createIndex('by-name', 'studentName');
@@ -74,7 +78,7 @@ class DBHelper{
 
           var lessonStore = upgradeDb.createObjectStore( DBHelper.LESSON_STORE_NAME, {keyPath:'lessonId'} )
           lessonStore.createIndex('by-date', 'lessonDate');
-          lessonStore.createIndex('by-class', 'attachedClass');  
+          lessonStore.createIndex('by-class', 'attachedClass');
       }
     })
   }
@@ -116,14 +120,11 @@ class DBHelper{
     this.addRecord(DBHelper.STUDENT_STORE_NAME, {studentId, studentName})
   }
 
-  addClip({
-    attachedLesson = DBHelper.CLIP_MODEL.attachedLesson,
-    attchedStudents = DBHelper.CLIP_MODEL.attachedStudents,
-    audioData = DBHelper.CLIP_MODEL.audioData
-  }){
+  addClip({ classId, lessonId, studentIds, audioData }){
     this.addRecord(DBHelper.CLIP_STORE_NAME, {
-      attachedLesson,
-      attachedStudents,
+      classId,
+      lessonId,
+      studentIds,
       audioData,
       recordedDate:new Date()
     })
@@ -168,6 +169,56 @@ class DBHelper{
       let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
       let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
       return classStore.getAll()
+    })
+  }
+
+  getClip(clipId){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(DBHelper.CLIP_STORE_NAME);
+      let clipStore = tx.objectStore(DBHelper.CLIP_STORE_NAME);
+      return clipStore.get(clipId)
+    })
+  }
+
+  getClipsByClass(classId){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(DBHelper.CLIP_STORE_NAME);
+      let clipStore = tx.objectStore(DBHelper.CLIP_STORE_NAME);
+
+      return clipStore.index('by-class').getAll(classId);
+    })
+  }
+
+  getClipsByLesson(lessonId){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction( DBHelper.CLIP_STORE_NAME);
+      let clipStore = tx.objectStore(DBHelper.CLIP_STORE_NAME);
+
+      return clipStore.index('by-lesson').getAll(lessonId);
+    })
+  }
+
+  getClipsByStudent(studentId){
+    // rework to prevent having to check all clips
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction( DBHelper.CLIP_STORE_NAME);
+      let clipStore = tx.objectStore(DBHelper.CLIP_STORE_NAME);
+      let clips = [];
+
+      clipStore.openCursor()
+      .then(function checkClipForStudentId(cursor){
+
+        // exit condtion
+        if(cursor == undefined) return 
+
+        let clipObject = cursor.value;
+        // check if student attached to the clip
+        if( clipObject.studentIds.includes(studentId) ) clips.push(cursor)
+        // progress to the next clip
+        return cursor.continue().then( checkClipForStudentId )
+      })
+
+      return tx.complete.then( () => clips)
     })
   }
 
