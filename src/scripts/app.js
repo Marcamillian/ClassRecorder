@@ -42,12 +42,9 @@ const recorderApp = function RecorderApp(){
       // event listener when all of the data is recorded
     recorder.onstop = (e)=>{
 
-      // TODO : Update this to work with the new format
-
       // combine the audio chunks into a single blob
       var blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'});
       let tags = studentSelectModel.getSelectedOptions()
-
 
       // reset the chunks
       chunks = [];
@@ -55,15 +52,6 @@ const recorderApp = function RecorderApp(){
       // store the audio clip in the database
       storeAudioClip({audioBlob: blob, classId: tags.class, lessonId: tags.lesson, studentIds: tags.student})
 
-      /*
-      var audioURL = window.URL.createObjectURL(blob);
-      audio.src= audioURL;
-
-      deleteButton.onclick = (e)=>{
-        var evtTgt = e.target;
-        evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode)
-      }
-      */
     }
 
     return recorder;

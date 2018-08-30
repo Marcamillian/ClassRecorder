@@ -213,7 +213,7 @@ class DBHelper{
 
         let clipObject = cursor.value;
         // check if student attached to the clip
-        if( clipObject.studentIds.includes(studentId) ) clips.push(cursor)
+        if( clipObject.studentIds.includes(studentId) ) clips.push(clipObject)
         // progress to the next clip
         return cursor.continue().then( checkClipForStudentId )
       })
