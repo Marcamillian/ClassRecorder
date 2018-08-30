@@ -157,6 +157,37 @@ const recorderApp = function RecorderApp(){
     return optionElements
   }
 
+  // generate a html block for the playback of an element
+  const generatePlaybackBlock = ({
+    clipName = "audio clip",
+    audioURL = undefined,
+  }= {})=>{
+    var clipContainer = document.createElement('article');
+    var clipLabel = document.createElement('p');
+    var audioElement = document.createElement('audio');
+    var deleteButton = document.createElement('button');
+
+    clipContainer.classList.add('audio-clip');
+
+    clipLabel.innerText = clipName;
+
+    audioElement.setAttribute('controls','');
+    audioElement.src= audioURL;
+
+    deleteButton.innerText = "Delete Clip";
+
+    deleteButton.onclick = (e)=>{
+      var evtTgt = e.target;
+      evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
+    }
+
+    clipContainer.appendChild(deleteButton);
+    clipContainer.appendChild(clipLabel);
+    clipContainer.appendChild(audioElement);
+    
+    return clipContainer;
+  }
+
   const selectOption = (event)=>{
     // set the option
     studentSelectModel.selectOption(Number(event.target.value))
@@ -267,8 +298,8 @@ const recorderApp = function RecorderApp(){
     studentSelect_title.innerText = titleText;
   }
 
-  // === populate the studentSelectPages from the current studentSelectModel
-  const updateStudentSelectDisplay = (selectState)=>{
+   // === populate the studentSelectPages from the current studentSelectModel
+   const updateStudentSelectDisplay = (selectState)=>{
 
     // if no class selected - show the classes
     if(selectState.class == undefined){
@@ -316,44 +347,46 @@ const recorderApp = function RecorderApp(){
 
   }
 
-  const updateClipList = (clipId)=>{
+  const updateClipList = (searchType, searchKey)=>{
+
+    let clipRequest;
+
+    switch(searchType){
+      case "class":
+        clipRequest = dbHelper.getClipsByClass(searchKey);
+      break;
+      case "lesson":
+        clipRequest = dbHelper.getClipsByLesson(searchKey);
+      break;
+      case "student":
+        clipRequest = dbHelper.getClipsByStudent(searchKey);
+      break;
+      default:
+        throw new Error(`Cannot get clips from db: searchType ${searchType} not supported`)
+    }
+
+    clipRequest.then( clipObjects =>{
+
+      // remove the current clips
+      emptyHTML(playbackContainer);
+
+      // add the new clips in
+      clipObjects.forEach((clipObject)=>{
+
+        let audioURL = window.URL.createObjectURL(clipObject.audioData);
+        let clipName = `${ clipObject.recordedDate }`
+
+        playbackContainer.appendChild(generatePlaybackBlock( {clipName, audioURL} ))
+      })
+    })
+
+    /*
     dbHelper.getClip(clipId).then((clipObject)=>{
       var audioURL = window.URL.createObjectURL(clipObject.audioData);
       let clipElement = generatePlaybackBlock({clipName: "some clip", audioURL})
   
       playbackContainer.appendChild(clipElement);
-    })
-  }
-
-  // generate a html block for the playback of an element
-  const generatePlaybackBlock = ({
-    clipName = "audio clip",
-    audioURL = undefined,
-  }= {})=>{
-    var clipContainer = document.createElement('article');
-    var clipLabel = document.createElement('p');
-    var audioElement = document.createElement('audio');
-    var deleteButton = document.createElement('button');
-
-    clipContainer.classList.add('audio-clip');
-
-    clipLabel.innerText = clipName;
-
-    audioElement.setAttribute('controls','');
-    audioElement.src= audioURL;
-
-    deleteButton.innerText = "Delete Clip";
-
-    deleteButton.onclick = (e)=>{
-      var evtTgt = e.target;
-      evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
-    }
-
-    clipContainer.appendChild(deleteButton);
-    clipContainer.appendChild(clipLabel);
-    clipContainer.appendChild(audioElement);
-    
-    return clipContainer;
+    })*/
   }
 
 
