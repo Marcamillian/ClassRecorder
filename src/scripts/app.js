@@ -436,14 +436,18 @@ const recorderApp = function RecorderApp(){
   const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
 
     let filterButton = document.createElement('button');
-    let classSection;
+
+    let sectionPromises = []
 
 
     filterButton.innerText = 'Filter';
     filterButton.onclick = ()=>{console.log("Trying to filter")}
+
     
+    // == CREATE CLASS SECTION
+
     // get class data
-    dbHelper.getClasses()
+    sectionPromises[0] = dbHelper.getClasses()
     // process to right format for generating option elements
     .then( (classObjects)  =>{
       return classObjects.map( ({ classId, className }) =>{
@@ -460,41 +464,103 @@ const recorderApp = function RecorderApp(){
       })
     
     })
-    // attach all the elements to the document
+    // attach options to section and return section
     .then( optionElements =>{
 
-      
       // generate the section container
-      classSection = generateFilterSectionElement({sectionName:'Class', active:true});
+      let classSection = generateFilterSectionElement({sectionName:'Class', active:true});
       
       optionElements.forEach( element =>{
         classSection.appendChild(element)  
       })
 
-
+      return classSection;
       // do this towards the end when everything returned
+      /*
       emptyHTML(clipFilterContainer);
       clipFilterContainer.appendChild(filterButton);
       clipFilterContainer.appendChild(classSection);
+      */
     })
 
     
-    // nothing defined
-      // generate class list
-    // class defined
-      // generate class - selected
-      // generate lesson list
-    // lesson defined
-      // generate class - selected
-      // generate lesson - selected
-      // generate student list
-    // student defined
-      // generate class - selected
-      // generate lesson - selected
-      // generate student list - selected
+    // == CREATE LESSON SECTION
+
+    // if we have a class we need to show the lesson list
+    if(filterState.class != undefined){
+      // get the lesson data - adding promise to the list
+      sectionPromises[1] = dbHelper.getLessons(filterState.class)
+      // process into option element format
+      .then( lessonObjects =>{
+        return lessonObjects.map( ({lessonId, lessonName }) =>{
+          return {id: lessonId, labelText: lessonName}
+        })
+      })
+      // generate option elements
+      .then ( optionObjects =>{
+        return generateOptionElements({
+          optionLabel: `filter-lesson`,
+          optionList: optionObjects,
+          selectedOptions: [filterState.lesson],
+          clickFunction: (event)=>{ filterOptionSelect({event, optionType: 'lesson'}) }
+        })
+      })
+      // then attach options to lesson and return section
+      .then ( optionElements =>{
+        let lessonSection = generateFilterSectionElement({sectionName:'Lesson', active:true})
+        optionElements.forEach( element => lessonSection.appendChild(element) )
+        return lessonSection;
+      })
+    }
+    
+    
+    // == CREATE STUDENT SECTION
+
+    // if we have a lesson we need to show a student list
+    if(filterState.lesson != undefined){
+      // get the students in the class
+      sectionPromises[2] = dbHelper.getClass(filterState.class)
+      // get each student in the class
+      .then( ({attachedStudents}) =>{
+        return Promise.all( attachedStudents.map( studentId =>{
+          return dbHelper.getStudent(studentId)
+        }))
+      })
+      // format studentObjects into option format
+      .then( studentObjects =>{
+        return studentObjects.map( ({studentId, studentName}) =>{
+          return {id: studentId, labelText: studentName}
+        })
+      })
+      // generate option elements
+      .then( optionObjects =>{
+        return generateOptionElements({
+          optionLabel: 'filter-student',
+          optionList: optionObjects,
+          selectedOptions: [filterState.student],
+          clickFunction: (event)=>{ filterOptionSelect({event, optionType: 'student'})}
+        })
+      })
+      // attach option elements to section element and return
+      .then( optionElements =>{
+        let studentSection = generateFilterSectionElement({sectionName: 'Student', active: true})
+        optionElements.forEach( element => studentSection.appendChild(element) );
+        return studentSection
+      })
+    }
 
 
-
+    Promise.all(sectionPromises)
+    .then( filterSections =>{
+      // clear the container
+      emptyHTML(clipFilterContainer)
+      // add the filter button
+      clipFilterContainer.appendChild(filterButton)
+      filterSections.forEach( section =>{
+        clipFilterContainer.appendChild(section);
+      })
+    })
+    
   }
 
 
