@@ -79,3 +79,31 @@ nav{
     -webkit-box-shadow:  6px 6px 10px #0000007e;
     box-shadow:          6px 6px 10px #0000007e;
  }
+
+ .clip-filter{
+    background-color:white;
+ }
+
+
+ /* Style the checkbox options */
+.option-div{
+
+    /* when not active hide labels that arn't checked*/
+    label{
+        color:$sec-text;
+    }
+
+    input[type="checkbox"]:checked+label{
+        color:$pri-text;
+    }
+}
+
+.option-div.active{
+
+
+    /* show the labels when the container is active*/
+    label{
+        display:block;
+    }
+
+}

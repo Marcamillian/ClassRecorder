@@ -117,4 +117,57 @@ body{
     }
 }
 
+.tab-body.playback{
+
+  .clip-filter{
+    width:70%;
+
+    display:flex;
+    flex-direction:column;
+
+    font-size: 1rem;
+    text-align:center;
+    padding-top:1rem;
+    padding-bottom: 1rem;
+
+    border-radius:4rem;
+
+    transition: height 1s, width 1s;
+  }
+
+  .clip-filter.active{
+    position:absolute;
+    height:80%;
+  }
+
+}
+
+.option-div{
+
+    /* hide the checkboxes*/
+    input[type="checkbox"]{
+        display:none;
+    }
+
+    /* when not active hide labels that arn't checked*/
+    label{
+        display:none;
+    }
+
+    input[type="checkbox"]:checked+label{
+        display:block;
+    }
+}
+
+.option-div.active{
+
+
+    /* show the labels when the container is active*/
+    label{
+        display:block;
+    }
+
+}
+
+
 

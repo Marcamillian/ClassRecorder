@@ -12,10 +12,11 @@ const recorderApp = function RecorderApp(){
   var studentSelect_title = document.querySelector('.student-select .title');
 
   var playbackContainer = document.querySelector('.tab-body.playback');
+  var clipFilterContainer = document.querySelector('.clip-filter');
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
-  let filterSelectModel = new FilterModel();  // for selecting the clip filter
+  let clipFilterModel = new FilterModel();  // for selecting the clip filter
 
   // data helper
   let dbHelper = new DBHelper();
@@ -114,7 +115,13 @@ const recorderApp = function RecorderApp(){
 
 
   // generate elements to fill the list with clickable options
-  const generateOptionElements = ({optionLabel= "option", optionList = [], multiSelect = false, selectedOptions = []})=>{
+  const generateOptionElements = ({
+    optionLabel= "option",
+    optionList = [],
+    multiSelect = false,
+    selectedOptions = [],
+    clickFunction = ()=>{console.log("default click function")}
+  })=>{
     const optionElements = [];
 
     optionList.forEach(({id, labelText})=>{
@@ -126,29 +133,11 @@ const recorderApp = function RecorderApp(){
       element.id = elementId;
       element.type = 'checkbox';
       element.value = id;
-      element.onclick = selectOption;
+      element.onclick = clickFunction;
       if(selectedOptions.includes(id)) element.checked = true;
 
       elementLabel.setAttribute('for',elementId)
       elementLabel.innerText = labelText;
-      elementLabel.addEventListener('click', (event)=>{
-        // stop the nornal operation if not active
-        if(!studentSelect.classList.contains('active')){
-          event.preventDefault()
-          studentSelect.classList.toggle('active')
-        }else{
-          console.log("its active now")
-          if(multiSelect == false){
-            // clear the setting on the other options
-            // get the container they are in
-            let optionContainer = event.target.parentNode;
-            // get all of the checkboxes in the container
-            let optionCheckboxes = optionContainer.querySelectorAll('input')
-            // clear them of the checked setting
-            optionCheckboxes.forEach(element => element.checked = false);
-          }
-        }
-      });
 
       optionElements.push(element)
       optionElements.push(elementLabel)
@@ -188,20 +177,47 @@ const recorderApp = function RecorderApp(){
     return clipContainer;
   }
 
-  const selectOption = (event)=>{
-    // set the option
-    studentSelectModel.selectOption(Number(event.target.value))
-    // change the page
-    try{
-      let activePage = studentSelectModel.nextPage();
-    }catch(e){
-      if(/Page limit reached/i.test(e.message)){
-        console.log("end page")
+  const generateFilterSectionElement = ({ sectionName= "default", active= false })=>{
+    let sectionTitle = document.createElement('h2');
+    let filterSection = document.createElement('section');
+
+    sectionTitle.innerText = sectionName;
+
+    filterSection.classList.add(`${sectionName}-filter`, 'option-div')
+    if(active) filterSection.classList.add('active');
+
+    filterSection.appendChild(sectionTitle);
+
+    return filterSection;
+  }
+
+  const studentSelectOptionClicked = (event)=>{
+
+    // if student select maximised - select the option
+    if(studentSelect.classList.contains('active')){
+      
+      // prevent from bubling up to the student select
+      event.preventDefault();
+
+      // set the option
+      studentSelectModel.selectOption(Number(event.target.value))
+      // change the page
+      try{
+        let activePage = studentSelectModel.nextPage();
+      }catch(e){
+        if(/Page limit reached/i.test(e.message)){
+          console.log("end page")
+        }
       }
+      
+      // display the new page
+      updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
+
+    }else{
+      
     }
+
     
-    // display the new page
-    updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
   }
 
   const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
@@ -221,7 +237,7 @@ const recorderApp = function RecorderApp(){
         .then( optionObjects =>{
 
           emptyHTML(studentSelect_classList);
-          return generateOptionElements({optionLabel:'class', optionList:optionObjects, selectedOptions})
+          return generateOptionElements({optionLabel:'sselect-class', optionList:optionObjects, selectedOptions, clickFunction:studentSelectOptionClicked})
         })
         .then( optionElements =>{
           optionElements.forEach(( element )=>{
@@ -240,7 +256,7 @@ const recorderApp = function RecorderApp(){
         })
         .then( (optionObjects)=>{
           // generate the elements
-          return generateOptionElements({optionLabel:'lesson', optionList:optionObjects, selectedOptions})
+          return generateOptionElements({optionLabel:'sselect-lesson', optionList:optionObjects, selectedOptions, clickFunction: studentSelectOptionClicked})
         })
         .then( lessonElements =>{
           emptyHTML(studentSelect_lessonList);
@@ -265,7 +281,11 @@ const recorderApp = function RecorderApp(){
           })
         })
         .then(( optionObjects )=>{
-          return generateOptionElements({optionLabel:'student', optionList:optionObjects, multiSelect:true, selectedOptions})
+          return generateOptionElements({
+            optionLabel:'sselect-student',
+            optionList:optionObjects,
+            multiSelect:true, selectedOptions,
+            clickFunction: studentSelectOptionClicked})
         })
         .then( (studentElements)=>{
           emptyHTML(studentSelect_studentList)
@@ -391,6 +411,66 @@ const recorderApp = function RecorderApp(){
 
 
   //    ==  PLAYBACK PAGE FUNCTIONS
+  const updateFilterDisplay = ()=>{
+    let filterState = clipFilterModel.filterSettings;
+    let filterButton = document.createElement('button');
+    let classSection;
+
+    filterButton.innerText = 'Filter';
+    filterButton.onclick = ()=>{console.log("Trying to filter")}
+    
+    // get class data
+    dbHelper.getClasses()
+    // process to right format for generating option elements
+    .then( (classObjects)  =>{
+      return classObjects.map( ({ classId, className }) =>{
+        return {id: classId, labelText: className}
+      })
+    })
+    // generate the option elements
+    .then( ( optionObjects )=>{
+      return generateOptionElements({
+        optionLabel:'filter-class',
+        optionList: optionObjects,
+        selectedOptions:[filterState.class]
+      })
+    // attach all the elements to the document
+    }).then( optionElements =>{
+
+      
+      // generate the section container
+      classSection = generateFilterSectionElement({sectionName:'Class', active:true});
+      
+      optionElements.forEach( element =>{
+        classSection.appendChild(element)  
+      })
+
+
+      // do this towards the end when everything returned
+      emptyHTML(clipFilterContainer);
+      clipFilterContainer.appendChild(filterButton);
+      clipFilterContainer.appendChild(classSection);
+    })
+
+    
+    // nothing defined
+      // generate class list
+    // class defined
+      // generate class - selected
+      // generate lesson list
+    // lesson defined
+      // generate class - selected
+      // generate lesson - selected
+      // generate student list
+    // student defined
+      // generate class - selected
+      // generate lesson - selected
+      // generate student list - selected
+
+
+
+  }
+
 
 
   //    ==   IMPLEMENTATION DETAILS    == 
@@ -401,6 +481,7 @@ const recorderApp = function RecorderApp(){
 
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
 
+  /*
   // event listener on the student select title to go back a page
   studentSelect_title.addEventListener('click',(event)=>{
 
@@ -427,15 +508,28 @@ const recorderApp = function RecorderApp(){
 
     }
   })
+  */
 
+  
   // event listener to expand the student select 
-  studentSelect.addEventListener('click',()=>{
+  studentSelect.addEventListener('click',(event)=>{
+
+    let overrideElementClicked = ['LABEL','INPUT', 'H2'].includes(event.target.nodeName);
+
+    // if student select is active
     if(studentSelect.classList.contains('active')){
-      studentSelect.classList.remove('active')
+      // && element clicked isn't a label or a heading
+      if( !overrideElementClicked ){
+        // collapse the student select
+        studentSelect.classList.remove('active')
+      } 
     }else{
       studentSelect.classList.add('active')
     }
+
+    
   })
+  
 
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
@@ -450,6 +544,8 @@ const recorderApp = function RecorderApp(){
     studentSelectModel,
     mediaRecorder,
     updateStudentSelectDisplay,
-    updateClipList
+    updateClipList,
+    updateFilterDisplay,
+    studentSelect
   }
 }();
