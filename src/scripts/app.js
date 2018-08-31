@@ -108,8 +108,30 @@ const recorderApp = function RecorderApp(){
     
   }
 
+  const filterOptionSelect = ({event, optionType})=>{
 
+    let optionId = Number(event.target.value);
 
+    // set the new filter
+    switch(optionType){
+      case 'class':
+        clipFilterModel.setFilter({filterType: optionType, filterOption: optionId});
+      break;
+      case 'lesson':
+        clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+      break;
+      case 'student':
+        clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+      break;
+      default:
+        throw new Error(`Invalid filterType: ${optionType}`)
+      break;
+    }
+
+    // update the display
+    updateFilterDisplay()
+
+  }
 
   // === DISPLAY FUNCTIONS === 
 
@@ -411,10 +433,11 @@ const recorderApp = function RecorderApp(){
 
 
   //    ==  PLAYBACK PAGE FUNCTIONS
-  const updateFilterDisplay = ()=>{
-    let filterState = clipFilterModel.filterSettings;
+  const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
+
     let filterButton = document.createElement('button');
     let classSection;
+
 
     filterButton.innerText = 'Filter';
     filterButton.onclick = ()=>{console.log("Trying to filter")}
@@ -432,10 +455,13 @@ const recorderApp = function RecorderApp(){
       return generateOptionElements({
         optionLabel:'filter-class',
         optionList: optionObjects,
-        selectedOptions:[filterState.class]
+        selectedOptions:[filterState.class],
+        clickFunction:(event)=>{ filterOptionSelect({event,optionType:'class'}) }
       })
+    
+    })
     // attach all the elements to the document
-    }).then( optionElements =>{
+    .then( optionElements =>{
 
       
       // generate the section container
@@ -481,7 +507,7 @@ const recorderApp = function RecorderApp(){
 
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
 
-  /*
+  
   // event listener on the student select title to go back a page
   studentSelect_title.addEventListener('click',(event)=>{
 
@@ -508,7 +534,7 @@ const recorderApp = function RecorderApp(){
 
     }
   })
-  */
+  
 
   
   // event listener to expand the student select 
@@ -537,7 +563,7 @@ const recorderApp = function RecorderApp(){
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
-
+  updateFilterDisplay()
 
   return {
     dbHelper,
