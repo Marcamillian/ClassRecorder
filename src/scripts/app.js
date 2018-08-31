@@ -15,6 +15,7 @@ const recorderApp = function RecorderApp(){
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
+  let filterSelectModel = new FilterModel();  // for selecting the clip filter
 
   // data helper
   let dbHelper = new DBHelper();
@@ -22,7 +23,6 @@ const recorderApp = function RecorderApp(){
   // media recording things
   var mediaRecorder;
   let chunks = [];
-
   
 
 
@@ -389,6 +389,8 @@ const recorderApp = function RecorderApp(){
     })*/
   }
 
+
+  //    ==  PLAYBACK PAGE FUNCTIONS
 
 
   //    ==   IMPLEMENTATION DETAILS    == 

@@ -1,5 +1,5 @@
 let test = require('tape');
-let PageModel = require('../src/scripts/studentSelectModel.js');
+let PageModel = require('../src/scripts/StudentSelectModel.js');
 
 //console.log(pageModel)
 
