@@ -127,7 +127,29 @@ nav{
     .audio-clip{
         background-color:white;
         padding:1em;
-        border-radius:2em;
+        border-top-left-radius: 40px 50%;
+        border-top-right-radius: 40px 50%;
+        border-bottom-left-radius: 40px 50%;
+        border-bottom-right-radius: 40px 50%;
         margin:2em;
+
+        .clip-info{
+            .clip-class-lesson{
+                color:$pri-text;
+                font-size:1.5em;
+            }
+
+            .clip-students, .clip-name{
+                color:$sec-text;
+                font-size:1.5em;
+            }
+        }
+
+
+        .clip-play-button{
+            background-color: $listen-accent-color;
+            border-radius:100%;
+            border:10px solid $sec-text;
+        }
     }
 }
