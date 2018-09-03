@@ -14,7 +14,8 @@ const recorderApp = function RecorderApp(){
   var playbackContainer = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
   var clipListDisplay = document.querySelector('.clip-list');
-  let clipFilterButton = document.querySelector('.clip-filter-button')
+  let clipFilterButton = document.querySelector('.clip-filter-button');
+  let filterOptionContainer = document.querySelector('.filter-option-container');
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
@@ -550,10 +551,10 @@ const recorderApp = function RecorderApp(){
       // make the last one in the list active
       filterSections[filterSections.length-1].classList.add('active');
       // clear the container
-      emptyHTML(clipFilterContainer)
+      emptyHTML(filterOptionContainer)
       // add the filter button
       filterSections.forEach( section =>{
-        clipFilterContainer.appendChild(section);
+        filterOptionContainer.appendChild(section);
       })
     })
     
