@@ -14,7 +14,7 @@ $pri-text: #212121;
 $sec-text: #757575;
 $divider-color: #BDBDBD;
 
-html{
+html, button{
     font-family: 'Varela Round', sans-serif;
 }
 
@@ -80,9 +80,23 @@ nav{
     box-shadow:          6px 6px 10px #0000007e;
  }
 
- .clip-filter{
+.clip-filter{
     background-color:white;
- }
+    
+    .clip-filter-button{
+        background-color:$rec-pri-color;
+        color:$pri-text;
+        text-align:center;
+        border:none;
+    }
+
+    .option-div{
+        h2{
+            color:$listen-pri-color;
+            font-weight:normal;
+        }
+    }
+}
 
 
  /* Style the checkbox options */
@@ -99,11 +113,21 @@ nav{
 }
 
 .option-div.active{
-
-
     /* show the labels when the container is active*/
     label{
         display:block;
     }
+}
 
+// style the list of clips
+.clip-list{
+
+    overflow:scroll;
+
+    .audio-clip{
+        background-color:white;
+        padding:1em;
+        border-radius:2em;
+        margin:2em;
+    }
 }

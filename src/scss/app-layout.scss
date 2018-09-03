@@ -124,6 +124,7 @@ body{
 
     display:flex;
     flex-direction:column;
+    align-items:center;
 
     font-size: 1rem;
     text-align:center;
@@ -133,12 +134,20 @@ body{
     border-radius:4rem;
 
     transition: height 1s, width 1s;
+
+    .clip-filter-button{
+        width:80%;
+        padding:1em;
+        border-radius:1em;
+        font-weight:bold;
+    }
   }
 
   .clip-filter.active{
-    position:absolute;
     height:80%;
   }
+
+
 
 }
 
