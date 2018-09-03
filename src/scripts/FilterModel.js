@@ -18,6 +18,13 @@ class FilterModel{
 
   setFilter({filterType, filterOption}){
     
+    // if the option is being re-selected
+    if(this.selectedFilter[filterType] == filterOption){
+      // toggle off filter option
+      filterOption = undefined;
+      console.log("toggle off filter option");
+    }
+
     switch(filterType){
       case "class":
         this.selectedFilter.class = filterOption;

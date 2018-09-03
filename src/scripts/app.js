@@ -13,10 +13,15 @@ const recorderApp = function RecorderApp(){
 
   var playbackContainer = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
+  var clipListDisplay = document.querySelector('.clip-list');
+  let clipFilterButton = document.querySelector('.clip-filter-button')
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
+
+  // == for the clip filter
   let clipFilterModel = new FilterModel();  // for selecting the clip filter
+  
 
   // data helper
   let dbHelper = new DBHelper();
@@ -24,6 +29,7 @@ const recorderApp = function RecorderApp(){
   // media recording things
   var mediaRecorder;
   let chunks = [];
+
   
 
 
@@ -108,28 +114,36 @@ const recorderApp = function RecorderApp(){
     
   }
 
-  const filterOptionSelect = ({event, optionType})=>{
+  const filterOptionSelectClicked = ({event, optionType})=>{
 
     let optionId = Number(event.target.value);
 
-    // set the new filter
-    switch(optionType){
-      case 'class':
-        clipFilterModel.setFilter({filterType: optionType, filterOption: optionId});
-      break;
-      case 'lesson':
-        clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
-      break;
-      case 'student':
-        clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
-      break;
-      default:
-        throw new Error(`Invalid filterType: ${optionType}`)
-      break;
-    }
+    // prevent if filterSelectContainer is not active
+    if(!clipFilterContainer.classList.contains('active')){
+      // set the new filter
+      switch(optionType){
+        case 'class':
+          clipFilterModel.setFilter({filterType: optionType, filterOption: optionId});
+        break;
+        case 'lesson':
+          clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+        break;
+        case 'student':
+          clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+        break;
+        default:
+          throw new Error(`Invalid filterType: ${optionType}`)
+        break;
+      }
 
-    // update the display
-    updateFilterDisplay()
+      // update the display
+      updateFilterDisplay()
+
+    }else{
+      // prevent from bubbling to the clipFilterContainer
+      event.preventDefault();
+      return;
+    }
 
   }
 
@@ -389,7 +403,7 @@ const recorderApp = function RecorderApp(){
 
   }
 
-  const updateClipList = (searchType, searchKey)=>{
+  const updateClipList = ({searchType, searchKey})=>{
 
     let clipRequest;
 
@@ -410,7 +424,7 @@ const recorderApp = function RecorderApp(){
     clipRequest.then( clipObjects =>{
 
       // remove the current clips
-      emptyHTML(playbackContainer);
+      emptyHTML(clipListDisplay);
 
       // add the new clips in
       clipObjects.forEach((clipObject)=>{
@@ -418,31 +432,17 @@ const recorderApp = function RecorderApp(){
         let audioURL = window.URL.createObjectURL(clipObject.audioData);
         let clipName = `${ clipObject.recordedDate }`
 
-        playbackContainer.appendChild(generatePlaybackBlock( {clipName, audioURL} ))
+        clipListDisplay.appendChild(generatePlaybackBlock( {clipName, audioURL} ))
       })
     })
 
-    /*
-    dbHelper.getClip(clipId).then((clipObject)=>{
-      var audioURL = window.URL.createObjectURL(clipObject.audioData);
-      let clipElement = generatePlaybackBlock({clipName: "some clip", audioURL})
-  
-      playbackContainer.appendChild(clipElement);
-    })*/
   }
 
 
   //    ==  PLAYBACK PAGE FUNCTIONS
   const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
 
-    let filterButton = document.createElement('button');
-
     let sectionPromises = []
-
-
-    filterButton.innerText = 'Filter';
-    filterButton.onclick = ()=>{console.log("Trying to filter")}
-
     
     // == CREATE CLASS SECTION
 
@@ -460,7 +460,7 @@ const recorderApp = function RecorderApp(){
         optionLabel:'filter-class',
         optionList: optionObjects,
         selectedOptions:[filterState.class],
-        clickFunction:(event)=>{ filterOptionSelect({event,optionType:'class'}) }
+        clickFunction:(event)=>{ filterOptionSelectClicked({event,optionType:'class'}) }
       })
     
     })
@@ -468,19 +468,13 @@ const recorderApp = function RecorderApp(){
     .then( optionElements =>{
 
       // generate the section container
-      let classSection = generateFilterSectionElement({sectionName:'Class', active:true});
+      let classSection = generateFilterSectionElement({sectionName:'Class'});
       
       optionElements.forEach( element =>{
         classSection.appendChild(element)  
       })
 
       return classSection;
-      // do this towards the end when everything returned
-      /*
-      emptyHTML(clipFilterContainer);
-      clipFilterContainer.appendChild(filterButton);
-      clipFilterContainer.appendChild(classSection);
-      */
     })
 
     
@@ -502,12 +496,12 @@ const recorderApp = function RecorderApp(){
           optionLabel: `filter-lesson`,
           optionList: optionObjects,
           selectedOptions: [filterState.lesson],
-          clickFunction: (event)=>{ filterOptionSelect({event, optionType: 'lesson'}) }
+          clickFunction: (event)=>{ filterOptionSelectClicked({event, optionType: 'lesson'}) }
         })
       })
       // then attach options to lesson and return section
       .then ( optionElements =>{
-        let lessonSection = generateFilterSectionElement({sectionName:'Lesson', active:true})
+        let lessonSection = generateFilterSectionElement({sectionName:'Lesson'})
         optionElements.forEach( element => lessonSection.appendChild(element) )
         return lessonSection;
       })
@@ -538,12 +532,12 @@ const recorderApp = function RecorderApp(){
           optionLabel: 'filter-student',
           optionList: optionObjects,
           selectedOptions: [filterState.student],
-          clickFunction: (event)=>{ filterOptionSelect({event, optionType: 'student'})}
+          clickFunction: (event)=>{ filterOptionSelectClicked({event, optionType: 'student'})}
         })
       })
       // attach option elements to section element and return
       .then( optionElements =>{
-        let studentSection = generateFilterSectionElement({sectionName: 'Student', active: true})
+        let studentSection = generateFilterSectionElement({sectionName: 'Student'})
         optionElements.forEach( element => studentSection.appendChild(element) );
         return studentSection
       })
@@ -552,10 +546,12 @@ const recorderApp = function RecorderApp(){
 
     Promise.all(sectionPromises)
     .then( filterSections =>{
+
+      // make the last one in the list active
+      filterSections[filterSections.length-1].classList.add('active');
       // clear the container
       emptyHTML(clipFilterContainer)
       // add the filter button
-      clipFilterContainer.appendChild(filterButton)
       filterSections.forEach( section =>{
         clipFilterContainer.appendChild(section);
       })
@@ -618,14 +614,47 @@ const recorderApp = function RecorderApp(){
     }else{
       studentSelect.classList.add('active')
     }
-
     
+  })
+
+  // event listener to expand the filter
+  clipFilterContainer.addEventListener('click',(event)=>{
+
+    let overrideElementClicked = ['BUTTON','LABEL', 'INPUT', 'H2'].includes(event.target.nodeNode);
+
+    // if clip filter active
+    if(clipFilterContainer.classList.contains('active')){
+      if(!overrideElementClicked) clipFilterContainer.classList.remove('active')
+    }else{
+      clipFilterContainer.classList.add('active')
+    }
+
   })
   
 
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
+  clipFilterButton.onclick = (event)=>{
+    let filterSettings = clipFilterModel.filterSettings;
+    let filterType;
+    let searchKey;
 
+    if(filterSettings.student != undefined){
+      filterType = 'student';
+      searchKey = filterSettings.student
+    }else if(filterSettings.lesson != undefined){
+      filterType = 'lesson';
+      searchKey = filterSettings.lesson
+    }else if( filterSettings.class != undefined){
+      filterType = 'class';
+      searchKey = filterSettings.class
+    }else{
+      throw new Error('No filter settings applied');
+      return;
+    }
+
+    updateClipList({searchType: filterType, searchKey})
+  }
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
@@ -634,10 +663,6 @@ const recorderApp = function RecorderApp(){
   return {
     dbHelper,
     studentSelectModel,
-    mediaRecorder,
-    updateStudentSelectDisplay,
-    updateClipList,
-    updateFilterDisplay,
-    studentSelect
+    
   }
 }();
