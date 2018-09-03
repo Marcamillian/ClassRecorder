@@ -470,19 +470,36 @@ const recorderApp = function RecorderApp(){
         throw new Error(`Cannot get clips from db: searchType ${searchType} not supported`)
     }
 
+    // get the clip information
     clipRequest.then( clipObjects =>{
 
-      
       // remove the current clips
       emptyHTML(clipListDisplay);
+
+
+      // get the data for the class/lesson/student info
 
       // add the new clips in
       clipObjects.forEach((clipObject)=>{
 
-        let audioURL = window.URL.createObjectURL(clipObject.audioData);
-        let clipName = `${ clipObject.recordedDate }`
+        // get the details of the classes/lessons/students attached to the clip
+        return dbHelper.getCompleteInfo({
+          classId:clipObject.classId,
+          lessonId:clipObject.lessonId,
+          studentIds:clipObject.studentIds
+        }).then( clipInfo =>{
 
-        clipListDisplay.appendChild(generateAudioClip( {clipName, audioURL} ))
+          let studentNames = clipInfo.students.map(studentObject => studentObject.studentName)
+
+
+          let audioURL = window.URL.createObjectURL(clipObject.audioData);
+          let clipTitle = `${clipInfo.class.className} | ${clipInfo.lesson.lessonName}`
+          let clipStudents = studentNames.join(", ");
+
+
+          clipListDisplay.appendChild(generateAudioClip( {audioURL, clipTitle, clipStudents} ))
+        })
+        
       })
     })
 
@@ -712,7 +729,6 @@ const recorderApp = function RecorderApp(){
 
   return {
     dbHelper,
-    studentSelectModel,
-    
+    studentSelectModel
   }
 }();

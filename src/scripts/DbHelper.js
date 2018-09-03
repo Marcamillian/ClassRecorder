@@ -138,6 +138,10 @@ class DBHelper{
     })
   }
 
+  getStudents(studentIndexArray){
+    return Promise.all(studentIndexArray.map( studentId => { return this.getStudent(studentId)} ))
+  }
+
   getClass(classIndex){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
@@ -219,6 +223,26 @@ class DBHelper{
       })
 
       return tx.complete.then( () => clips)
+    })
+  }
+
+  getCompleteInfo({classId, lessonId, studentIds}){
+    
+    if(classId == undefined || lessonId == undefined || studentIds == undefined){
+      throw new Error(`Complete info not provided | Class:${classId}, lesson:${lessonId}, student:${studentIds}`)
+    }
+
+    return Promise.all([
+      this.getClass(classId),
+      this.getLesson(lessonId),
+      this.getStudents(studentIds)
+    ])
+    .then( infoObjects=>{
+      return {
+        class:infoObjects[0],
+        lesson:infoObjects[1],
+        students:infoObjects[2]
+      }
     })
   }
 
