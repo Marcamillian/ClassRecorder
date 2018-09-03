@@ -214,6 +214,54 @@ const recorderApp = function RecorderApp(){
     return clipContainer;
   }
 
+  const generateAudioClip = ({
+    clipTitle = "Title",
+    clipName = 'audio clip',
+    clipStudents = "Some Students",
+    audioURL = undefined
+  }={})=>{
+    let clipContainer = document.createElement('article');
+    let clipInfoContainer = document.createElement('div')
+    let clipTitleElement = document.createElement('h3');
+    let clipStudentsElement = document.createElement('p');
+    let clipNameElement = document.createElement('p');
+    let audioElement = document.createElement('audio');
+    let playButton = document.createElement('button');
+    let playButtonImage = document.createElement('img')
+
+    // add classes to all containers
+    clipContainer.classList.add('audio-clip');
+    clipInfoContainer.classList.add('clip-info');
+    clipTitleElement.classList.add('clip-class-lesson');
+    clipStudentsElement.classList.add('clip-students');
+    playButton.classList.add('clip-play-button', 'shadow');
+
+    // fill in all the text
+    clipTitleElement.innerText = clipTitle;
+    clipStudentsElement.innerText = clipStudents;
+
+    // attach the audio element to the sound data
+    audioElement.src= audioURL
+
+    playButtonImage.src="img/play-button.svg";
+    // set the event listener on the play button
+    playButton.onclick = ()=>{
+      audioElement.play();
+    }
+
+    clipContainer.appendChild(clipInfoContainer);
+    // populate the clip info
+    clipInfoContainer.appendChild(clipTitleElement);
+    clipInfoContainer.appendChild(clipStudentsElement);
+    clipInfoContainer.appendChild(clipNameElement);
+
+    // attach the playButton
+    clipContainer.appendChild(playButton);
+    playButton.appendChild(playButtonImage);
+
+    return clipContainer;
+  }
+
   const generateFilterSectionElement = ({ sectionName= "default", active= false })=>{
     let sectionTitle = document.createElement('h2');
     let filterSection = document.createElement('section');
@@ -424,6 +472,7 @@ const recorderApp = function RecorderApp(){
 
     clipRequest.then( clipObjects =>{
 
+      
       // remove the current clips
       emptyHTML(clipListDisplay);
 
@@ -433,7 +482,7 @@ const recorderApp = function RecorderApp(){
         let audioURL = window.URL.createObjectURL(clipObject.audioData);
         let clipName = `${ clipObject.recordedDate }`
 
-        clipListDisplay.appendChild(generatePlaybackBlock( {clipName, audioURL} ))
+        clipListDisplay.appendChild(generateAudioClip( {clipName, audioURL} ))
       })
     })
 
