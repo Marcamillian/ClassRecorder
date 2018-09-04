@@ -145,11 +145,20 @@ body{
     }
   }
 
-  .clip-filter.active{
-    height:80%;
+  .clip-filter .filter-option-container{
+      display:none;
+  }
+  .clip-filter.active .filter-option-container{
+      display:block;
   }
 
+  .clip-filter .clip-filter-title{
+    display:inherit;
+  }
 
+  .clip-filter.active .clip-filter-title{
+    display:none;
+  }
 
 }
 
