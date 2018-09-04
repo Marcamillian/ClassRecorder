@@ -246,6 +246,24 @@ class DBHelper{
     })
   }
 
+  getNames({classId, lessonId, studentIds}){
+    // get relevant objects if defined
+
+    return Promise.all([
+      this.getClass(classId).then((value)=>{ return value}  , ()=>{return undefined}),
+      this.getLesson(lessonId).then((value)=>{ return value}, ()=>{return undefined}),
+      this.getStudents(studentIds).then( studentObjects => studentObjects.map(student => student.studentName), ()=>{return undefined} )
+    ]).then( responses =>{
+      return {
+        className: ( responses[0] != undefined) ? responses[0].className : undefined,
+        lessonName: ( responses[1] != undefined) ? responses[1].lessonName : undefined,
+        studentNames: (responses[2] != undefined) ? responses[2] : undefined
+      }
+    })
+
+
+  }
+
   populateDatabase(){
     fetch(DBHelper.DATA_URL)
     .then((response) =>{ return response.json() })

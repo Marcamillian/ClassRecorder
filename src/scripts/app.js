@@ -18,6 +18,7 @@ const recorderApp = function RecorderApp(){
   var clipListDisplay = document.querySelector('.clip-list');
   let clipFilterButton = document.querySelector('.clip-filter-button');
   let filterOptionContainer = document.querySelector('.filter-option-container');
+  let clipFilterTitle = document.querySelector('.clip-filter-title');
 
   let navTabs = document.querySelectorAll('nav li');
 
@@ -539,7 +540,8 @@ const recorderApp = function RecorderApp(){
   const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
 
     let sectionPromises = []
-    
+    let filterTitleText = "";
+
     // == CREATE CLASS SECTION
 
     // get class data
@@ -572,7 +574,6 @@ const recorderApp = function RecorderApp(){
 
       return classSection;
     })
-
     
     // == CREATE LESSON SECTION
 
@@ -641,6 +642,7 @@ const recorderApp = function RecorderApp(){
 
 
     Promise.all(sectionPromises)
+    // attach all the promises to the filter list
     .then( filterSections =>{
 
       // make the last one in the list active
@@ -651,6 +653,24 @@ const recorderApp = function RecorderApp(){
       filterSections.forEach( section =>{
         filterOptionContainer.appendChild(section);
       })
+    // update the filter title
+    }).then( ()=>{
+      // get the names
+      return dbHelper.getNames({
+        classId:filterState.class,
+        lessonId:filterState.lesson,
+        studentIds:[filterState.student]
+      
+      })
+      // combine names into a title
+      .then( names =>{
+        let titleText = ""
+        if(names.className != undefined) titleText = titleText.concat(names.className)
+        if(names.lessonName != undefined) titleText = titleText.concat(` | ${names.lessonName}`)
+        if(names.studentNames != undefined) titleText = titleText.concat(` | ${names.studentNames[0]}`)
+        return titleText
+      })
+      .then( titleText => clipFilterTitle.innerText = titleText)
     })
     
   }
