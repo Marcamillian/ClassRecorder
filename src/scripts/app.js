@@ -11,11 +11,18 @@ const recorderApp = function RecorderApp(){
   var studentSelect_classList = document.querySelector('.sselect-page.class');
   var studentSelect_title = document.querySelector('.student-select .title');
 
+  var recordTabBody = document.querySelector('.tab-body.record');
+
   var playbackContainer = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
   var clipListDisplay = document.querySelector('.clip-list');
   let clipFilterButton = document.querySelector('.clip-filter-button');
   let filterOptionContainer = document.querySelector('.filter-option-container');
+
+  let navTabs = document.querySelectorAll('nav li');
+
+
+
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
@@ -32,6 +39,26 @@ const recorderApp = function RecorderApp(){
   let chunks = [];
 
   
+  // NAVIGATION FUNCTIONS
+  const navTabClicked = (event)=>{
+    let listItem = (event.target.nodeName == 'LI') ? event.target : event.target.parentNode;
+    let tabDest = listItem.getAttribute('tab-dest');
+
+    // remove active from all tabbodies
+    document.querySelectorAll('.tab-body').forEach( tabBody => tabBody.classList.remove('active'))
+
+    // add active to the right one
+    switch(tabDest){
+      case 'record': recordTabBody.classList.add('active')
+      break;
+      case 'playback': playbackContainer.classList.add('active')
+      break;
+      default:
+      break;
+    }
+
+  }
+
 
 
   // == RECORDER FUNCTIONS == 
@@ -147,6 +174,8 @@ const recorderApp = function RecorderApp(){
     }
 
   }
+
+
 
   // === DISPLAY FUNCTIONS === 
 
@@ -630,13 +659,15 @@ const recorderApp = function RecorderApp(){
 
   //    ==   IMPLEMENTATION DETAILS    == 
 
-
   // populate data to the database
   dbHelper.populateDatabase()
 
+  // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
 
-  
+  // set up tab navigation
+  navTabs.forEach( tabElement => tabElement.onclick = navTabClicked)
+
   // event listener on the student select title to go back a page
   studentSelect_title.addEventListener('click',(event)=>{
 
