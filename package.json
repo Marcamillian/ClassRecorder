@@ -4,8 +4,8 @@
   "description": "Web Recorder for evidencing childrens class experience",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/t_studentSelectModel.js",
-    "test-debug": "node --inspect-brk tests/t_studentSelectModel.js"
+    "test": "tap tests/*.js",
+    "test-debug": "tape --inspect-brk tests/t_filterModel.js"
   },
   "author": "",
   "license": "ISC",

@@ -14,7 +14,7 @@ $pri-text: #212121;
 $sec-text: #757575;
 $divider-color: #BDBDBD;
 
-html{
+html, button{
     font-family: 'Varela Round', sans-serif;
 }
 
@@ -79,3 +79,77 @@ nav{
     -webkit-box-shadow:  6px 6px 10px #0000007e;
     box-shadow:          6px 6px 10px #0000007e;
  }
+
+.clip-filter{
+    background-color:white;
+    
+    .clip-filter-button{
+        background-color:$rec-pri-color;
+        color:$pri-text;
+        text-align:center;
+        border:none;
+    }
+
+    .option-div{
+        h2{
+            color:$listen-pri-color;
+            font-weight:normal;
+        }
+    }
+}
+
+
+ /* Style the checkbox options */
+.option-div{
+
+    /* when not active hide labels that arn't checked*/
+    label{
+        color:$sec-text;
+    }
+
+    input[type="checkbox"]:checked+label{
+        color:$pri-text;
+    }
+}
+
+.option-div.active{
+    /* show the labels when the container is active*/
+    label{
+        display:block;
+    }
+}
+
+// style the list of clips
+.clip-list{
+
+    overflow:scroll;
+
+    .audio-clip{
+        background-color:white;
+        padding:1em;
+        border-top-left-radius: 40px 50%;
+        border-top-right-radius: 40px 50%;
+        border-bottom-left-radius: 40px 50%;
+        border-bottom-right-radius: 40px 50%;
+        margin:2em;
+
+        .clip-info{
+            .clip-class-lesson{
+                color:$pri-text;
+                font-size:1.5em;
+            }
+
+            .clip-students, .clip-name{
+                color:$sec-text;
+                font-size:1.5em;
+            }
+        }
+
+
+        .clip-play-button{
+            background-color: $listen-accent-color;
+            border-radius:100%;
+            border:10px solid $sec-text;
+        }
+    }
+}

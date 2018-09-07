@@ -11,10 +11,26 @@ const recorderApp = function RecorderApp(){
   var studentSelect_classList = document.querySelector('.sselect-page.class');
   var studentSelect_title = document.querySelector('.student-select .title');
 
+  var recordTabBody = document.querySelector('.tab-body.record');
+
   var playbackContainer = document.querySelector('.tab-body.playback');
+  var clipFilterContainer = document.querySelector('.clip-filter');
+  var clipListDisplay = document.querySelector('.clip-list');
+  let clipFilterButton = document.querySelector('.clip-filter-button');
+  let filterOptionContainer = document.querySelector('.filter-option-container');
+  let clipFilterTitle = document.querySelector('.clip-filter-title');
+
+  let navTabs = document.querySelectorAll('nav li');
+
+
+
 
   // module for selecting the players
   let studentSelectModel = new StudentSelectPageModel();
+
+  // == for the clip filter
+  let clipFilterModel = new FilterModel();  // for selecting the clip filter
+  
 
   // data helper
   let dbHelper = new DBHelper();
@@ -24,6 +40,26 @@ const recorderApp = function RecorderApp(){
   let chunks = [];
 
   
+  // NAVIGATION FUNCTIONS
+  const navTabClicked = (event)=>{
+    let listItem = (event.target.nodeName == 'LI') ? event.target : event.target.parentNode;
+    let tabDest = listItem.getAttribute('tab-dest');
+
+    // remove active from all tabbodies
+    document.querySelectorAll('.tab-body').forEach( tabBody => tabBody.classList.remove('active'))
+
+    // add active to the right one
+    switch(tabDest){
+      case 'record': recordTabBody.classList.add('active')
+      break;
+      case 'playback': playbackContainer.classList.add('active')
+      break;
+      default:
+      break;
+    }
+
+  }
+
 
 
   // == RECORDER FUNCTIONS == 
@@ -107,6 +143,38 @@ const recorderApp = function RecorderApp(){
     
   }
 
+  const filterOptionSelectClicked = ({event, optionType})=>{
+
+    let optionId = Number(event.target.value);
+
+    // prevent if filterSelectContainer is not active
+    if(!clipFilterContainer.classList.contains('active')){
+      // set the new filter
+      switch(optionType){
+        case 'class':
+          clipFilterModel.setFilter({filterType: optionType, filterOption: optionId});
+        break;
+        case 'lesson':
+          clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+        break;
+        case 'student':
+          clipFilterModel.setFilter({filterType: optionType, filterOption:optionId})
+        break;
+        default:
+          throw new Error(`Invalid filterType: ${optionType}`)
+        break;
+      }
+
+      // update the display
+      updateFilterDisplay()
+
+    }else{
+      // prevent from bubbling to the clipFilterContainer
+      event.preventDefault();
+      return;
+    }
+
+  }
 
 
 
@@ -114,7 +182,13 @@ const recorderApp = function RecorderApp(){
 
 
   // generate elements to fill the list with clickable options
-  const generateOptionElements = ({optionLabel= "option", optionList = [], multiSelect = false, selectedOptions = []})=>{
+  const generateOptionElements = ({
+    optionLabel= "option",
+    optionList = [],
+    multiSelect = false,
+    selectedOptions = [],
+    clickFunction = ()=>{console.log("default click function")}
+  })=>{
     const optionElements = [];
 
     optionList.forEach(({id, labelText})=>{
@@ -126,29 +200,11 @@ const recorderApp = function RecorderApp(){
       element.id = elementId;
       element.type = 'checkbox';
       element.value = id;
-      element.onclick = selectOption;
+      element.onclick = clickFunction;
       if(selectedOptions.includes(id)) element.checked = true;
 
       elementLabel.setAttribute('for',elementId)
       elementLabel.innerText = labelText;
-      elementLabel.addEventListener('click', (event)=>{
-        // stop the nornal operation if not active
-        if(!studentSelect.classList.contains('active')){
-          event.preventDefault()
-          studentSelect.classList.toggle('active')
-        }else{
-          console.log("its active now")
-          if(multiSelect == false){
-            // clear the setting on the other options
-            // get the container they are in
-            let optionContainer = event.target.parentNode;
-            // get all of the checkboxes in the container
-            let optionCheckboxes = optionContainer.querySelectorAll('input')
-            // clear them of the checked setting
-            optionCheckboxes.forEach(element => element.checked = false);
-          }
-        }
-      });
 
       optionElements.push(element)
       optionElements.push(elementLabel)
@@ -188,20 +244,95 @@ const recorderApp = function RecorderApp(){
     return clipContainer;
   }
 
-  const selectOption = (event)=>{
-    // set the option
-    studentSelectModel.selectOption(Number(event.target.value))
-    // change the page
-    try{
-      let activePage = studentSelectModel.nextPage();
-    }catch(e){
-      if(/Page limit reached/i.test(e.message)){
-        console.log("end page")
-      }
+  const generateAudioClip = ({
+    clipTitle = "Title",
+    clipName = 'audio clip',
+    clipStudents = "Some Students",
+    audioURL = undefined
+  }={})=>{
+    let clipContainer = document.createElement('article');
+    let clipInfoContainer = document.createElement('div')
+    let clipTitleElement = document.createElement('h3');
+    let clipStudentsElement = document.createElement('p');
+    let clipNameElement = document.createElement('p');
+    let audioElement = document.createElement('audio');
+    let playButton = document.createElement('button');
+    let playButtonImage = document.createElement('img')
+
+    // add classes to all containers
+    clipContainer.classList.add('audio-clip');
+    clipInfoContainer.classList.add('clip-info');
+    clipTitleElement.classList.add('clip-class-lesson');
+    clipStudentsElement.classList.add('clip-students');
+    playButton.classList.add('clip-play-button', 'shadow');
+
+    // fill in all the text
+    clipTitleElement.innerText = clipTitle;
+    clipStudentsElement.innerText = clipStudents;
+
+    // attach the audio element to the sound data
+    audioElement.src= audioURL
+
+    playButtonImage.src="img/play-button.svg";
+    // set the event listener on the play button
+    playButton.onclick = ()=>{
+      audioElement.play();
     }
+
+    clipContainer.appendChild(clipInfoContainer);
+    // populate the clip info
+    clipInfoContainer.appendChild(clipTitleElement);
+    clipInfoContainer.appendChild(clipStudentsElement);
+    clipInfoContainer.appendChild(clipNameElement);
+
+    // attach the playButton
+    clipContainer.appendChild(playButton);
+    playButton.appendChild(playButtonImage);
+
+    return clipContainer;
+  }
+
+  const generateFilterSectionElement = ({ sectionName= "default", active= false })=>{
+    let sectionTitle = document.createElement('h2');
+    let filterSection = document.createElement('section');
+
+    sectionTitle.innerText = sectionName;
+
+    filterSection.classList.add(`${sectionName}-filter`, 'option-div')
+    if(active) filterSection.classList.add('active');
+
+    filterSection.appendChild(sectionTitle);
+
+    return filterSection;
+  }
+
+  const studentSelectOptionClicked = (event)=>{
+
+    // if student select maximised - select the option
+    if(studentSelect.classList.contains('active')){
+      
+      // prevent from bubling up to the student select
+      event.preventDefault();
+
+      // set the option
+      studentSelectModel.selectOption(Number(event.target.value))
+      // change the page
+      try{
+        let activePage = studentSelectModel.nextPage();
+      }catch(e){
+        if(/Page limit reached/i.test(e.message)){
+          console.log("end page")
+        }
+      }
+      
+      // display the new page
+      updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
+
+    }else{
+      
+    }
+
     
-    // display the new page
-    updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
   }
 
   const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
@@ -221,7 +352,7 @@ const recorderApp = function RecorderApp(){
         .then( optionObjects =>{
 
           emptyHTML(studentSelect_classList);
-          return generateOptionElements({optionLabel:'class', optionList:optionObjects, selectedOptions})
+          return generateOptionElements({optionLabel:'sselect-class', optionList:optionObjects, selectedOptions, clickFunction:studentSelectOptionClicked})
         })
         .then( optionElements =>{
           optionElements.forEach(( element )=>{
@@ -240,7 +371,7 @@ const recorderApp = function RecorderApp(){
         })
         .then( (optionObjects)=>{
           // generate the elements
-          return generateOptionElements({optionLabel:'lesson', optionList:optionObjects, selectedOptions})
+          return generateOptionElements({optionLabel:'sselect-lesson', optionList:optionObjects, selectedOptions, clickFunction: studentSelectOptionClicked})
         })
         .then( lessonElements =>{
           emptyHTML(studentSelect_lessonList);
@@ -265,7 +396,11 @@ const recorderApp = function RecorderApp(){
           })
         })
         .then(( optionObjects )=>{
-          return generateOptionElements({optionLabel:'student', optionList:optionObjects, multiSelect:true, selectedOptions})
+          return generateOptionElements({
+            optionLabel:'sselect-student',
+            optionList:optionObjects,
+            multiSelect:true, selectedOptions,
+            clickFunction: studentSelectOptionClicked})
         })
         .then( (studentElements)=>{
           emptyHTML(studentSelect_studentList)
@@ -347,7 +482,7 @@ const recorderApp = function RecorderApp(){
 
   }
 
-  const updateClipList = (searchType, searchKey)=>{
+  const updateClipList = ({searchType, searchKey})=>{
 
     let clipRequest;
 
@@ -365,39 +500,196 @@ const recorderApp = function RecorderApp(){
         throw new Error(`Cannot get clips from db: searchType ${searchType} not supported`)
     }
 
+    // get the clip information
     clipRequest.then( clipObjects =>{
 
       // remove the current clips
-      emptyHTML(playbackContainer);
+      emptyHTML(clipListDisplay);
+
+
+      // get the data for the class/lesson/student info
 
       // add the new clips in
       clipObjects.forEach((clipObject)=>{
 
-        let audioURL = window.URL.createObjectURL(clipObject.audioData);
-        let clipName = `${ clipObject.recordedDate }`
+        // get the details of the classes/lessons/students attached to the clip
+        return dbHelper.getCompleteInfo({
+          classId:clipObject.classId,
+          lessonId:clipObject.lessonId,
+          studentIds:clipObject.studentIds
+        }).then( clipInfo =>{
 
-        playbackContainer.appendChild(generatePlaybackBlock( {clipName, audioURL} ))
+          let studentNames = clipInfo.students.map(studentObject => studentObject.studentName)
+
+
+          let audioURL = window.URL.createObjectURL(clipObject.audioData);
+          let clipTitle = `${clipInfo.class.className} | ${clipInfo.lesson.lessonName}`
+          let clipStudents = studentNames.join(", ");
+
+
+          clipListDisplay.appendChild(generateAudioClip( {audioURL, clipTitle, clipStudents} ))
+        })
+        
       })
     })
 
-    /*
-    dbHelper.getClip(clipId).then((clipObject)=>{
-      var audioURL = window.URL.createObjectURL(clipObject.audioData);
-      let clipElement = generatePlaybackBlock({clipName: "some clip", audioURL})
-  
-      playbackContainer.appendChild(clipElement);
-    })*/
+  }
+
+
+  //    ==  PLAYBACK PAGE FUNCTIONS
+  const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
+
+    let sectionPromises = []
+    let filterTitleText = "";
+
+    // == CREATE CLASS SECTION
+
+    // get class data
+    sectionPromises[0] = dbHelper.getClasses()
+    // process to right format for generating option elements
+    .then( (classObjects)  =>{
+      return classObjects.map( ({ classId, className }) =>{
+        return {id: classId, labelText: className}
+      })
+    })
+    // generate the option elements
+    .then( ( optionObjects )=>{
+      return generateOptionElements({
+        optionLabel:'filter-class',
+        optionList: optionObjects,
+        selectedOptions:[filterState.class],
+        clickFunction:(event)=>{ filterOptionSelectClicked({event,optionType:'class'}) }
+      })
+    
+    })
+    // attach options to section and return section
+    .then( optionElements =>{
+
+      // generate the section container
+      let classSection = generateFilterSectionElement({sectionName:'Class'});
+      
+      optionElements.forEach( element =>{
+        classSection.appendChild(element)  
+      })
+
+      return classSection;
+    })
+    
+    // == CREATE LESSON SECTION
+
+    // if we have a class we need to show the lesson list
+    if(filterState.class != undefined){
+      // get the lesson data - adding promise to the list
+      sectionPromises[1] = dbHelper.getLessons(filterState.class)
+      // process into option element format
+      .then( lessonObjects =>{
+        return lessonObjects.map( ({lessonId, lessonName }) =>{
+          return {id: lessonId, labelText: lessonName}
+        })
+      })
+      // generate option elements
+      .then ( optionObjects =>{
+        return generateOptionElements({
+          optionLabel: `filter-lesson`,
+          optionList: optionObjects,
+          selectedOptions: [filterState.lesson],
+          clickFunction: (event)=>{ filterOptionSelectClicked({event, optionType: 'lesson'}) }
+        })
+      })
+      // then attach options to lesson and return section
+      .then ( optionElements =>{
+        let lessonSection = generateFilterSectionElement({sectionName:'Lesson'})
+        optionElements.forEach( element => lessonSection.appendChild(element) )
+        return lessonSection;
+      })
+    }
+    
+    
+    // == CREATE STUDENT SECTION
+
+    // if we have a lesson we need to show a student list
+    if(filterState.lesson != undefined){
+      // get the students in the class
+      sectionPromises[2] = dbHelper.getClass(filterState.class)
+      // get each student in the class
+      .then( ({attachedStudents}) =>{
+        return Promise.all( attachedStudents.map( studentId =>{
+          return dbHelper.getStudent(studentId)
+        }))
+      })
+      // format studentObjects into option format
+      .then( studentObjects =>{
+        return studentObjects.map( ({studentId, studentName}) =>{
+          return {id: studentId, labelText: studentName}
+        })
+      })
+      // generate option elements
+      .then( optionObjects =>{
+        return generateOptionElements({
+          optionLabel: 'filter-student',
+          optionList: optionObjects,
+          selectedOptions: [filterState.student],
+          clickFunction: (event)=>{ filterOptionSelectClicked({event, optionType: 'student'})}
+        })
+      })
+      // attach option elements to section element and return
+      .then( optionElements =>{
+        let studentSection = generateFilterSectionElement({sectionName: 'Student'})
+        optionElements.forEach( element => studentSection.appendChild(element) );
+        return studentSection
+      })
+    }
+
+
+    Promise.all(sectionPromises)
+    // attach all the promises to the filter list
+    .then( filterSections =>{
+
+      // make the last one in the list active
+      filterSections[filterSections.length-1].classList.add('active');
+      // clear the container
+      emptyHTML(filterOptionContainer)
+      // add the filter button
+      filterSections.forEach( section =>{
+        filterOptionContainer.appendChild(section);
+      })
+    // update the filter title
+    }).then( ()=>{
+      // get the names
+      return dbHelper.getNames({
+        classId:filterState.class,
+        lessonId:filterState.lesson,
+        studentIds:[filterState.student]
+      
+      })
+      // combine names into a title
+      .then( names =>{
+        let titleText = "";
+        if(names.className != undefined) titleText = titleText.concat(names.className)
+        if(names.lessonName != undefined) titleText = titleText.concat(` | ${names.lessonName}`)
+        if(names.studentNames != undefined) titleText = titleText.concat(` | ${names.studentNames[0]}`)
+        if(titleText == "") titleText = "Set Filter"
+        return titleText
+      })
+      .then( titleText =>{
+        clipFilterTitle.innerText = titleText
+      })
+    })
+    
   }
 
 
 
   //    ==   IMPLEMENTATION DETAILS    == 
 
-
   // populate data to the database
   dbHelper.populateDatabase()
 
+  // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
+
+  // set up tab navigation
+  navTabs.forEach( tabElement => tabElement.onclick = navTabClicked)
 
   // event listener on the student select title to go back a page
   studentSelect_title.addEventListener('click',(event)=>{
@@ -425,29 +717,79 @@ const recorderApp = function RecorderApp(){
 
     }
   })
+  
 
+  
   // event listener to expand the student select 
-  studentSelect.addEventListener('click',()=>{
+  studentSelect.addEventListener('click',(event)=>{
+
+    let overrideElementClicked = ['LABEL','INPUT', 'H2'].includes(event.target.nodeName);
+
+    // if student select is active
     if(studentSelect.classList.contains('active')){
-      studentSelect.classList.remove('active')
+      // && element clicked isn't a label or a heading
+      if( !overrideElementClicked ){
+        // collapse the student select
+        studentSelect.classList.remove('active')
+      } 
     }else{
       studentSelect.classList.add('active')
     }
+    
   })
+
+  // event listener to expand the filter
+  clipFilterContainer.addEventListener('click',(event)=>{
+
+    // When filter active/expanded - don't want filter to collapse when input/label or title clicked 
+    let overrideElementClicked_active = ['H2'].includes(event.target.nodeName);
+    // When filter inactive/collapsed - don't want the filter to expand when apply filter button clicked
+    let overrideElementClicked_inactive = ['BUTTON'].includes(event.target.nodeName);
+
+
+
+    // if clip filter active
+    if(clipFilterContainer.classList.contains('active')){
+      // only collapse if an override element NOT clicked
+      if(!overrideElementClicked_active) clipFilterContainer.classList.remove('active')
+    }else{
+      // only expand if an override element is not clicked
+      if(!overrideElementClicked_inactive) clipFilterContainer.classList.add('active')
+    }
+
+  })
+  
 
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
+  clipFilterButton.onclick = (event)=>{
+    let filterSettings = clipFilterModel.filterSettings;
+    let filterType;
+    let searchKey;
 
+    if(filterSettings.student != undefined){
+      filterType = 'student';
+      searchKey = filterSettings.student
+    }else if(filterSettings.lesson != undefined){
+      filterType = 'lesson';
+      searchKey = filterSettings.lesson
+    }else if( filterSettings.class != undefined){
+      filterType = 'class';
+      searchKey = filterSettings.class
+    }else{
+      throw new Error('No filter settings applied');
+      return;
+    }
+
+    updateClipList({searchType: filterType, searchKey})
+  }
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
-
+  updateFilterDisplay()
 
   return {
     dbHelper,
-    studentSelectModel,
-    mediaRecorder,
-    updateStudentSelectDisplay,
-    updateClipList
+    studentSelectModel
   }
 }();

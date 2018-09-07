@@ -117,4 +117,110 @@ body{
     }
 }
 
+.tab-body.playback{
+
+  padding-top:2em;
+
+  .clip-filter{
+    width:70%;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    font-size: 1rem;
+    text-align:center;
+    padding-top:1rem;
+    padding-bottom: 1rem;
+
+    border-radius:4rem;
+
+    transition: height 1s, width 1s;
+
+    .clip-filter-button{
+        width:80%;
+        padding:1em;
+        border-radius:1em;
+        font-weight:bold;
+    }
+  }
+
+  .clip-filter .filter-option-container{
+      display:none;
+  }
+  .clip-filter.active .filter-option-container{
+      display:block;
+  }
+
+  .clip-filter .clip-filter-title{
+    display:inherit;
+  }
+
+  .clip-filter.active .clip-filter-title{
+    display:none;
+  }
+
+}
+
+.clip-list{
+    width:80%;
+    flex-grow:1;
+}
+
+.audio-clip{
+    display:flex;
+    flex-direction:row;
+    
+
+    .clip-info{
+        flex-grow:2;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+
+        .clip-class-lesson{
+            margin:0.25em;
+        }
+
+        .clip-students, .clip-name{
+            margin:0.25em;
+        }
+    }
+    .clip-play-button{
+        flex-grow:1;
+        max-height:150px;
+        max-width:150px;
+    }
+}
+
+
+
+.option-div{
+
+    /* hide the checkboxes*/
+    input[type="checkbox"]{
+        display:none;
+    }
+
+    /* when not active hide labels that arn't checked*/
+    label{
+        display:none;
+    }
+
+    input[type="checkbox"]:checked+label{
+        display:block;
+    }
+}
+
+.option-div.active{
+
+
+    /* show the labels when the container is active*/
+    label{
+        display:block;
+    }
+
+}
+
+
 

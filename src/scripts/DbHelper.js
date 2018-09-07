@@ -138,6 +138,10 @@ class DBHelper{
     })
   }
 
+  getStudents(studentIndexArray){
+    return Promise.all(studentIndexArray.map( studentId => { return this.getStudent(studentId)} ))
+  }
+
   getClass(classIndex){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
@@ -220,6 +224,44 @@ class DBHelper{
 
       return tx.complete.then( () => clips)
     })
+  }
+
+  getCompleteInfo({classId, lessonId, studentIds}){
+    
+    if(classId == undefined || lessonId == undefined || studentIds == undefined){
+      throw new Error(`Complete info not provided | Class:${classId}, lesson:${lessonId}, student:${studentIds}`)
+    }
+
+    return Promise.all([
+      this.getClass(classId),
+      this.getLesson(lessonId),
+      this.getStudents(studentIds)
+    ])
+    .then( infoObjects=>{
+      return {
+        class:infoObjects[0],
+        lesson:infoObjects[1],
+        students:infoObjects[2]
+      }
+    })
+  }
+
+  getNames({classId, lessonId, studentIds}){
+    // get relevant objects if defined
+
+    return Promise.all([
+      this.getClass(classId).then((value)=>{ return value}  , ()=>{return undefined}),
+      this.getLesson(lessonId).then((value)=>{ return value}, ()=>{return undefined}),
+      this.getStudents(studentIds).then( studentObjects => studentObjects.map(student => student.studentName), ()=>{return undefined} )
+    ]).then( responses =>{
+      return {
+        className: ( responses[0] != undefined) ? responses[0].className : undefined,
+        lessonName: ( responses[1] != undefined) ? responses[1].lessonName : undefined,
+        studentNames: (responses[2] != undefined) ? responses[2] : undefined
+      }
+    })
+
+
   }
 
   populateDatabase(){

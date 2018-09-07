@@ -13,11 +13,11 @@
     </head>
     
     <nav>
-        <li class="tab-label record">
-            <p>Record</p>
+        <li class="tab-label record" tab-dest="record">
+            <h2>Record</h2>
         </li>
-        <li class="tab-label listen">
-            <p>Listen</p>
+        <li class="tab-label listen" tab-dest="playback">
+            <h2>Listen</h2>
         </li>
     </nav>
 
@@ -33,7 +33,7 @@
                 <h2 class="title"> ◀   EMC - Fri 05/04 </h2>
 
                 <section class="sselect-page student">
-                        
+                    
                 </section>
                 
 
@@ -51,6 +51,52 @@
 
         <section class="tab-body playback active">
 
+            <div class="clip-filter">
+                <button class="clip-filter-button"> Apply Filter </button>
+                <h2 class="clip-filter-title"> No Filter </h2>
+
+                <div class="filter-option-container"> 
+                    <section class="option-div class-filter active">
+                        <h2>Class</h2>
+                        <input id="class1" type="checkbox" value="1">
+                        <label for="class1">Class 1</label>
+                        <input id="class2" type="checkbox" value="2">
+                        <label for="class2">Class 2</label>
+                    </section>
+
+                    <section class="option-div lesson-filter">
+                        <h2>Lesson</h2>
+                        <input id="lesson1" type="checkbox" value="1">
+                        <label for="lesson1">lesson 1</label>
+                        <input id="lesson2" type="checkbox" value="2">
+                        <label for="lesson2">lesson 2</label>
+                    </section>
+                    
+                    <section class="option-div student-filter">
+                        <h2>Student</h2>
+                        <input id="student1" type="checkbox" value="1">
+                        <label for="student1">student 1</label>
+                        <input id="student2" type="checkbox" value="2">
+                        <label for="student2">student 2</label>
+                    </section>
+                </div>
+
+
+            </div>
+
+            <section class="clip-list">
+                <article class="audio-clip">
+                    <div class="clip-info"> 
+                        <h3 class="clip-class-lesson">EMC | 24th Dec</h3>
+                        <p class="clip-students">Alf, Jeff</p>
+                        <p class="clip-name">Clip Name</p>
+                    </div>
+                    
+                    <button class="clip-play-button shadow">
+                        <img src="img/play-button.svg"/>
+                    </button>
+                </article>
+            </section>
         </section>
 
     </body>
@@ -58,6 +104,7 @@
     <script type="application/javascript" charset="utf-8" src="scripts/idb.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/DBHelper.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/StudentSelectModel.js"></script>
+    <script type="application/javascript" charset="utf-8" src="scripts/FilterModel.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/app.js"></script>
 </html>
 
