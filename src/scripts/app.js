@@ -664,13 +664,16 @@ const recorderApp = function RecorderApp(){
       })
       // combine names into a title
       .then( names =>{
-        let titleText = ""
+        let titleText = "";
         if(names.className != undefined) titleText = titleText.concat(names.className)
         if(names.lessonName != undefined) titleText = titleText.concat(` | ${names.lessonName}`)
         if(names.studentNames != undefined) titleText = titleText.concat(` | ${names.studentNames[0]}`)
+        if(titleText == "") titleText = "Set Filter"
         return titleText
       })
-      .then( titleText => clipFilterTitle.innerText = titleText)
+      .then( titleText =>{
+        clipFilterTitle.innerText = titleText
+      })
     })
     
   }
@@ -738,13 +741,20 @@ const recorderApp = function RecorderApp(){
   // event listener to expand the filter
   clipFilterContainer.addEventListener('click',(event)=>{
 
-    let overrideElementClicked = ['BUTTON','LABEL', 'INPUT', 'H2'].includes(event.target.nodeNode);
+    // When filter active/expanded - don't want filter to collapse when input/label or title clicked 
+    let overrideElementClicked_active = ['H2'].includes(event.target.nodeName);
+    // When filter inactive/collapsed - don't want the filter to expand when apply filter button clicked
+    let overrideElementClicked_inactive = ['BUTTON'].includes(event.target.nodeName);
+
+
 
     // if clip filter active
     if(clipFilterContainer.classList.contains('active')){
-      if(!overrideElementClicked) clipFilterContainer.classList.remove('active')
+      // only collapse if an override element NOT clicked
+      if(!overrideElementClicked_active) clipFilterContainer.classList.remove('active')
     }else{
-      clipFilterContainer.classList.add('active')
+      // only expand if an override element is not clicked
+      if(!overrideElementClicked_inactive) clipFilterContainer.classList.add('active')
     }
 
   })
