@@ -50,7 +50,6 @@ nav{
     background-color:white;
 
     .title{
-        font-size:0.75em;
         color:$sec-text;
         font-weight: normal;
     }
@@ -131,17 +130,14 @@ nav{
         border-top-right-radius: 40px 50%;
         border-bottom-left-radius: 40px 50%;
         border-bottom-right-radius: 40px 50%;
-        margin:2em;
 
         .clip-info{
             .clip-class-lesson{
                 color:$pri-text;
-                font-size:1.5em;
             }
 
             .clip-students, .clip-name{
                 color:$sec-text;
-                font-size:1.5em;
             }
         }
 

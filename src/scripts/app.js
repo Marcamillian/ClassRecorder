@@ -730,10 +730,12 @@ const recorderApp = function RecorderApp(){
       // && element clicked isn't a label or a heading
       if( !overrideElementClicked ){
         // collapse the student select
-        studentSelect.classList.remove('active')
+        studentSelect.classList.remove('active');
+        recordButton.classList.remove('hidden')
       } 
     }else{
       studentSelect.classList.add('active')
+      recordButton.classList.add('hidden');
     }
     
   })
@@ -746,15 +748,19 @@ const recorderApp = function RecorderApp(){
     // When filter inactive/collapsed - don't want the filter to expand when apply filter button clicked
     let overrideElementClicked_inactive = ['BUTTON'].includes(event.target.nodeName);
 
-
-
     // if clip filter active
     if(clipFilterContainer.classList.contains('active')){
       // only collapse if an override element NOT clicked
-      if(!overrideElementClicked_active) clipFilterContainer.classList.remove('active')
+      if(!overrideElementClicked_active){
+        clipFilterContainer.classList.remove('active');
+        clipListDisplay.classList.remove('hidden');
+      } 
     }else{
       // only expand if an override element is not clicked
-      if(!overrideElementClicked_inactive) clipFilterContainer.classList.add('active')
+      if(!overrideElementClicked_inactive){
+        clipFilterContainer.classList.add('active');
+        clipListDisplay.classList.add('hidden')
+      } 
     }
 
   })
@@ -762,6 +768,7 @@ const recorderApp = function RecorderApp(){
 
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
+
   clipFilterButton.onclick = (event)=>{
     let filterSettings = clipFilterModel.filterSettings;
     let filterType;
