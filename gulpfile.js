@@ -47,7 +47,7 @@ gulp.task('watch', ()=>{
 
 gulp.task('serve', serve('./dist'));
 
-gulp.task('serve-prod', serve({
+gulp.task('serve-prod', ['build'], serve({
   root:['./dist'],
   port: PORT,
 }));
