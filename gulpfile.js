@@ -37,15 +37,18 @@ gulp.task('getIDBScript',()=>{
   .pipe(gulp.dest('./dist/scripts'))
 })
 
-gulp.task('build',['styles', 'scripts', 'markup', 'imgs', 'data'])
+gulp.task('build',['styles', 'scripts', 'markup', 'imgs', 'data', 'getIDBScript'],()=>{
+  console.log("Build complete");
+})
 
 gulp.task('watch', ()=>{
   gulp.watch(['./src/**/*.js', './src/**/*.html', './src/**/*.scss'], ['styles', 'scripts', 'markup'])
 })
 
-gulp.task('serve', serve('dist'));
+gulp.task('serve', serve('./dist'));
+
 gulp.task('serve-prod', serve({
-  root:['dist'],
+  root:['./dist'],
   port: PORT,
 }));
 
