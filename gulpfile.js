@@ -52,6 +52,8 @@ gulp.task('serve', serve('./dist'));
 
 gulp.task('serve-prod', ['build'], ()=>{
   var app = express();
+  var server;
+  
   app.set('port', PORT);
   app.use(express.static('./dist'))
   server = http.createServer(app);
