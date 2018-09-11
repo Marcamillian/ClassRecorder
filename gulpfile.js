@@ -1,10 +1,13 @@
 'use strict';
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const serve = require('gulp-serve');
+const express = require('express');
+const http = require('http'); 
 
 const PORT = (process.env.PORT || 3000)
 
-var gulp = require('gulp');
-var sass = require('gulp-sass');
-var serve = require('gulp-serve');
+
 
 gulp.task('imgs',()=>{
   gulp.src('src/img/**/*.svg')
@@ -47,9 +50,12 @@ gulp.task('watch', ()=>{
 
 gulp.task('serve', serve('./dist'));
 
-gulp.task('serve-prod', ['build'], serve({
-  root:['./dist'],
-  port: PORT,
-}));
+gulp.task('serve-prod', ['build'], ()=>{
+  var app = express();
+  app.set('port', PORT);
+  app.use(express.static('./dist'))
+  server = http.createServer(app);
+  server.listen(app.get('port'), ()=>(console.log(app.get('port'))))
+});
 
 gulp.task('default', ['build','serve','watch'])
