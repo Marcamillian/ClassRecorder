@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tap tests/*.js",
-    "test-debug": "tape --inspect-brk tests/t_filterModel.js"
+    "test-debug": "tape --inspect-brk tests/t_filterModel.js",
+    "postinstall": "gulp"
   },
   "author": "",
   "license": "ISC",
