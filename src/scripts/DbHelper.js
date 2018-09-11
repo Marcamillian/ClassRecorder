@@ -4,7 +4,7 @@ class DBHelper{
 
   static get DATA_URL(){
     const PORT = 3000;
-    return `http://localhost:${PORT}/data/appData.json`;
+    return `/data/appData.json`;
   }
 
   static get STUDENT_MODEL(){
@@ -62,6 +62,7 @@ class DBHelper{
   }
 
   constructor(){
+    // popualte the database
     this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,1,(upgradeDb)=>{
       switch(upgradeDb.oldVersion){
         case 0:

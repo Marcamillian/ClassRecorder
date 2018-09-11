@@ -1,5 +1,7 @@
 'use strict';
 
+const PORT = (process.env.PORT || 3000)
+
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var serve = require('gulp-serve');
@@ -42,5 +44,9 @@ gulp.task('watch', ()=>{
 })
 
 gulp.task('serve', serve('dist'));
+gulp.task('serve-prod', serve({
+  root:['dist'],
+  port: PORT,
+}));
 
 gulp.task('default', ['build','serve','watch'])

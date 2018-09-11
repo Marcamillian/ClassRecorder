@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tap tests/*.js",
     "test-debug": "tape --inspect-brk tests/t_filterModel.js",
-    "postinstall": "gulp"
+    "post_install": "gulp build"
   },
   "author": "",
   "license": "ISC",
