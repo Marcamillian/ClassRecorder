@@ -1,4 +1,4 @@
-
+'use strict';
 class FilterModel{
 
   constructor( {filterClass = undefined , filterLesson = undefined, filterStudent = undefined} = {} ){
