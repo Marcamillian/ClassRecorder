@@ -2,7 +2,10 @@
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
-  // html elements
+  
+  
+  // ==  GET REFERENCES TO HTML ELEMENTS
+  
   var recordButton = document.querySelector('button.button-record');
 
   var studentSelect = document.querySelector('.student-select');
@@ -24,23 +27,23 @@ const recorderApp = function RecorderApp(){
 
 
 
-
-  // module for selecting the players
-  let studentSelectModel = new StudentSelectPageModel();
-
-  // == for the clip filter
+  // === LOAD MODULES
+  
+  let studentSelectModel = new StudentSelectPageModel(); // for the tagging of clips
   let clipFilterModel = new FilterModel();  // for selecting the clip filter
-  
+  let dbHelper = new DBHelper(); // for interacting with the database
 
-  // data helper
-  let dbHelper = new DBHelper();
+  // == JS VARIABLES
 
-  // media recording things
-  var mediaRecorder;
-  let chunks = [];
+  var mediaRecorder;  // stream element
+  let chunks = [];  // store for segments of stream
 
   
-  // NAVIGATION FUNCTIONS
+  // === FUNCTION DEFINITIONS ====
+
+
+
+  // navigation clicked
   const navTabClicked = (event)=>{
     let listItem = (event.target.nodeName == 'LI') ? event.target : event.target.parentNode;
     let tabDest = listItem.getAttribute('tab-dest');
@@ -62,8 +65,8 @@ const recorderApp = function RecorderApp(){
 
 
 
-  // == RECORDER FUNCTIONS == 
 
+  // = RECORDER FUNCTIONS
 
   // create the media recorder object from a stream
   const createRecorder = (stream)=>{
@@ -93,6 +96,36 @@ const recorderApp = function RecorderApp(){
     return recorder;
   }
 
+  const studentSelectOptionClicked = (event)=>{
+
+    // if student select maximised - select the option
+    if(studentSelect.classList.contains('active')){
+      
+      // prevent from bubling up to the student select
+      event.preventDefault();
+
+      // set the option
+      studentSelectModel.selectOption(Number(event.target.value))
+      // change the page
+      try{
+        let activePage = studentSelectModel.nextPage();
+      }catch(e){
+        if(/Page limit reached/i.test(e.message)){
+          console.log("end page")
+        }
+      }
+      
+      // display the new page
+      updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
+
+    }else{
+      
+    }
+
+    
+  }
+
+  // set up the stream
   const getStream = ()=>{
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
       console.log('getUserMedia supported');
@@ -122,6 +155,7 @@ const recorderApp = function RecorderApp(){
     return newBlob(audioChunks, {'type': 'audio/ogg; codecs=opus'})
   }
 
+  // start/stop the recording
   const toggleRecord = (event)=>{
 
     mediaRecorder.then((recorder)=>{
@@ -143,6 +177,13 @@ const recorderApp = function RecorderApp(){
     
   }
 
+
+
+
+
+  // = PLAYBACK FUNCTIONS 
+
+  // show/hide the filter window
   const filterOptionSelectClicked = ({event, optionType})=>{
 
     let optionId = Number(event.target.value);
@@ -178,7 +219,9 @@ const recorderApp = function RecorderApp(){
 
 
 
-  // === DISPLAY FUNCTIONS === 
+
+
+  // = DISPLAY FUNCTIONS  
 
 
   // generate elements to fill the list with clickable options
@@ -306,34 +349,6 @@ const recorderApp = function RecorderApp(){
     return filterSection;
   }
 
-  const studentSelectOptionClicked = (event)=>{
-
-    // if student select maximised - select the option
-    if(studentSelect.classList.contains('active')){
-      
-      // prevent from bubling up to the student select
-      event.preventDefault();
-
-      // set the option
-      studentSelectModel.selectOption(Number(event.target.value))
-      // change the page
-      try{
-        let activePage = studentSelectModel.nextPage();
-      }catch(e){
-        if(/Page limit reached/i.test(e.message)){
-          console.log("end page")
-        }
-      }
-      
-      // display the new page
-      updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
-
-    }else{
-      
-    }
-
-    
-  }
 
   const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
     var options;
@@ -433,8 +448,15 @@ const recorderApp = function RecorderApp(){
     studentSelect_title.innerText = titleText;
   }
 
-   // === populate the studentSelectPages from the current studentSelectModel
-   const updateStudentSelectDisplay = (selectState)=>{
+
+
+
+
+
+  // == DISPLAY UPDATE FUNCTIONS
+
+  // update the html element carrying student select options
+  const updateStudentSelectDisplay = (selectState)=>{
 
     // if no class selected - show the classes
     if(selectState.class == undefined){
@@ -457,6 +479,7 @@ const recorderApp = function RecorderApp(){
     updateStudentSelectTitle(selectState);
   }
   
+  // update the html element carrying the student select title
   const updateStudentSelectTitle = (selectState)=>{
     
     let requests = []
@@ -482,6 +505,7 @@ const recorderApp = function RecorderApp(){
 
   }
 
+  // update the html element carrying the list of audio clips
   const updateClipList = ({searchType, searchKey})=>{
 
     let clipRequest;
@@ -535,8 +559,7 @@ const recorderApp = function RecorderApp(){
 
   }
 
-
-  //    ==  PLAYBACK PAGE FUNCTIONS
+  // update the html element carrying the filter options
   const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
 
     let sectionPromises = []
@@ -680,7 +703,9 @@ const recorderApp = function RecorderApp(){
 
 
 
-  //    ==   IMPLEMENTATION DETAILS    == 
+
+
+  //    === INIT / IMPLEMENTATION    == 
 
   // populate data to the database
   dbHelper.populateDatabase()
@@ -719,7 +744,6 @@ const recorderApp = function RecorderApp(){
   })
   
 
-  
   // event listener to expand the student select 
   studentSelect.addEventListener('click',(event)=>{
 
@@ -769,6 +793,7 @@ const recorderApp = function RecorderApp(){
   // add eventListener to the record button
   recordButton.onclick = toggleRecord;
 
+  // event listener to expand the clip filter
   clipFilterButton.onclick = (event)=>{
     let filterSettings = clipFilterModel.filterSettings;
     let filterType;
@@ -793,6 +818,7 @@ const recorderApp = function RecorderApp(){
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
+  // update the clip filter display
   updateFilterDisplay()
 
   return {
