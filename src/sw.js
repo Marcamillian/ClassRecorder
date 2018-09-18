@@ -1,5 +1,6 @@
 'use strict';
 
+
 // create caches for the files that we want to store offline
 const staticCacheName = 'recorder-static-v1';
 // collect all the cache names in an array to itterate over
@@ -10,7 +11,8 @@ let allCaches = [
 // do things when the service worker installs
   // cache the right static files
 self.addEventListener('install', (event)=>{
-
+  console.log("service worker installed and ready to go")
+  
   event.waitUntil(  // don't bubble the event untill
     caches.open(staticCacheName)  // the cache is open
     .then( cache =>{
@@ -18,22 +20,22 @@ self.addEventListener('install', (event)=>{
         // html
         '/',
         // images
-        'img/mic.svg',
-        'img/play-button.svg',
+        '/img/mic.svg',
+        '/img/play-button.svg',
         // css
-        'styles/layout.css',
-        'styles/layout-350plus.css',
-        'styles/layout-600plus.css',
-        'styles/style.css',
+        '/styles/layout.css',
+        '/styles/layout-350plus.css',
+        '/styles/layout-600plus.css',
+        '/styles/style.css',
         // javascript
-        'scripts/app.js',
-        'scripts/DbHelper.js',
-        'scripts/FilterModel.js',
-        'scripts/idb.js',
-        'scripts/ServiceWorkerHelper.js',
-        'scripts/StudentSelectModel.js',
+        '/scripts/app.js',
+        '/scripts/DbHelper.js',
+        '/scripts/FilterModel.js',
+        '/scripts/idb.js',
+        '/scripts/ServiceWorkerHelper.js',
+        '/scripts/StudentSelectModel.js',
         // data
-        'data/appData.json',
+        '/data/appData.json',
       ])
     })
   )
@@ -42,7 +44,8 @@ self.addEventListener('install', (event)=>{
 // things to do when the service worker becomes the newly active service worker
   // delete all the caches we no longer need  
 self.addEventListener('activate', (event)=>{
-  console.log("activated the service worker")
+  console.log("service worker is now the active worker")
+  
   event.waitUntil(  // stop event bubbling until
     caches.keys()     // get the names of the caches
     .then( cacheNames =>{
@@ -58,9 +61,8 @@ self.addEventListener('activate', (event)=>{
 })
 
 // intercept fetch requests
-self.addEventListener('fetch', (event)=>{
 
-  console.log("some fetch request")
+self.addEventListener('fetch', (event)=>{
 
   const requestUrl = new URL(event.request.url); // get an idea of where this fetch is going
   
@@ -75,6 +77,7 @@ self.addEventListener('fetch', (event)=>{
   }
   
 })
+
 
 // listen for signals to skip waiting and become active service worker
 self.addEventListener('message', (event)=>{

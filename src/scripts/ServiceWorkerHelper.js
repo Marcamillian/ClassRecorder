@@ -7,10 +7,11 @@ const ServiceWorkerHelper = function ServiceWorkerHelper(workerLocation, openUIC
 
   let activeWorker;
 
-  navigator.serviceWorker.register(workerLocation).then( reg => {
+  navigator.serviceWorker.register(workerLocation)
+  .then( reg => {
 
     // if there is no service worker 
-    if(!navigator.serviceWorker.controller) return // exit the function
+    if(!navigator.serviceWorker.controller) return // exit the function - don't need to listen to future events
 
     
     if(reg.waiting){  // if THIS new service worker waiting to be activated (loaded on previous page load and dismissed)
@@ -21,11 +22,11 @@ const ServiceWorkerHelper = function ServiceWorkerHelper(workerLocation, openUIC
 
 
     if(reg.installing){  // if THIS newly registered worker is still installing
-      //trackInstalling(reg.installing) // wait till it finishes
+      trackInstalling(reg.installing) // wait till it finishes
     }
 
     reg.addEventListener('updatefound', ()=>{ // listen for state changes in THIS registed worker
-      //trackInstalling(reg.installing) // when it has an update notify the user
+      trackInstalling(reg.installing) // when it has an update notify the user
     })
 
 
