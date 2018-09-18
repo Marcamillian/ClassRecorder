@@ -1,11 +1,15 @@
 'use strict';
 
-let myWorker = ServiceWorkerHelper('./sw.js', ()=>{console.log("There is a new service worker waiting")})
+const updateManager = function UpdateManager(serviceWorkerPath){
+  // update container
 
+  let myWorker = ServiceWorkerHelper(serviceWorkerPath, ()=>{console.log("There is a new service worker waiting")})
+
+
+}('./sw.js');
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
-  
   
   // ==  GET REFERENCES TO HTML ELEMENTS
   
