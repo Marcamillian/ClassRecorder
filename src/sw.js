@@ -1,5 +1,6 @@
 'use strict';
 
+
 // create caches for the files that we want to store offline
 const staticCacheName = 'recorder-static-v1';
 // collect all the cache names in an array to itterate over

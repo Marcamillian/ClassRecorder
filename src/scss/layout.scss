@@ -35,6 +35,14 @@ body{
     bottom:0px;
 }
 
+section.update-dialog{
+    display:none;
+}
+
+section.update-dialog.visible{
+    display:inherit;
+}
+
 // General tab/page styling 
 
 .tab-body{

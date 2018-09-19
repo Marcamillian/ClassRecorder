@@ -16,9 +16,10 @@ const updateManager = function UpdateManager(serviceWorkerPath){
   }
   
   
-  myWorker = ServiceWorkerHelper(serviceWorkerPath, ()=>{console.log("There is a new service worker waiting")})
+  myWorker = ServiceWorkerHelper(serviceWorkerPath, updateUIShow)
 
   updateButton.addEventListener('click', myWorker.workerSkipWaiting);
+  dismissUpdate.addEventListener('click', updateUIHide)
 
   return { something: "Something"}
 }('./sw.js');
