@@ -2,10 +2,25 @@
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
+  let updateContainer = document.querySelector('.update-dialog');
+  let updateButton = document.querySelector('.install-update');
+  let dismissUpdate = document.querySelector('.dismiss-update');
+  let myWorker;
 
-  let myWorker = ServiceWorkerHelper(serviceWorkerPath, ()=>{console.log("There is a new service worker waiting")})
+  const updateUIShow = ()=>{
+    updateContainer.classList.add('visible');
+  }
 
+  const updateUIHide = ()=>{
+    updateContainer.classList.remove('visible')
+  }
+  
+  
+  myWorker = ServiceWorkerHelper(serviceWorkerPath, ()=>{console.log("There is a new service worker waiting")})
 
+  updateButton.addEventListener('click', myWorker.workerSkipWaiting);
+
+  return { something: "Something"}
 }('./sw.js');
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
