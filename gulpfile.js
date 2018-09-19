@@ -4,6 +4,7 @@ const sass = require('gulp-sass');
 const serve = require('gulp-serve');
 const express = require('express');
 const http = require('http'); 
+const insert = require('gulp-insert');
 
 const PORT = (process.env.PORT || 3000)
 
@@ -37,6 +38,7 @@ gulp.task('data',()=>{
 
 gulp.task('sw', ()=>{
   return gulp.src('./src/sw.js')
+  .pipe(insert.prepend(`//${new Date().toString()} \n`))
   .pipe(gulp.dest('dist'))
 })
 
