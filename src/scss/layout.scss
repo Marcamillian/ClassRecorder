@@ -35,12 +35,26 @@ body{
     bottom:0px;
 }
 
-section.update-dialog{
-    display:none;
+// styling the update dialog
+
+.update-dialog{
+    display:flex;
+    position:absolute;
+    width:100%;
+    height:4rem;
+    top:-5rem;
+    justify-content: center;
+    align-items: center;
+
+    transition: top 0.5s ease-in;
+
+    button{
+        margin: 0rem 1rem 0rem 1rem;
+    }
 }
 
-section.update-dialog.visible{
-    display:inherit;
+.update-dialog.visible{
+    top:0rem;
 }
 
 // General tab/page styling 
