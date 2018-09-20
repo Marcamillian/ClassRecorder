@@ -4,7 +4,7 @@
 
 This is a prototype of an app to capture verbal feedback & thinking in the classroom. Traditional dictaphones make it difficult to search through recorded data, this aims to store clips in a way that is more readilly searchable.
 
-![Screenshot of record and playback tabs](Screenshot1.png)
+![Screenshot of record and playback tabs](Screenshot.png)
 
 
 ## Design Notes
