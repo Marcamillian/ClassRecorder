@@ -47,4 +47,4 @@ class FilterModel{
 
 }
 
-//module.exports = FilterModel;
+module.exports = FilterModel;

@@ -68,18 +68,28 @@ class StudentSelectPageModel {
       return this.selectedOptions[optionName]
     }
 
-    clearOption(){
-      let optionName = this.pages[this.currentPageIndex]
-      let modelSlot = this.selectedOptions[optionName];
+    clearOption(givenOptionName = this.pages[this.currentPageIndex]){
 
-      if(Array.isArray(modelSlot)){ // if the option is an array
-        this.selectedOptions[optionName] = []
-      }else{
-        this.selectedOptions[optionName] = undefined;
+      const givenOptionPosition = this.pages.indexOf(givenOptionName);
+      // TODO : catch unmatched case? -1
+
+      // clear options following and including the one named
+      for (var i= givenOptionPosition; i < this.pages.length; i++){
+
+        var optionName = this.pages[i];
+
+        if(Array.isArray(this.selectedOptions[optionName])){ // if the option is an array
+          this.selectedOptions[optionName] = []
+        }else{
+          this.selectedOptions[optionName] = undefined;
+        }
+
       }
+
+      
     }
     
 
 }
 
-//module.exports = StudentSelectPageModel;
+module.exports = StudentSelectPageModel;

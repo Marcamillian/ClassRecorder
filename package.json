@@ -6,7 +6,7 @@
   "scripts": {
     "start": "gulp serve-prod",
     "test": "tap tests/*.js",
-    "test-debug": "tape --inspect-brk tests/t_filterModel.js",
+    "test-debug": "tape --inspect-brk tests/t_studentSelectModel.js",
     "post_install": "gulp build"
   },
   "author": "",

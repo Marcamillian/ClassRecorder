@@ -52,34 +52,75 @@ test("Testing option setting", (t)=>{
 })
 
 test("Testing option removal", (t)=>{
-    let pageModel = new PageModel;
-    var result;
 
-    // select the class
-    pageModel.selectOption(1);
-    result = pageModel.getSelectedOptions();
-    t.equals(result.class, 1, "class set propperly");
+    t.test("test single removal",(ts) =>{
 
-    // remove the class
-    pageModel.clearOption();
-    result = pageModel.getSelectedOptions();
-    t.equals(result.class, undefined, "class been cleared")
+        let pageModel = new PageModel;
+        var result;
 
-    //chage the page to the students
-    pageModel.nextPage()
-    pageModel.nextPage()
+        // select the class
+        pageModel.selectOption(1);
+        result = pageModel.getSelectedOptions();
+        ts.equals(result.class, 1, "class set propperly");
 
-    pageModel.selectOption(4);
-    pageModel.selectOption(5);
-    result = pageModel.getSelectedOptions();
-    t.equals(result.student.length, 2, "Student array right length");
-    t.equals(result.student.includes(5), true, "StudentId 5 listed");
-    t.equals(result.student.includes(4), true, "studentId 4 listed");
+        // remove the class
+        pageModel.clearOption('class');
+        result = pageModel.getSelectedOptions();
+        ts.equals(result.class, undefined, "class been cleared")
 
-    pageModel.clearOption();
-    result = pageModel.getSelectedOptions();
-    t.equals(result.student.length, 0, "All selected students removed")
+        //chage the page to the students
+        pageModel.nextPage()
+        pageModel.nextPage()
 
+        pageModel.selectOption(4);
+        pageModel.selectOption(5);
+        result = pageModel.getSelectedOptions();
+        ts.equals(result.student.length, 2, "Student array right length");
+        ts.equals(result.student.includes(5), true, "StudentId 5 listed");
+        ts.equals(result.student.includes(4), true, "studentId 4 listed");
+
+        pageModel.clearOption('student');
+        result = pageModel.getSelectedOptions();
+        ts.equals(result.student.length, 0, "All selected students removed")
+
+
+        ts.end()
+    })
+
+    t.test("clear root class element", (ts)=>{
+        let pageModel = new PageModel;
+
+        var result;
+
+        // set class
+        pageModel.selectOption(1);
+
+        // set lesson
+        pageModel.nextPage();
+        pageModel.selectOption(2);
+
+        // set student
+        pageModel.nextPage();
+        pageModel.selectOption(3)
+
+        result = pageModel.getSelectedOptions();
+
+        ts.equals(result.class,1, "class set");
+        ts.equals(result.lesson,2, "lesson set");
+        ts.equals(result.student[0], 3, "student set")
+
+        pageModel.clearOption("lesson");
+
+        ts.equals(result.lesson, undefined, "lesson cleared");
+        ts.equals(result.student.length, 0, "student cleared")
+
+        pageModel.clearOption("class");
+        ts.equals(result.class, undefined, "class cleared");
+
+        ts.end()
+
+    })
 
     t.end()
+    
 })

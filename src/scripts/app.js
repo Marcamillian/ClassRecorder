@@ -749,11 +749,17 @@ const recorderApp = function RecorderApp(){
       event.cancelBubble = true;
       // move to previous page
       try{
-        // clear the selected option
-        studentSelectModel.clearOption();
-        // go to next page
+        // get what the next page is
         selectedPageName = studentSelectModel.prevPage() || 'class'
+
+        // clear the selected option
+        studentSelectModel.clearOption(selectedPageName);
+        
+        // move to the next page
         showStudentSelectPage(selectedPageName);
+        // TODO : REVERT ALL THESE CHANGES
+          // seems to be working - except its a page out (e.g. title shows current page selection)
+        updateStudentSelectTitle(studentSelectModel.selectedOptions);
           
       }catch(error){
         if(/Page limit reached/i.test(error.message)){
