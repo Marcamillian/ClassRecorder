@@ -7,12 +7,8 @@ class DBHelper{
     return `/data/appData.json`;
   }
 
-  static get STUDENT_MODEL(){
-    return {
-      studentId: undefined,
-      studentName: undefined,
-    }
-  }
+
+  // models for data from server
 
   static get CLASS_MODEL(){
     return {
@@ -41,6 +37,39 @@ class DBHelper{
     }
   }
 
+  static get STUDENT_MODEL(){
+    return {
+      studentId: undefined,
+      studentName: undefined,
+    }
+  }
+
+  // models for locally stored class/lesson/students
+
+  static get OFFLINE_CLASS_MODEL(){
+    return{
+      className: undefined,
+      attachedStudents:[]
+    }
+  }
+
+  static get OFFLINE_LESSON_MODEL(){
+    return{
+      lessonName: undefined,
+      lessonDate: undefined,
+      attachedClass:undefined,
+      attachedStudents: [],
+    }
+  }
+
+  static get OFFLINE_STUDENT_MODEL(){
+    return{
+      studentName: undefined
+    }
+  }
+
+  // database table names
+
   static get RECORDER_DB_NAME(){
     return 'recorder-db'
   }
@@ -61,6 +90,18 @@ class DBHelper{
     return 'lesson-store'
   }
 
+  static get OFFLINE_CLASS_STORE_NAME(){
+    return 'offline-class-store';
+  }
+
+  static get OFFLINE_LESSON_STORE_NAME(){
+    return 'offline-lesson-store';
+  }
+
+  static get OFFLINE_STUDENT_STORE_NAME(){
+    return 'offline-student-store';
+  }
+
   constructor(){
     // popualte the database
     this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,1,(upgradeDb)=>{
@@ -71,15 +112,27 @@ class DBHelper{
           clipStore.createIndex('by-class','classId');
           clipStore.createIndex('by-lesson','lessonId');
 
-          var studentStore = upgradeDb.createObjectStore( DBHelper.STUDENT_STORE_NAME, {keyPath: 'studentId'});
-          studentStore.createIndex('by-name', 'studentName');
-
           var classStore = upgradeDb.createObjectStore( DBHelper.CLASS_STORE_NAME, {keyPath: 'classId'} );
           classStore.createIndex('by-name', 'className');
 
           var lessonStore = upgradeDb.createObjectStore( DBHelper.LESSON_STORE_NAME, {keyPath:'lessonId'} )
           lessonStore.createIndex('by-date', 'lessonDate');
           lessonStore.createIndex('by-class', 'attachedClass');
+
+          var studentStore = upgradeDb.createObjectStore( DBHelper.STUDENT_STORE_NAME, {keyPath: 'studentId'});
+          studentStore.createIndex('by-name', 'studentName');
+        case 1:
+
+          // create the new offline stores
+          var offlineClassStore = upgradeDb.createObjectStore( DBHelper.OFFLINE_CLASS_STORE_NAME, {autoIncrement:true})
+          offlineClassStore.createIndex('by-name', 'className');
+
+          var offlineLessonStore = upgradeDb.createObjectStore( DBHelper.OFFLINE_LESSON_STORE_NAME, {autoIncrement:true})
+          offlineLessonStore.createIndex('by-date', 'lessonDate');
+          offlineLessonStore.createIndex('by-name', 'className');
+          
+          var offlineStudentStore = upgradeDb.createObjectStore( DBHelper.OFFLINE_STUDENT_STORE_NAME, {autoIncrement:true})
+          offlineStudentStore.createIndex('by-name', 'studentName')
       }
     })
   }
@@ -136,6 +189,13 @@ class DBHelper{
       let tx = db.transaction(DBHelper.STUDENT_STORE_NAME);
       let classStore = tx.objectStore(DBHelper.STUDENT_STORE_NAME);
       return classStore.get(studentIndex)
+    })
+  }
+
+  // TODO: Fill out this function to get the offline key
+  getOfflineStudent(studentIndex){
+    return this.dbPromise.then(db=>{
+      let tx = db.transaction(DBHelper.OFFLINE_STUDENT_STORE_NAME)
     })
   }
 

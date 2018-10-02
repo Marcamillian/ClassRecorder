@@ -757,7 +757,6 @@ const recorderApp = function RecorderApp(){
         
         // move to the next page
         showStudentSelectPage(selectedPageName);
-        // TODO : REVERT ALL THESE CHANGES
           // seems to be working - except its a page out (e.g. title shows current page selection)
         updateStudentSelectTitle(studentSelectModel.selectedOptions);
           
