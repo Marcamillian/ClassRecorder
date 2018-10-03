@@ -339,7 +339,7 @@ class DBHelper{
 
   // add offline data
 
-  addOfflineRecord(storeName, recordObject){
+  addOfflineRecord(storeName, recordObject, idLabel ='id'){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(storeName, 'readwrite');
       let listStore = tx.objectStore(storeName);
@@ -347,7 +347,7 @@ class DBHelper{
       listStore.put(recordObject).then( autoKey =>{
         listStore.openCursor(autoKey).then( cursor =>{
           if(cursor){
-            cursor.update({...cursor.value, id:DBHelper.maskOfflineIndex(cursor.key) })
+            cursor.update({...cursor.value, [idLabel]:DBHelper.maskOfflineIndex(cursor.key) })
             cursor.continue()
           }
         })
@@ -358,23 +358,29 @@ class DBHelper{
   }
 
   addOfflineClass({
-    className = DBHelper.OFFLINE_CLASS_MODEL.className
+    className = DBHelper.OFFLINE_CLASS_MODEL.className,
+    attachedStudents = DBHelper.OFFLINE_CLASS_MODEL.attachedStudents
   }){
-    this.addOfflineRecord(DBHelper.OFFLINE_CLASS_STORE_NAME, {className})
+    this.addOfflineRecord(DBHelper.OFFLINE_CLASS_STORE_NAME, {className}, "classId")
   }
 
-  // TODO: Fill out this function to get the offline key
-  getOfflineClass(offlineClassIndex){
-    return this.dbPromise
-    .then(db=>{
-      let tx = db.transaction(DBHelper.OFFLINE_CLASS_STORE_NAME);
-      let offlineClassStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME);
-
-      let classStoreIndex = Number(DBHelper.decodeOfflineIndex(offlineClassIndex));
-
-      return offlineClassStore.get(classStoreIndex)
-    })
+  addOfflineLesson({
+    attachedClass = DBHelper.OFFLINE_LESSON_MODEL.attachedClass,
+    attachedStudents = DBHelper.OFFLINE_LESSON_MODEL.attachedStudents,
+    lessonDate = DBHelper.OFFLINE_LESSON_MODEL.lessonDate,
+    lessonName = DBHelper.OFFLINE_.LESSON_MODEL.lessonName
+  }){
+    var dateMilisecond = (lessonDate) ? new Date(lessonDate) : new Date();
+    lessonDate = dateMilisecond.valueOf();
+    this.addOfflineRecord(DBHelper.OFFLINE_LESSON_STORE_NAME, {lessonName,lessonDate, attachedClass,attachedStudents}, "lessonId" )
   }
+
+  addOfflineStudent({
+    studentName = DBHelper.OFFLINE_STUDENT_MODEL.studentName
+  }){
+    this.addOfflineRecord(DBHelper.OFFLINE_STUDENT_STORE_NAME, {studentName}, "studentId")
+  }
+
 
   // retrieve offline data
 
