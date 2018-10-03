@@ -101,10 +101,20 @@ class DBHelper{
   static get OFFLINE_STUDENT_STORE_NAME(){
     return 'offline-student-store';
   }
+  
+  // static functions
+
+  static maskOfflineIndex(index){
+    return `#${index}`;
+  }
+
+  static decodeOfflineIndex(maskedIndex){
+    return maskedIndex.replace(/#/g, "");
+  }
 
   constructor(){
     // popualte the database
-    this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,1,(upgradeDb)=>{
+    this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,2,(upgradeDb)=>{
       switch(upgradeDb.oldVersion){
         case 0:
           var clipStore = upgradeDb.createObjectStore( DBHelper.CLIP_STORE_NAME, {autoIncrement:true})
@@ -137,14 +147,19 @@ class DBHelper{
     })
   }
 
+
+  // general record
   addRecord(storeName, recordObject){
-    this.dbPromise.then((db)=>{
+    return this.dbPromise.then((db)=>{
       let tx = db.transaction(storeName, 'readwrite');
       let listStore = tx.objectStore(storeName);
+      
       listStore.put(recordObject);
       return tx.complete;
     })
   }
+
+  // data source record adding
 
   addClass({
     classId = DBHelper.CLASS_MODEL.classId,
@@ -184,18 +199,13 @@ class DBHelper{
     })
   }
 
+  // data source getter functions
+
   getStudent(studentIndex){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(DBHelper.STUDENT_STORE_NAME);
-      let classStore = tx.objectStore(DBHelper.STUDENT_STORE_NAME);
-      return classStore.get(studentIndex)
-    })
-  }
-
-  // TODO: Fill out this function to get the offline key
-  getOfflineStudent(studentIndex){
-    return this.dbPromise.then(db=>{
-      let tx = db.transaction(DBHelper.OFFLINE_STUDENT_STORE_NAME)
+      let studentStore = tx.objectStore(DBHelper.STUDENT_STORE_NAME);
+      return studentStore.get(studentIndex)
     })
   }
 
@@ -325,6 +335,49 @@ class DBHelper{
 
   }
 
+  // OFFLINE DATASTORES
+
+  // add offline data
+
+  addOfflineRecord(storeName, recordObject){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(storeName, 'readwrite');
+      let listStore = tx.objectStore(storeName);
+      
+      listStore.put(recordObject).then( autoKey =>{
+        listStore.openCursor(autoKey).then( cursor =>{
+          if(cursor){
+            cursor.update({...cursor.value, id:DBHelper.maskOfflineIndex(cursor.key) })
+            cursor.continue()
+          }
+        })
+      })
+      
+      return tx.complete;
+    })
+  }
+
+  addOfflineClass({
+    className = DBHelper.OFFLINE_CLASS_MODEL.className
+  }){
+    this.addOfflineRecord(DBHelper.OFFLINE_CLASS_STORE_NAME, {className})
+  }
+
+  // TODO: Fill out this function to get the offline key
+  getOfflineClass(offlineClassIndex){
+    return this.dbPromise
+    .then(db=>{
+      let tx = db.transaction(DBHelper.OFFLINE_CLASS_STORE_NAME);
+      let offlineClassStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME);
+
+      let classStoreIndex = Number(DBHelper.decodeOfflineIndex(offlineClassIndex));
+
+      return offlineClassStore.get(classStoreIndex)
+    })
+  }
+
+  // retrieve offline data
+
   populateDatabase(){
     fetch(DBHelper.DATA_URL)
     .then((response) =>{ return response.json() })
@@ -341,5 +394,4 @@ class DBHelper{
     })
     .then(()=>{console.log("database populated")})
   }
-
 }
