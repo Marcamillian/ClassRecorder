@@ -1,27 +1,27 @@
 {
   "students":[
-    {"studentId":1, "studentName": "Fred"},
-    {"studentId":2, "studentName": "Chloe "},
-    {"studentId":3, "studentName": "Ashwithan"},
-    {"studentId":4, "studentName": "Anrushan"},
-    {"studentId":5, "studentName": "Tilac"}, 
-    {"studentId":6, "studentName": "Elisa-Eve"},
-    {"studentId":7, "studentName": "Michel"},
-    {"studentId":8, "studentName": "Matthew"},
-    {"studentId":9, "studentName": "Greg"},
-    {"studentId":10, "studentName": "Joe"}
+    {"studentId":"1", "studentName": "Fred"},
+    {"studentId":"2", "studentName": "Chloe "},
+    {"studentId":"3", "studentName": "Ashwithan"},
+    {"studentId":"4", "studentName": "Anrushan"},
+    {"studentId":"5", "studentName": "Tilac"}, 
+    {"studentId":"6", "studentName": "Elisa-Eve"},
+    {"studentId":"7", "studentName": "Michel"},
+    {"studentId":"8", "studentName": "Matthew"},
+    {"studentId":"9", "studentName": "Greg"},
+    {"studentId":"10", "studentName": "Joe"}
   ],
   "classes":[
-    {"classId": 1, "className":"EMC", "attachedStudents": [1,2,3]},
-    {"classId": 2, "className":"West Norwoord", "attachedStudents": [4,5,6]},
-    {"classId": 3, "className":"Julians", "attachedStudents": [7,8,9]}
+    {"classId": "1", "className":"EMC", "attachedStudents": [1,2,3]},
+    {"classId": "2", "className":"West Norwoord", "attachedStudents": [4,5,6]},
+    {"classId": "3", "className":"Julians", "attachedStudents": [7,8,9]}
   ],
   "lessons":[
-    {"lessonId":1, "attachedClass": 1, "lessonName": "Mon 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":2, "attachedClass": 1, "lessonName": "Tue 22 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":3, "attachedClass": 1, "lessonName": "Wed 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3,4]},
-    {"lessonId":4, "attachedClass": 2, "lessonName": "Thur 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":5, "attachedClass": 2, "lessonName": "Fri 24 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3]},
-    {"lessonId":6, "attachedClass": 3, "lessonName": "Sat 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":[1,2,3,4]}
+    {"lessonId":"1", "attachedClass": "1", "lessonName": "Mon 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3"]},
+    {"lessonId":"2", "attachedClass": "1", "lessonName": "Tue 22 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3"]},
+    {"lessonId":"3", "attachedClass": "1", "lessonName": "Wed 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3","4"]},
+    {"lessonId":"4", "attachedClass": "2", "lessonName": "Thur 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3"]},
+    {"lessonId":"5", "attachedClass": "2", "lessonName": "Fri 24 Dec", "lessonDate":"Tue Dec 22 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3"]},
+    {"lessonId":"6", "attachedClass": "3", "lessonName": "Sat 24 Dec", "lessonDate":"Mon Nov 24 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3","4"]}
   ]
 }

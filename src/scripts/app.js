@@ -128,7 +128,7 @@ const recorderApp = function RecorderApp(){
       event.preventDefault();
 
       // set the option
-      studentSelectModel.selectOption(Number(event.target.value))
+      studentSelectModel.selectOption(event.target.value);
       // change the page
       try{
         let activePage = studentSelectModel.nextPage();
@@ -209,7 +209,7 @@ const recorderApp = function RecorderApp(){
   // show/hide the filter window
   const filterOptionSelectClicked = ({event, optionType})=>{
 
-    let optionId = Number(event.target.value);
+    let optionId = event.target.value;
 
     // prevent if filterSelectContainer is not active
     if(!clipFilterContainer.classList.contains('active')){
@@ -380,7 +380,9 @@ const recorderApp = function RecorderApp(){
       case 'class':
         // clear the class page
 
-          // fill the class list
+        // fill the class list
+
+          // get all the classObjects (offline and online)
         return dbHelper.getClasses()
         .then( classObjects =>{
           return classObjects.map( classObject =>{
@@ -401,19 +403,19 @@ const recorderApp = function RecorderApp(){
       case 'lesson':
         
         return dbHelper.getLessons(selectedClass)
+        // format data for options generator
         .then((lessonsForClass)=>{
-          // format data for options generator
           return lessonsForClass.map( lessonObject =>{
             return {id: lessonObject.lessonId, labelText: lessonObject.lessonName}
           })
         })
+        // generate the HTML elements
         .then( (optionObjects)=>{
-          // generate the elements
           return generateOptionElements({optionLabel:'sselect-lesson', optionList:optionObjects, selectedOptions, clickFunction: studentSelectOptionClicked})
         })
+        // add each element to the right page
         .then( lessonElements =>{
           emptyHTML(studentSelect_lessonList);
-          // add each element to the right page
           lessonElements.forEach(lessonElement => {
             studentSelect_lessonList.appendChild(lessonElement)
           })
@@ -422,17 +424,21 @@ const recorderApp = function RecorderApp(){
       break;
       case 'student':
 
+        // get the selected class (offline or online)
         return dbHelper.getClass(selectedClass)
+        // get each of the students objects on the class (offline and online)
         .then((classObject)=>{
           return Promise.all(classObject.attachedStudents.map((studentId)=>{
             return dbHelper.getStudent(studentId);
           }))
         })
+        // format the student object for creating object element
         .then( (studentArray)=>{
           return studentArray.map( studentObject =>{
             return {id: studentObject.studentId, labelText: studentObject.studentName}
           })
         })
+        // generate the option HTML
         .then(( optionObjects )=>{
           return generateOptionElements({
             optionLabel:'sselect-student',
@@ -440,6 +446,7 @@ const recorderApp = function RecorderApp(){
             multiSelect:true, selectedOptions,
             clickFunction: studentSelectOptionClicked})
         })
+        // attach the HTML to the document
         .then( (studentElements)=>{
           emptyHTML(studentSelect_studentList)
           studentElements.forEach( studentElement =>{
@@ -594,12 +601,14 @@ const recorderApp = function RecorderApp(){
     sectionPromises[0] = dbHelper.getClasses()
     // process to right format for generating option elements
     .then( (classObjects)  =>{
+      console.log(`classObjects: ${classObjects.length}`)
       return classObjects.map( ({ classId, className }) =>{
         return {id: classId, labelText: className}
       })
     })
     // generate the option elements
     .then( ( optionObjects )=>{
+      console.log(`optionObjects ${optionObjects.length}`)
       return generateOptionElements({
         optionLabel:'filter-class',
         optionList: optionObjects,
@@ -610,12 +619,13 @@ const recorderApp = function RecorderApp(){
     })
     // attach options to section and return section
     .then( optionElements =>{
-
+      console.log(`optionElements ${optionElements.length}`)
       // generate the section container
       let classSection = generateFilterSectionElement({sectionName:'Class'});
       
-      optionElements.forEach( element =>{
+      optionElements.forEach( (element, index) =>{
         classSection.appendChild(element)  
+        console.log(`adding child: ${index}`)
       })
 
       return classSection;
@@ -690,7 +700,7 @@ const recorderApp = function RecorderApp(){
     Promise.all(sectionPromises)
     // attach all the promises to the filter list
     .then( filterSections =>{
-
+      console.log(filterSections[0].children)
       // make the last one in the list active
       filterSections[filterSections.length-1].classList.add('active');
       // clear the container
@@ -700,7 +710,7 @@ const recorderApp = function RecorderApp(){
         filterOptionContainer.appendChild(section);
       })
     // update the filter title
-    }).then( ()=>{
+    })/*.then( ()=>{
       // get the names
       return dbHelper.getNames({
         classId:filterState.class,
@@ -720,7 +730,7 @@ const recorderApp = function RecorderApp(){
       .then( titleText =>{
         clipFilterTitle.innerText = titleText
       })
-    })
+    })*/
     
   }
 
@@ -851,6 +861,7 @@ const recorderApp = function RecorderApp(){
 
   return {
     dbHelper,
-    studentSelectModel
+    studentSelectModel,
+    updateFilterDisplay
   }
 }();

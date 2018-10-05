@@ -114,7 +114,7 @@ class DBHelper{
 
   constructor(){
     // popualte the database
-    this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,2,(upgradeDb)=>{
+    this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,3,(upgradeDb)=>{
       switch(upgradeDb.oldVersion){
         case 0:
           var clipStore = upgradeDb.createObjectStore( DBHelper.CLIP_STORE_NAME, {autoIncrement:true})
@@ -142,7 +142,18 @@ class DBHelper{
           offlineLessonStore.createIndex('by-name', 'className');
           
           var offlineStudentStore = upgradeDb.createObjectStore( DBHelper.OFFLINE_STUDENT_STORE_NAME, {autoIncrement:true})
-          offlineStudentStore.createIndex('by-name', 'studentName')
+          offlineStudentStore.createIndex('by-name', 'studentName');
+        case 2: 
+          var offlineClassStore = upgradeDb.transaction.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME);
+          offlineClassStore.createIndex('by-class-id','classId');
+
+          var offlineLessonStore = upgradeDb.transaction.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME);
+          offlineLessonStore.createIndex('by-lesson-id','lessonId');
+          offlineLessonStore.createIndex('by-attached-class-id','attachedClass')
+
+          var offlineStudentStore = upgradeDb.transaction.objectStore(DBHelper.OFFLINE_STUDENT_STORE_NAME);
+          offlineStudentStore.createIndex('by-student-id','studentId');
+
       }
     })
   }
@@ -166,6 +177,9 @@ class DBHelper{
     className = DBHelper.CLASS_MODEL.className,
     attachedStudents = DBHelper.CLASS_MODEL.attachedStudents
   } = {}){
+    classId = classId.toString();
+    attachedStudents = attachedStudents.map( studentId => studentId.toString())
+
     this.addRecord(DBHelper.CLASS_STORE_NAME, {classId, className, attachedStudents});
   }
 
@@ -179,17 +193,25 @@ class DBHelper{
     var dateMilisecond = new Date(lessonDate);
     lessonDate = dateMilisecond.valueOf();
 
-    this.addRecord(DBHelper.LESSON_STORE_NAME, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
+    lessonId = lessonId.toString();
+    attachedClass = attachedClass.toString();
+    attachedStudents = attachedStudents.map( studentId => studentId.toString())
+
+
+    this.addRecord(DBHelper.LESSON_STORE_NAME, {lessonId, attachedClass: attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
   addStudent({
     studentId = DBHelper.STUDENT_MODEL.studentId,
     studentName = DBHelper.STUDENT_MODEL.studentName
   }){
+    studentId = studentId.toString();
+
     this.addRecord(DBHelper.STUDENT_STORE_NAME, {studentId, studentName})
   }
 
   addClip({ classId, lessonId, studentIds, audioData }){
+
     this.addRecord(DBHelper.CLIP_STORE_NAME, {
       classId,
       lessonId,
@@ -202,48 +224,111 @@ class DBHelper{
   // data source getter functions
 
   getStudent(studentIndex){
+
+    // TODO : this should search network and offline objectStores
     return this.dbPromise.then((db)=>{
-      let tx = db.transaction(DBHelper.STUDENT_STORE_NAME);
+
+      let tx = db.transaction([DBHelper.STUDENT_STORE_NAME, DBHelper.OFFLINE_STUDENT_STORE_NAME]);
       let studentStore = tx.objectStore(DBHelper.STUDENT_STORE_NAME);
-      return studentStore.get(studentIndex)
+      let offlineStudentStore = tx.objectStore(DBHelper.OFFLINE_STUDENT_STORE_NAME);
+
+      // get student from student stores (network or offline)
+      return Promise.all([
+        studentStore.get(studentIndex),
+        offlineStudentStore.index('by-student-id').get(studentIndex)
+      ])
+      // flatten the array of results
+      .then( resultsArray =>{ return resultsArray.flat()})
+      // remove undefined 
+      .then( studentObjects => studentObjects.filter( studentObject => studentObject != undefined))
+      // only return 1 result
+      .then( filteredObjects => filteredObjects[0])
     })
   }
 
   getStudents(studentIndexArray){
+
     return Promise.all(studentIndexArray.map( studentId => { return this.getStudent(studentId)} ))
   }
 
   getClass(classIndex){
+
     return this.dbPromise.then((db)=>{
-      let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
+      let tx = db.transaction([DBHelper.CLASS_STORE_NAME, DBHelper.OFFLINE_CLASS_STORE_NAME]);
       let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
-      return classStore.get(classIndex)
+      let offlineClassStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME)
+
+      // get all the results from 
+      return Promise.all([
+        classStore.get(classIndex),
+        offlineClassStore.index('by-class-id').get(classIndex)
+      //flatten the results from the two arrays
+      ]).then( resultArray =>{
+        return resultArray.flat()
+      // remove the undefined elements
+      }).then(resultArray =>{
+        return resultArray.filter(result => result != undefined)
+      // return one result
+      }).then( flatArray =>{
+        return flatArray[0];
+      })
     })
   }
 
   getLesson(lessonId){
-    return this.dbPromise.then( db =>{
-      let tx = db.transaction(DBHelper.LESSON_STORE_NAME);
-      let lessonStore = tx.objectStore(DBHelper.LESSON_STORE_NAME)
 
-      return lessonStore.get(lessonId)
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction([DBHelper.LESSON_STORE_NAME, DBHelper.OFFLINE_LESSON_STORE_NAME]);
+      let lessonStore = tx.objectStore(DBHelper.LESSON_STORE_NAME);
+      let offlineLessonStore = tx.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME)
+
+      // get from network and offline sources
+      return Promise.all([
+        lessonStore.get(lessonId),
+        offlineLessonStore.index('by-lesson-id').get(lessonId)
+      ])
+      // flatten the results
+      .then( resultArray => resultArray.flat())
+      // get rid of undefined results
+      .then( results => results.filter(result => result != undefined ))
+      // return one result
+      .then( results => results[0])
     })
   }
 
   getLessons(classId){
+
     return this.dbPromise.then( db =>{
-      let tx = db.transaction(DBHelper.LESSON_STORE_NAME);
+      let tx = db.transaction([DBHelper.LESSON_STORE_NAME, DBHelper.OFFLINE_LESSON_STORE_NAME]);
       let lessonStore = tx.objectStore(DBHelper.LESSON_STORE_NAME);
+      let offlineLessonStore = tx.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME);
       
-      return lessonStore.index('by-class').getAll(classId)
+      // get all the lessons (network and offline) attached to givenClass
+      return Promise.all([
+        lessonStore.index('by-class').getAll(classId),
+        offlineLessonStore.index('by-attached-class-id').getAll(classId)
+      ])
+      // flatten the results
+      .then( resultArray => resultArray.flat())
+      // remove undefined results
+      .then( lessonObjects => lessonObjects.filter( lessonObject => lessonObject != undefined))
     })
   }
 
   getClasses(){
+
     return this.dbPromise.then((db)=>{
-      let tx = db.transaction(DBHelper.CLASS_STORE_NAME);
+      let tx = db.transaction([DBHelper.CLASS_STORE_NAME, DBHelper.OFFLINE_CLASS_STORE_NAME]);
       let classStore = tx.objectStore(DBHelper.CLASS_STORE_NAME);
-      return classStore.getAll()
+      let offlineClassStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME)
+      
+      // get all the classes
+      return Promise.all([
+        classStore.getAll(),
+        offlineClassStore.getAll()
+      ])
+      // flatten the results array
+      .then( resultsArray => resultsArray.flat())
     })
   }
 
@@ -361,7 +446,7 @@ class DBHelper{
     className = DBHelper.OFFLINE_CLASS_MODEL.className,
     attachedStudents = DBHelper.OFFLINE_CLASS_MODEL.attachedStudents
   }){
-    this.addOfflineRecord(DBHelper.OFFLINE_CLASS_STORE_NAME, {className}, "classId")
+    this.addOfflineRecord(DBHelper.OFFLINE_CLASS_STORE_NAME, {className, attachedStudents}, "classId")
   }
 
   addOfflineLesson({
@@ -381,6 +466,22 @@ class DBHelper{
     this.addOfflineRecord(DBHelper.OFFLINE_STUDENT_STORE_NAME, {studentName}, "studentId")
   }
 
+  getOfflineClasses(){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(DBHelper.OFFLINE_CLASS_STORE_NAME)
+      let classStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME)
+      return classStore.getAll()
+    })
+  }
+
+  getOfflineLessonsByClass(offlineClassId){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(DBHelper.OFFLINE_LESSON_STORE_NAME);
+      let lessonStore = tx.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME)
+
+      return lessonStore.index('by-attached-class-id').getAll(offlineClassId);
+    })
+  }
 
   // retrieve offline data
 
@@ -399,5 +500,17 @@ class DBHelper{
       appData.lessons.forEach(this.addLesson.bind(this))
     })
     .then(()=>{console.log("database populated")})
+  }
+
+  populateOfflineDatabase(){
+    this.addOfflineClass({className:"Test Class 1", attachedStudents:['2','#1'] });
+    this.addOfflineClass({className:"Test Class 2", attachedStudents:['1','2','3'] });
+
+    this.addOfflineLesson({lessonName:"Test lesson 1", attachedClass:'#1', attachedStudents:['2','#1'] });
+    this.addOfflineLesson({lessonName:"Test lesson 1", attachedClass:1, attachedStudents:['1','2','3'] });
+
+    this.addOfflineStudent({studentName:"Test Student1"});
+    this.addOfflineStudent({studentName:"Test Student2"});
+
   }
 }
