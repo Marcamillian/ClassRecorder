@@ -225,7 +225,6 @@ class DBHelper{
 
   getStudent(studentIndex){
 
-    // TODO : this should search network and offline objectStores
     return this.dbPromise.then((db)=>{
 
       let tx = db.transaction([DBHelper.STUDENT_STORE_NAME, DBHelper.OFFLINE_STUDENT_STORE_NAME]);
