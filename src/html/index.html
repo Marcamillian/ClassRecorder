@@ -29,6 +29,9 @@
             <li class="tab-label listen" tab-dest="playback">
                 <h2>Listen</h2>
             </li>
+            <li class="tab-label item-create" tab-dest="item-create">
+                <h2>Item Create</h2>
+            </li>
         </nav>
 
         <section class="tab-body record active">
@@ -55,6 +58,19 @@
                 </div>
 
                 <section class="clip-list"></section>
+            </div>
+        </section>
+
+        <section class="tab-body item-create">
+            <div class="tab-container">
+                <select>
+                    <option value="class">Class</option>
+                    <option value="lesson">Lesson</option>
+                    <option value="student">Student</option>
+                </select>
+                <div class="item-create-form class"></div>
+                <div class="item-create-form lesson"></div>
+                <div class="item-create-form student"></div>
             </div>
         </section>
 

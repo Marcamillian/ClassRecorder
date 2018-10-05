@@ -39,7 +39,9 @@ const recorderApp = function RecorderApp(){
 
   var recordTabBody = document.querySelector('.tab-body.record');
 
-  var playbackContainer = document.querySelector('.tab-body.playback');
+  var itemCreateTabBody = document.querySelector('.tab-body.item-create')
+
+  var playbackTabBody = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
   var clipListDisplay = document.querySelector('.clip-list');
   let clipFilterButton = document.querySelector('.clip-filter-button');
@@ -78,8 +80,9 @@ const recorderApp = function RecorderApp(){
     switch(tabDest){
       case 'record': recordTabBody.classList.add('active')
       break;
-      case 'playback': playbackContainer.classList.add('active')
+      case 'playback': playbackTabBody.classList.add('active')
       break;
+      case 'item-create': itemCreateTabBody.classList.add('active')
       default:
       break;
     }

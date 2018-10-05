@@ -35,6 +35,9 @@ nav{
     .listen{
         background-color:$listen-pri-color;
     }
+    .item-create{
+        background-color:#F99600;
+    }
     
 }
 
@@ -75,6 +78,10 @@ nav{
 
 .tab-body.playback{
     background-color:$listen-pri-color;
+}
+
+.tab-body.item-create{
+    background-color:#F99600;
 }
 
 .shadow {
