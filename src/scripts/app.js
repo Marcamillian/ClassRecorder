@@ -740,10 +740,13 @@ const recorderApp = function RecorderApp(){
     // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
 
+    let container;
+
+
     // fill with appropriate form
     switch(itemCreateType){
       case 'class':
-        const container = document.querySelector('.item-create-form.class');
+        container = document.querySelector('.item-create-form.class');
         
         // get all students
         dbHelper.getAllStudents()
@@ -752,14 +755,30 @@ const recorderApp = function RecorderApp(){
           return studentObjects.map( studentObject =>{
             return {id: studentObject.studentId, labelText:studentObject.studentName}
           })
-        }).then( optionObjects =>{
-          return container.appendChild(ItemCreateHelper.generateClassForm({
-            studentOptions: optionObjects
-          }))
+        }).then( studentOptions =>{
+          return ItemCreateHelper.generateClassForm({ studentOptions })
         }).then( formElement => container.appendChild(formElement) )
       break;
       case 'lesson':
-        console.log("Lesson not implemented yet")
+        container = document.querySelector('.item-create-form.lesson');
+
+        // get the classes
+        dbHelper.getClasses()
+        // format the options
+        .then( classObjects =>{
+          return classObjects.map( ({classId, className}) =>{
+            return{id: classId, labelText: className}
+          })
+        })
+        // create the element
+        .then( optionObjects =>{
+          return ItemCreateHelper.generateLessonForm({
+            classOptions: optionObjects
+          })
+        })
+        // add to the page
+        .then( formElement => container.appendChild(formElement))
+        
       break;
       case 'student':
         console.log("Student not implemented yet")

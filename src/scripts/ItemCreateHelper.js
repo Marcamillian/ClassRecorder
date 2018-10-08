@@ -30,11 +30,11 @@ class ItemCreateHelper{
   }
 
 
-  generateLessonForm({
-    classObjects = []
+  static generateLessonForm({
+    classOptions = []
   }={}){
-    // TODO: 
-    const from = document.createElement('form');
+    // TODO: Attach Lesson date?
+    const form = document.createElement('form');
 
     form.addEventListener('submit',(event)=>{
       console.log('use this to addOfflineLesson');
@@ -47,11 +47,13 @@ class ItemCreateHelper{
     })
 
     // attached class
-    generateListSingleSelect()
+    ItemCreateHelper.generateListSingleSelect({
+      labelText: "Attached Class",
+      listId: 'create-lesson-class',
+      listOptions:classOptions
+    }).forEach(element => form.appendChild(element))
 
-    // attached students
-
-
+    // attached students ??
 
     return form;
   }
@@ -107,7 +109,28 @@ class ItemCreateHelper{
     return fieldSet;
   }
 
-  static generateListSingleSelect({}){
+  static generateListSingleSelect({
+    labelText = "Some Dropdown",
+    listId = undefined,
+    listOptions = []
+  }={}){
+
+    const listLabel = document.createElement("label");
+    listLabel.innerText = labelText;
+    listLabel.setAttribute('for', listId)
+
+    const listContainer = document.createElement('select');
+    listContainer.setAttribute('id',listId);
+
+    listOptions.forEach( ({id, labelText}) =>{
+      const optionElement = document.createElement('option')
+      optionElement.innerText = labelText;
+      optionElement.value = id;
+
+      listContainer.appendChild(optionElement)
+    })
+    
+    return [listLabel, listContainer]
 
   }
 }
