@@ -250,6 +250,25 @@ class DBHelper{
     return Promise.all(studentIndexArray.map( studentId => { return this.getStudent(studentId)} ))
   }
 
+  getAllStudents(){
+    return this.dbPromise.then((db)=>{
+      const tx = db.transaction([DBHelper.STUDENT_STORE_NAME, DBHelper.OFFLINE_STUDENT_STORE_NAME]);
+      const studentStore = tx.objectStore(DBHelper.STUDENT_STORE_NAME);
+      const offlineStudentStore = tx.objectStore(DBHelper.OFFLINE_STUDENT_STORE_NAME);
+
+      // get all the students (network and offline)
+      return Promise.all([
+        studentStore.getAll(),
+        offlineStudentStore.getAll()
+      ])
+      // flatten the array 
+      .then( resultsArray => resultsArray.flat())
+      // filter out the undefined results
+      .then( studentObjects => studentObjects.filter( studentObject => studentObject != undefined))
+
+    })
+  }
+
   getClass(classIndex){
 
     return this.dbPromise.then((db)=>{

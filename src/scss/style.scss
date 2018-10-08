@@ -14,102 +14,19 @@ $pri-text: #212121;
 $sec-text: #757575;
 $divider-color: #BDBDBD;
 
+// == GENERIC STYLING ===
+
 html, button{
     font-family: 'Varela Round', sans-serif;
-}
-
-.update-dialog{
-    color:white;
-    background-color:#000000da;
-}
-
-nav{
-
-    .tab-label{
-        list-style:none;   
-    }
-    .record{
-        background-color:$rec-pri-color;
-    }
-
-    .listen{
-        background-color:$listen-pri-color;
-    }
-    .item-create{
-        background-color:#F99600;
-    }
-    
-}
-
-.tab-body.record{
-  background-color:$rec-pri-color;
-
-  .button-record{
-      border: 10px solid $rec-dark-pri-color;
-      background-color: white;
-      border-radius:100%;
-  }
-  .button-record.recording{
-      background-color:$rec-accent-color;
-  }
-
-  .student-select{
-    background-color:white;
-
-    .title{
-        color:$sec-text;
-        font-weight: normal;
-    }
-
-    .sselect-page{
-        /* hide the unchecked labels */
-        label{
-            color:$sec-text;
-        };
-        /* show the checked labels */
-        input[type="checkbox"]:checked+label{
-            color:$pri-text;
-        }  
-    }
-    
-  }
-  
-}
-
-.tab-body.playback{
-    background-color:$listen-pri-color;
-}
-
-.tab-body.item-create{
-    background-color:#F99600;
 }
 
 .shadow {
     -moz-box-shadow:     6px 6px 10px #0000007e;
     -webkit-box-shadow:  6px 6px 10px #0000007e;
     box-shadow:          6px 6px 10px #0000007e;
- }
-
-.clip-filter{
-    background-color:white;
-    
-    .clip-filter-button{
-        background-color:$rec-pri-color;
-        color:$pri-text;
-        text-align:center;
-        border:none;
-    }
-
-    .option-div{
-        h2{
-            color:$listen-pri-color;
-            font-weight:normal;
-        }
-    }
 }
 
-
- /* Style the checkbox options */
+// Style the checkbox options 
 .option-div{
 
     /* when not active hide labels that arn't checked*/
@@ -160,3 +77,107 @@ nav{
         }
     }
 }
+
+
+// ==== SPECIFIC ELEMENT STYLING ====
+
+
+// update dialog
+
+.update-dialog{
+    color:white;
+    background-color:#000000da;
+}
+
+// style the nav bar
+
+nav{
+
+    .tab-label{
+        list-style:none;   
+    }
+    .record{
+        background-color:$rec-pri-color;
+    }
+
+    .listen{
+        background-color:$listen-pri-color;
+    }
+    .item-create{
+        background-color:#F99600;
+    }
+    
+}
+
+// style the record body
+
+.tab-body.record{
+  background-color:$rec-pri-color;
+
+  .button-record{
+      border: 10px solid $rec-dark-pri-color;
+      background-color: white;
+      border-radius:100%;
+  }
+  .button-record.recording{
+      background-color:$rec-accent-color;
+  }
+
+  .student-select{
+    background-color:white;
+
+    .title{
+        color:$sec-text;
+        font-weight: normal;
+    }
+
+    .sselect-page{
+        /* hide the unchecked labels */
+        label{
+            color:$sec-text;
+        };
+        /* show the checked labels */
+        input[type="checkbox"]:checked+label{
+            color:$pri-text;
+        }  
+    }
+    
+  }
+  
+}
+
+// style the playback body
+
+.tab-body.playback{
+    background-color:$listen-pri-color;
+
+    .clip-filter{
+        background-color:white;
+        
+        .clip-filter-button{
+            background-color:$rec-pri-color;
+            color:$pri-text;
+            text-align:center;
+            border:none;
+        }
+    
+        .option-div{
+            h2{
+                color:$listen-pri-color;
+                font-weight:normal;
+            }
+        }
+    }
+
+}
+
+
+// style the item create body
+
+.tab-body.item-create{
+    background-color:#F99600;
+
+    
+}
+
+

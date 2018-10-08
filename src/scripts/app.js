@@ -198,7 +198,6 @@ const recorderApp = function RecorderApp(){
         break;
       }
       
-      console.log(recorder.state)
     })
     
   }
@@ -604,14 +603,12 @@ const recorderApp = function RecorderApp(){
     sectionPromises[0] = dbHelper.getClasses()
     // process to right format for generating option elements
     .then( (classObjects)  =>{
-      console.log(`classObjects: ${classObjects.length}`)
       return classObjects.map( ({ classId, className }) =>{
         return {id: classId, labelText: className}
       })
     })
     // generate the option elements
     .then( ( optionObjects )=>{
-      console.log(`optionObjects ${optionObjects.length}`)
       return generateOptionElements({
         optionLabel:'filter-class',
         optionList: optionObjects,
@@ -622,13 +619,11 @@ const recorderApp = function RecorderApp(){
     })
     // attach options to section and return section
     .then( optionElements =>{
-      console.log(`optionElements ${optionElements.length}`)
       // generate the section container
       let classSection = generateFilterSectionElement({sectionName:'Class'});
       
       optionElements.forEach( (element, index) =>{
-        classSection.appendChild(element)  
-        console.log(`adding child: ${index}`)
+        classSection.appendChild(element);
       })
 
       return classSection;
@@ -703,7 +698,6 @@ const recorderApp = function RecorderApp(){
     Promise.all(sectionPromises)
     // attach all the promises to the filter list
     .then( filterSections =>{
-      console.log(filterSections[0].children)
       // make the last one in the list active
       filterSections[filterSections.length-1].classList.add('active');
       // clear the container
@@ -713,7 +707,7 @@ const recorderApp = function RecorderApp(){
         filterOptionContainer.appendChild(section);
       })
     // update the filter title
-    })/*.then( ()=>{
+    }).then( ()=>{
       // get the names
       return dbHelper.getNames({
         classId:filterState.class,
@@ -733,10 +727,34 @@ const recorderApp = function RecorderApp(){
       .then( titleText =>{
         clipFilterTitle.innerText = titleText
       })
-    })*/
+    })
     
   }
 
+
+  // ITEM CREATE FORMS
+
+  const updateItemCreate= ()=>{
+
+    const container = document.querySelector('.item-create-form.class');
+
+    
+    // get all students
+    dbHelper.getAllStudents()
+    // format for the options
+    .then( studentObjects =>{
+      return studentObjects.map( studentObject =>{
+        return {id: studentObject.studentId, labelText:studentObject.studentName}
+      })
+    }).then( optionObjects =>{
+      return container.appendChild(ItemCreateHelper.generateClassForm({
+        studentOptions: optionObjects
+      }))
+    }).then( formElement => container.appendChild(formElement) )
+    
+
+    
+  }
 
 
 
@@ -865,6 +883,7 @@ const recorderApp = function RecorderApp(){
   return {
     dbHelper,
     studentSelectModel,
-    updateFilterDisplay
+    updateFilterDisplay,
+    updateItemCreate
   }
 }();
