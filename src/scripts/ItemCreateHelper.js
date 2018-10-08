@@ -33,7 +33,7 @@ class ItemCreateHelper{
   generateLessonForm({
     classObjects = []
   }={}){
-
+    // TODO: 
     const from = document.createElement('form');
 
     form.addEventListener('submit',(event)=>{
