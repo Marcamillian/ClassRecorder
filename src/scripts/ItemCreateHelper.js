@@ -14,11 +14,13 @@ class ItemCreateHelper{
       event.preventDefault();
     })
 
+    // class name
     ItemCreateHelper.generateTextEntry({optionId:"create-class-name" , labelText:"Class Name"}).forEach(element =>{
       form.appendChild(element)
     });
 
-    form.appendChild(this.generateListSelect({
+    // attached students
+    form.appendChild(this.generateListMultiSelect({
       selectOptions: studentOptions,
       listLabelText: "Attached Students",
       listId: "create-class-students"
@@ -26,6 +28,34 @@ class ItemCreateHelper{
 
     return form;
   }
+
+
+  generateLessonForm({
+    classObjects = []
+  }={}){
+
+    const from = document.createElement('form');
+
+    form.addEventListener('submit',(event)=>{
+      console.log('use this to addOfflineLesson');
+      event.preventDefault()
+    })
+
+    // lesson name
+    ItemCreateHelper.generateTextEntry({optionId: 'create-lesson-name', labelText:"Lesson Name"}).forEach(element=>{
+      form.appendChild(element);
+    })
+
+    // attached class
+    generateListSingleSelect()
+
+    // attached students
+
+
+
+    return form;
+  }
+
 
   static generateTextEntry({
     optionId = undefined,
@@ -42,7 +72,7 @@ class ItemCreateHelper{
     return [label, input]
   }
 
-  static generateListSelect({
+  static generateListMultiSelect({
     selectOptions = [],
     listId,
     listLabelText = "Some List"
@@ -75,5 +105,9 @@ class ItemCreateHelper{
     })
 
     return fieldSet;
+  }
+
+  static generateListSingleSelect({}){
+
   }
 }

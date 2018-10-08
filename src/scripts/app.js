@@ -39,7 +39,8 @@ const recorderApp = function RecorderApp(){
 
   var recordTabBody = document.querySelector('.tab-body.record');
 
-  var itemCreateTabBody = document.querySelector('.tab-body.item-create')
+  var itemCreateTabBody = document.querySelector('.tab-body.item-create');
+  var itemCreateDropdown = document.querySelector('.tab-body.item-create .item-create-dropdown');
 
   var playbackTabBody = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
@@ -734,25 +735,37 @@ const recorderApp = function RecorderApp(){
 
   // ITEM CREATE FORMS
 
-  const updateItemCreate= ()=>{
+  const updateItemCreate= (itemCreateType)=>{
 
-    const container = document.querySelector('.item-create-form.class');
+    // clear all the containers
+    document.querySelectorAll('.item-create-form').forEach(emptyHTML);
 
-    
-    // get all students
-    dbHelper.getAllStudents()
-    // format for the options
-    .then( studentObjects =>{
-      return studentObjects.map( studentObject =>{
-        return {id: studentObject.studentId, labelText:studentObject.studentName}
-      })
-    }).then( optionObjects =>{
-      return container.appendChild(ItemCreateHelper.generateClassForm({
-        studentOptions: optionObjects
-      }))
-    }).then( formElement => container.appendChild(formElement) )
-    
-
+    // fill with appropriate form
+    switch(itemCreateType){
+      case 'class':
+        const container = document.querySelector('.item-create-form.class');
+        
+        // get all students
+        dbHelper.getAllStudents()
+        // format for the options
+        .then( studentObjects =>{
+          return studentObjects.map( studentObject =>{
+            return {id: studentObject.studentId, labelText:studentObject.studentName}
+          })
+        }).then( optionObjects =>{
+          return container.appendChild(ItemCreateHelper.generateClassForm({
+            studentOptions: optionObjects
+          }))
+        }).then( formElement => container.appendChild(formElement) )
+      break;
+      case 'lesson':
+        console.log("Lesson not implemented yet")
+      break;
+      case 'student':
+        console.log("Student not implemented yet")
+      break;
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+    }
     
   }
 
@@ -875,10 +888,15 @@ const recorderApp = function RecorderApp(){
     updateClipList({searchType: filterType, searchKey})
   }
 
+  itemCreateDropdown.addEventListener('change', event =>{
+    updateItemCreate(event.target.value);
+  })
+
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
   // update the clip filter display
   updateFilterDisplay()
+  updateItemCreate('class');
 
   return {
     dbHelper,
