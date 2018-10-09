@@ -779,7 +779,7 @@ const recorderApp = function RecorderApp(){
         // add to the page
         .then( formElement => container.appendChild(formElement))
         
-      break;
+      break;  
       case 'student':
         container = document.querySelector('.item-create-form.student');
 

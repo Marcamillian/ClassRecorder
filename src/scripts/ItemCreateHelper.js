@@ -6,14 +6,24 @@ class ItemCreateHelper{
   }
 
   static generateClassForm({
-    studentOptions= []
+    studentOptions= [],
+    submitCallback = console.log
   }={}){
     const form = document.createElement('form');
+    const submitButton = document.createElement('button');
 
     // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
-      console.log("trying to submit");
       event.preventDefault();
+
+      const completeForm = event.target;
+
+      const className = completeForm.elements["create-class-name"].value;
+      var attachedStudents = completeForm.querySelectorAll('.create-class-students:checked')
+      
+      attachedStudents = [...attachedStudents].map(selectElement =>selectElement.value);
+
+      submitCallback({className, attachedStudents});
     })
 
     // class name
@@ -28,20 +38,33 @@ class ItemCreateHelper{
       listId: "create-class-students"
     }))
 
+    
+    submitButton.type = 'submit';
+    submitButton.innerText = "Create Class";
+    form.appendChild(submitButton);
+
     return form;
   }
 
 
   static generateLessonForm({
-    classOptions = []
+    classOptions = [],
+    submitCallback = console.log
   }={}){
 
     const form = document.createElement('form');
+    const submitButton = document.createElement('button')
 
     // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
-      console.log('use this to addOfflineLesson');
-      event.preventDefault()
+      event.preventDefault();
+      const completeForm = event.target;
+
+      const lessonName = completeForm['create-lesson-name'].value;
+      const lessonDate = completeForm['create-lesson-date'].value;
+      const attachedClass = completeForm['create-lesson-class'].value;
+
+      submitCallback({lessonName, lessonDate, attachedClass})
     });
 
     // lesson name
@@ -61,18 +84,28 @@ class ItemCreateHelper{
       listOptions:classOptions
     }).forEach(element => form.appendChild(element));
 
-    // attached students ??
+    submitButton.type = 'submit';
+    submitButton.innerText = "Create Lesson";
+    form.appendChild(submitButton);
 
     return form;
   }
 
-  static generateStudentForm(){
+  static generateStudentForm({
+    submitCallback = console.log
+  }={}){
     const form = document.createElement('form');
+    const submitButton = document.createElement('button')
 
     // TODO: set the onsubimt callback
     form.addEventListener('submit', (event)=>{
-      console.log("use this for add OfflineStudent")
       event.preventDefault();
+
+      const completeForm = event.target;
+
+      const studentName = completeForm['create-student-name'].value;
+
+      submitCallback({studentName})
     })
 
     ItemCreateHelper.generateTextEntry({
@@ -81,6 +114,11 @@ class ItemCreateHelper{
     }).forEach( element =>{
       form.appendChild(element)
     })
+
+    
+    submitButton.type = 'submit';
+    submitButton.innerText = "Create Student";
+    form.appendChild(submitButton);
 
     return form;
   }
@@ -97,6 +135,7 @@ class ItemCreateHelper{
     const input = document.createElement('input');
     input.type = "text";
     input.id = optionId;
+    input.name = optionId;
 
     return [label, input]
   }
@@ -113,7 +152,9 @@ class ItemCreateHelper{
     label.setAttribute('for', dateId);
 
     dateInput.type = 'date';
-    dateInput.setAttribute('id',dateId);
+    dateInput.id = dateId;
+    dateInput.name = dateId;
+
 
     return [label, dateInput]
   }
@@ -140,6 +181,7 @@ class ItemCreateHelper{
       const elementId = `${listId}-${id}`;
 
       option.id = elementId;
+      option.classList.add(listId);
       option.type = 'checkbox';
       option.value = id;
       
@@ -164,7 +206,8 @@ class ItemCreateHelper{
     listLabel.setAttribute('for', listId)
 
     const listContainer = document.createElement('select');
-    listContainer.setAttribute('id',listId);
+    listContainer.id = listId;
+    listContainer.name = listId;
 
     listOptions.forEach( ({id, labelText}) =>{
       const optionElement = document.createElement('option')
