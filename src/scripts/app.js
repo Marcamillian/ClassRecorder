@@ -769,7 +769,13 @@ const recorderApp = function RecorderApp(){
         container = document.querySelector('.item-create-form.lesson');
 
         submitCallback = ({lessonName, lessonDate, attachedClass})=>{
-          dbHelper.addOfflineLesson({lessonName, lessonDate, attachedClass })
+        
+          dbHelper.getClass(attachedClass).then( ({attachedStudents}) =>{
+
+            dbHelper.addOfflineLesson({lessonName, lessonDate, attachedClass, attachedStudents })
+
+          })
+
         }
 
         // get the classes

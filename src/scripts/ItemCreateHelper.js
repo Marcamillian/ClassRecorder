@@ -15,6 +15,7 @@ class ItemCreateHelper{
     form.addEventListener('submit',(event)=>{
       event.preventDefault();
 
+      
       const completeForm = event.target;
 
       const className = completeForm.elements["create-class-name"].value;
@@ -22,6 +23,7 @@ class ItemCreateHelper{
       
       attachedStudents = [...attachedStudents].map(selectElement =>selectElement.value);
 
+      // TODO: Form validation 
       submitCallback({className, attachedStudents});
     })
 
@@ -62,6 +64,8 @@ class ItemCreateHelper{
       const lessonDate = completeForm['create-lesson-date'].value;
       const attachedClass = completeForm['create-lesson-class'].value;
 
+      //TODO: Form validation
+
       submitCallback({lessonName, lessonDate, attachedClass})
     });
 
@@ -95,6 +99,8 @@ class ItemCreateHelper{
     const form = document.createElement('form');
     const submitButton = document.createElement('button')
 
+    // TODO: form validation
+
     form.addEventListener('submit', (event)=>{
       event.preventDefault();
 
@@ -102,6 +108,7 @@ class ItemCreateHelper{
 
       const studentName = completeForm['create-student-name'].value;
 
+      // TODO: Form validation
       submitCallback({studentName})
     })
 
