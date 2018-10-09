@@ -12,7 +12,6 @@ class ItemCreateHelper{
     const form = document.createElement('form');
     const submitButton = document.createElement('button');
 
-    // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
       event.preventDefault();
 
@@ -55,7 +54,6 @@ class ItemCreateHelper{
     const form = document.createElement('form');
     const submitButton = document.createElement('button')
 
-    // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
       event.preventDefault();
       const completeForm = event.target;
@@ -97,7 +95,6 @@ class ItemCreateHelper{
     const form = document.createElement('form');
     const submitButton = document.createElement('button')
 
-    // TODO: set the onsubimt callback
     form.addEventListener('submit', (event)=>{
       event.preventDefault();
 

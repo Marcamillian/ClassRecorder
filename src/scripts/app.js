@@ -741,12 +741,18 @@ const recorderApp = function RecorderApp(){
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
 
     let container;
+    let submitCallback;
 
 
     // fill with appropriate form
     switch(itemCreateType){
       case 'class':
         container = document.querySelector('.item-create-form.class');
+
+        // submit callback
+        submitCallback = ({ className, attachedStudents})=>{
+          dbHelper.addOfflineClass({className, attachedStudents})
+        }
         
         // get all students
         dbHelper.getAllStudents()
@@ -756,11 +762,15 @@ const recorderApp = function RecorderApp(){
             return {id: studentObject.studentId, labelText:studentObject.studentName}
           })
         }).then( studentOptions =>{
-          return ItemCreateHelper.generateClassForm({ studentOptions })
+          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback })
         }).then( formElement => container.appendChild(formElement) )
       break;
       case 'lesson':
         container = document.querySelector('.item-create-form.lesson');
+
+        submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+          dbHelper.addOfflineLesson({lessonName, lessonDate, attachedClass })
+        }
 
         // get the classes
         dbHelper.getClasses()
@@ -773,7 +783,8 @@ const recorderApp = function RecorderApp(){
         // create the element
         .then( optionObjects =>{
           return ItemCreateHelper.generateLessonForm({
-            classOptions: optionObjects
+            classOptions: optionObjects,
+            submitCallback
           })
         })
         // add to the page
@@ -783,7 +794,11 @@ const recorderApp = function RecorderApp(){
       case 'student':
         container = document.querySelector('.item-create-form.student');
 
-        container.appendChild(ItemCreateHelper.generateStudentForm());
+        submitCallback = ({studentName})=>{
+          dbHelper.addOfflineStudent({studentName});
+        }
+
+        container.appendChild(ItemCreateHelper.generateStudentForm({submitCallback}));
       break;
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
