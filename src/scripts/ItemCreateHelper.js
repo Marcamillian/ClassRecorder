@@ -9,6 +9,8 @@ class ItemCreateHelper{
     studentOptions= []
   }={}){
     const form = document.createElement('form');
+
+    // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
       console.log("trying to submit");
       event.preventDefault();
@@ -33,27 +35,52 @@ class ItemCreateHelper{
   static generateLessonForm({
     classOptions = []
   }={}){
-    // TODO: Attach Lesson date?
+
     const form = document.createElement('form');
 
+    // TODO: set the onsubimt callback
     form.addEventListener('submit',(event)=>{
       console.log('use this to addOfflineLesson');
       event.preventDefault()
-    })
+    });
 
     // lesson name
     ItemCreateHelper.generateTextEntry({optionId: 'create-lesson-name', labelText:"Lesson Name"}).forEach(element=>{
       form.appendChild(element);
-    })
+    });
+
+    // lesson date
+    ItemCreateHelper.generateDateInput({dateId: 'create-lesson-date', labelText:"Lesson Date"}).forEach( element =>{
+      form.appendChild(element);
+    });
 
     // attached class
     ItemCreateHelper.generateListSingleSelect({
       labelText: "Attached Class",
       listId: 'create-lesson-class',
       listOptions:classOptions
-    }).forEach(element => form.appendChild(element))
+    }).forEach(element => form.appendChild(element));
 
     // attached students ??
+
+    return form;
+  }
+
+  static generateStudentForm(){
+    const form = document.createElement('form');
+
+    // TODO: set the onsubimt callback
+    form.addEventListener('submit', (event)=>{
+      console.log("use this for add OfflineStudent")
+      event.preventDefault();
+    })
+
+    ItemCreateHelper.generateTextEntry({
+      optionId:'create-student-name',
+      labelText:"Student Name"
+    }).forEach( element =>{
+      form.appendChild(element)
+    })
 
     return form;
   }
@@ -72,6 +99,23 @@ class ItemCreateHelper{
     input.id = optionId;
 
     return [label, input]
+  }
+
+  static generateDateInput({
+    labelText = "Some Date",
+    dateId = undefined,
+  }){
+
+    const label = document.createElement('label')
+    const dateInput = document.createElement('input');
+
+    label.innerText = labelText;
+    label.setAttribute('for', dateId);
+
+    dateInput.type = 'date';
+    dateInput.setAttribute('id',dateId);
+
+    return [label, dateInput]
   }
 
   static generateListMultiSelect({
@@ -133,4 +177,6 @@ class ItemCreateHelper{
     return [listLabel, listContainer]
 
   }
+
+  
 }

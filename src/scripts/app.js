@@ -781,7 +781,9 @@ const recorderApp = function RecorderApp(){
         
       break;
       case 'student':
-        console.log("Student not implemented yet")
+        container = document.querySelector('.item-create-form.student');
+
+        container.appendChild(ItemCreateHelper.generateStudentForm());
       break;
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
