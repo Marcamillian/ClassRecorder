@@ -460,6 +460,7 @@ class DBHelper{
     })
   }
 
+  // OFFLINE RESOURCES - ADD
   addOfflineClass({
     className = DBHelper.OFFLINE_CLASS_MODEL.className,
     attachedStudents = DBHelper.OFFLINE_CLASS_MODEL.attachedStudents
@@ -484,6 +485,7 @@ class DBHelper{
     this.addOfflineRecord(DBHelper.OFFLINE_STUDENT_STORE_NAME, {studentName}, "studentId")
   }
 
+  // OFFLINE RESOURCES GET
   getOfflineClasses(){
     return this.dbPromise.then( db =>{
       let tx = db.transaction(DBHelper.OFFLINE_CLASS_STORE_NAME)
@@ -498,6 +500,92 @@ class DBHelper{
       let lessonStore = tx.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME)
 
       return lessonStore.index('by-attached-class-id').getAll(offlineClassId);
+    })
+  }
+
+  // OFFLINE RESOURCES MODIFY
+  modifyOfflineClass({
+    classId = undefined,
+    className = undefined,
+    attachedStudents = undefined
+  }){
+
+    return this.dbPromise.then( db =>{
+
+      // check if we have a valid classId
+      if(classId == undefined) throw new Error(`Cannot modify class without classId`)
+
+      let tx = db.transaction(DBHelper.OFFLINE_CLASS_STORE_NAME, 'readwrite');
+      let classStore = tx.objectStore(DBHelper.OFFLINE_CLASS_STORE_NAME);
+
+      return classStore.index('by-class-id').openCursor(classId,'next')
+      .then( cursor =>{
+        // if there is nothing in the cursor
+        if(!cursor) throw new Error(`No record found for classId:${classId}`)
+
+        let updatedClass = {
+          classId: cursor.value['classId'],
+          className: (className) ? className : cursor.value['className'],
+          attachedStudents: (attachedStudents) ? attachedStudents : cursor.value['attachedStudents']
+        }
+
+        return cursor.update(updatedClass)
+      })
+    })
+  }
+
+  modifyOfflineLesson({
+    lessonId = undefined,
+    lessonName = undefined,
+    lessonDate = undefined,
+    attachedStudents = undefined
+  }){
+    return this.dbPromise.then( db =>{
+      //check that we have a lessonId
+      if(lessonId == undefined) throw new Error(`Cannot modify lesson without lessonId`)
+
+      let tx = db.transaction(DBHelper.OFFLINE_LESSON_STORE_NAME, 'readwrite');
+      let lessonStore = tx.objectStore(DBHelper.OFFLINE_LESSON_STORE_NAME);
+
+      return lessonStore.index('by-lesson-id').openCursor(lessonId, 'next')
+      .then( cursor =>{
+        if (!cursor) throw new Error(`No record found for lessonId: ${lessonId}`)
+
+        let updatedLesson = {
+          lessonId: cursor.value['lessonId'],
+          lessonName: (lessonName) ? lessonName : cursor.value['lessonName'],
+          lessonDate: (lessonDate) ? new Date(lessonDate) : cursor.value['lessonDate'],
+          attachedStudents: (attachedStudents) ? attachedStudents : cursor.value['attachedStudents']
+        }
+
+        return cursor.update(updatedLesson)
+      })
+    })
+  }
+
+  // TODO : Test this function
+  modifyOfflineStudent({
+    studentId = undefined,
+    studentName = undefined
+  }){
+
+    return this.dbPromise.then( db =>{
+      if( studentId == undefined ) throw new Error('Cannot modify student without studentId');
+
+      let tx = db.transaction(DBHelper.OFFLINE_STUDENT_STORE_NAME, 'readwrite');
+      let studentStore = tx.objectStore(DBHelper.OFFLINE_STUDENT_STORE_NAME);
+
+      return studentStore.index('by-student-id').openCursor(studentId, "next")
+      .then( cursor =>{
+        if( cursor == undefined ) throw new Error(`No record found for studentId ${studentId}`);
+
+        let updatedStudent = {
+          studentId: cursor.value['studentId'],
+          studentName : (studentName) ? studentName : cursor.value['studentName']
+        }
+
+        return cursor.update(updatedStudent);
+      })
     })
   }
 

@@ -7,6 +7,7 @@ class ItemCreateHelper{
 
   static generateClassForm({
     studentOptions= [],
+    existingClassObject= {},
     submitCallback = console.log
   }={}){
     const form = document.createElement('form');
@@ -28,15 +29,20 @@ class ItemCreateHelper{
     })
 
     // class name
-    ItemCreateHelper.generateTextEntry({optionId:"create-class-name" , labelText:"Class Name"}).forEach(element =>{
+    ItemCreateHelper.generateTextEntry({
+      optionId:"create-class-name" ,
+      labelText:"Class Name",
+      existingInput: existingClassObject.className})
+    .forEach(element =>{
       form.appendChild(element)
     });
 
     // attached students
     form.appendChild(this.generateListMultiSelect({
+      listId: "create-class-students",
       selectOptions: studentOptions,
       listLabelText: "Attached Students",
-      listId: "create-class-students"
+      existingSelection: existingClassObject.attachedStudents
     }))
 
     
@@ -130,7 +136,8 @@ class ItemCreateHelper{
 
   static generateTextEntry({
     optionId = undefined,
-    labelText = "Some option"
+    labelText = "Some option",
+    existingInput = undefined
   }={}){
     const label = document.createElement('label');
     label.innerText = labelText;
@@ -140,13 +147,16 @@ class ItemCreateHelper{
     input.type = "text";
     input.id = optionId;
     input.name = optionId;
+    input.innerText = existingInput || "";
+    input.value = input.innerText;
 
     return [label, input]
   }
 
   static generateDateInput({
-    labelText = "Some Date",
     dateId = undefined,
+    labelText = "Some Date",
+    existingInput = undefined
   }){
 
     const label = document.createElement('label')
@@ -158,15 +168,17 @@ class ItemCreateHelper{
     dateInput.type = 'date';
     dateInput.id = dateId;
     dateInput.name = dateId;
+    dateInput.innerText = existingInput | "";
 
 
     return [label, dateInput]
   }
 
   static generateListMultiSelect({
-    selectOptions = [],
     listId,
-    listLabelText = "Some List"
+    listLabelText = "Some List",
+    selectOptions = [],
+    existingSelection = []
   }){
     const fieldSet = document.createElement('fieldset');
     fieldSet.classList.add('option-div','active');
@@ -188,6 +200,8 @@ class ItemCreateHelper{
       option.classList.add(listId);
       option.type = 'checkbox';
       option.value = id;
+      // if the studentId is already selected
+      if(existingSelection.includes(id)) option.checked = true;
       
       elementLabel.setAttribute('for', elementId);
       elementLabel.innerText = labelText;
@@ -223,6 +237,33 @@ class ItemCreateHelper{
     
     return [listLabel, listContainer]
 
+  }
+
+  static prefillForm({
+    generatedForm,
+    classObject,
+    lessonObject,
+    studentObject
+  }){
+    if(classObject){
+      // enter the clasName
+      classNameInput = form.querySelector('input[create-class-name]')
+      classNameInput.value = classObject.className || "";
+      classNameInput.innerText = classObject.className || "";
+
+      // check the attachedStudents
+      classObject.attachedStudents.forEach( studentId =>{
+        //TODO: work on this retrofitting of the from
+        form.querySelector('input[type=checkbox]')
+      })
+
+    }else if(lessonObject){
+
+    }else if(studentObject){
+
+    }
+
+    return generatedForm
   }
 
   

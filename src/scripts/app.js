@@ -735,7 +735,7 @@ const recorderApp = function RecorderApp(){
 
   // ITEM CREATE FORMS
 
-  const updateItemCreate= (itemCreateType)=>{
+  const updateItemCreate =  (itemCreateType)=>{
 
     // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
@@ -809,6 +809,42 @@ const recorderApp = function RecorderApp(){
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
     
+  }
+
+  const updateItemCreateModify = (itemModifyType, itemId)=>{
+    // TODO: Generate pre-filled update form to update an object
+      // TODO : Decide whether we will manipulate the completed HTML or mark checked as we build it
+      
+
+    // clear the existing forms
+    document.querySelectorAll('.item-create-form').forEach(emptyHTML);
+    // update itemCreate form to take pre-filled options
+    // switch for item type
+    switch(itemCreateType){
+      case 'class':
+
+        const container = document.querySelector('.item-create-form.class')
+
+        dbHelper.getClass({classId:itemId})
+        .then( classObject =>{
+          container.appendChild(ItemCreateHelper.generateClassForm({
+
+          }))
+        })
+      break
+      case 'lesson':
+        console.log("modify lesson not implemented")
+      break;
+      case 'student':
+        console.log("mofdify student not implmented")
+      break;
+      default: 
+        throw new Error(`unknown modifyType: ${itemModifyType}`)
+      break
+    }
+      // get the item
+      // define the callback function
+      // generate the form HTML
   }
 
 
