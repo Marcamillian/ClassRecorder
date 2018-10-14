@@ -565,7 +565,6 @@ class DBHelper{
     })
   }
 
-  // TODO : Test this function
   modifyOfflineStudent({
     studentId = undefined,
     studentName = undefined

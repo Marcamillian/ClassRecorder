@@ -913,9 +913,19 @@ const recorderApp = function RecorderApp(){
           dbHelper.modifyOfflineStudent({studentId:itemId,studentName});
         }
 
-        const studentForm = generateItemCreateForm('student', submitCallback)
-        // TODO: Prefill the form
-        container.appendChild(studentForm);
+        // get the student
+        dbHelper.getStudent(itemId)
+        // generate the form & combine with student object
+        .then( studentObject =>{
+          let studentForm = generateItemCreateForm('student', submitCallback);
+          return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
+        })
+        // attached filled form to the document
+        .then( filledForm =>{
+          container.appendChild(filledForm);
+        })
+
+       
       break;
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }

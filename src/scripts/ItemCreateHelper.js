@@ -105,8 +105,6 @@ class ItemCreateHelper{
     const form = document.createElement('form');
     const submitButton = document.createElement('button')
 
-    // TODO: form validation
-
     form.addEventListener('submit', (event)=>{
       event.preventDefault();
 
@@ -281,15 +279,15 @@ class ItemCreateHelper{
         lessonDateInput.value = dateString;
         lessonDateInput.innerText =  dateString;
       }
-      
-      // ! TODO : change the dateString format to something that will work on the input[type=date] element
 
       var attachedClassInput = generatedForm.querySelector('[name=create-lesson-class]');
       attachedClassInput.value = lessonObject.attachedClass || "";
 
       
     }else if(studentObject){
-
+      var studentNameInput = generatedForm.querySelector('[name=create-student-name]');
+      studentNameInput.value = studentObject.studentName || "";
+      studentNameInput.innerText = studentObject.studentName || "";
     }
 
     return generatedForm
