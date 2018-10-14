@@ -200,6 +200,7 @@ class ItemCreateHelper{
       option.classList.add(listId);
       option.type = 'checkbox';
       option.value = id;
+      option.name = listId;
       // if the studentId is already selected
       if(existingSelection.includes(id)) option.checked = true;
       
@@ -247,18 +248,46 @@ class ItemCreateHelper{
   }){
     if(classObject){
       // enter the clasName
-      classNameInput = form.querySelector('input[create-class-name]')
+      var classNameInput = generatedForm.querySelector('input[name=create-class-name]')
       classNameInput.value = classObject.className || "";
       classNameInput.innerText = classObject.className || "";
 
       // check the attachedStudents
+
+      // get the form elements of 
+      var studentElements = [...generatedForm.getElementsByClassName('create-class-students')];
+      var studentValues = studentElements.map(studentEl => studentEl.value);
+
       classObject.attachedStudents.forEach( studentId =>{
-        //TODO: work on this retrofitting of the from
-        form.querySelector('input[type=checkbox]')
+
+        const elementIndex = studentValues.indexOf(studentId);
+
+        if(elementIndex != -1){
+          studentElements[elementIndex].checked = true;
+        }
       })
 
-    }else if(lessonObject){
+      return generatedForm;
 
+    }else if(lessonObject){
+      var lessonNameInput = generatedForm.querySelector('[name=create-lesson-name]');
+      lessonNameInput.value = lessonObject.lessonName || "";
+      lessonNameInput.innerText = lessonObject.lessonName || "";
+
+      var lessonDateInput = generatedForm.querySelector('[name=create-lesson-date]');
+      if(lessonObject.lessonDate){
+        let dateObject = new Date(lessonObject.lessonDate);
+        let dateString = dateObject.toISOString().split("T")[0];
+        lessonDateInput.value = dateString;
+        lessonDateInput.innerText =  dateString;
+      }
+      
+      // ! TODO : change the dateString format to something that will work on the input[type=date] element
+
+      var attachedClassInput = generatedForm.querySelector('[name=create-lesson-class]');
+      attachedClassInput.value = lessonObject.attachedClass || "";
+
+      
     }else if(studentObject){
 
     }

@@ -538,7 +538,8 @@ class DBHelper{
     lessonId = undefined,
     lessonName = undefined,
     lessonDate = undefined,
-    attachedStudents = undefined
+    attachedStudents = undefined,
+    attachedClass = undefined
   }){
     return this.dbPromise.then( db =>{
       //check that we have a lessonId
@@ -555,7 +556,8 @@ class DBHelper{
           lessonId: cursor.value['lessonId'],
           lessonName: (lessonName) ? lessonName : cursor.value['lessonName'],
           lessonDate: (lessonDate) ? new Date(lessonDate) : cursor.value['lessonDate'],
-          attachedStudents: (attachedStudents) ? attachedStudents : cursor.value['attachedStudents']
+          attachedStudents: (attachedStudents) ? attachedStudents : cursor.value['attachedStudents'],
+          attachedClass: (attachedClass) ? attachedClass : cursor.value['attachedClass']
         }
 
         return cursor.update(updatedLesson)

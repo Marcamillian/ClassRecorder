@@ -735,6 +735,50 @@ const recorderApp = function RecorderApp(){
 
   // ITEM CREATE FORMS
 
+  const generateItemCreateForm = (itemCreateType, submitCallback)=>{
+    // fill with appropriate form
+    switch(itemCreateType){
+      case 'class':
+
+        // get all students
+        return dbHelper.getAllStudents()
+        // format for the options
+        .then( studentObjects =>{
+          return studentObjects.map( studentObject =>{
+            return {id: studentObject.studentId, labelText:studentObject.studentName}
+          })
+        // return the class form
+        }).then( studentOptions =>{
+          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback })
+        })
+      break;
+      case 'lesson':
+
+        // get the classes
+        return dbHelper.getClasses()
+        // format the options
+        .then( classObjects =>{
+          return classObjects.map( ({classId, className}) =>{
+            return{id: classId, labelText: className}
+          })
+        })
+        // return the lesson form
+        .then( optionObjects =>{
+          return ItemCreateHelper.generateLessonForm({
+            classOptions: optionObjects,
+            submitCallback
+          })
+        })
+        
+      break;  
+      case 'student':
+        // return the student form 
+        return ItemCreateHelper.generateStudentForm({submitCallback});
+      break;
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+    }
+  }
+
   const updateItemCreate =  (itemCreateType)=>{
 
     // clear all the containers
@@ -753,17 +797,10 @@ const recorderApp = function RecorderApp(){
         submitCallback = ({ className, attachedStudents})=>{
           dbHelper.addOfflineClass({className, attachedStudents})
         }
-        
-        // get all students
-        dbHelper.getAllStudents()
-        // format for the options
-        .then( studentObjects =>{
-          return studentObjects.map( studentObject =>{
-            return {id: studentObject.studentId, labelText:studentObject.studentName}
-          })
-        }).then( studentOptions =>{
-          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback })
-        }).then( formElement => container.appendChild(formElement) )
+        // get the form
+        generateItemCreateForm('class', submitCallback).then( formElement =>{
+          container.appendChild(formElement)
+        })
       break;
       case 'lesson':
         container = document.querySelector('.item-create-form.lesson');
@@ -778,22 +815,8 @@ const recorderApp = function RecorderApp(){
 
         }
 
-        // get the classes
-        dbHelper.getClasses()
-        // format the options
-        .then( classObjects =>{
-          return classObjects.map( ({classId, className}) =>{
-            return{id: classId, labelText: className}
-          })
-        })
-        // create the element
-        .then( optionObjects =>{
-          return ItemCreateHelper.generateLessonForm({
-            classOptions: optionObjects,
-            submitCallback
-          })
-        })
-        // add to the page
+        // get the student form
+        generateItemCreateForm('lesson', submitCallback)
         .then( formElement => container.appendChild(formElement))
         
       break;  
@@ -804,7 +827,8 @@ const recorderApp = function RecorderApp(){
           dbHelper.addOfflineStudent({studentName});
         }
 
-        container.appendChild(ItemCreateHelper.generateStudentForm({submitCallback}));
+        const studentForm = generateItemCreateForm('student', submitCallback)
+        container.appendChild(studentForm);
       break;
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
@@ -812,39 +836,89 @@ const recorderApp = function RecorderApp(){
   }
 
   const updateItemCreateModify = (itemModifyType, itemId)=>{
-    // TODO: Generate pre-filled update form to update an object
-      // TODO : Decide whether we will manipulate the completed HTML or mark checked as we build it
-      
+    
+    // TODO: Generate a pre-filled form to modify an entry
+      // Tested in console manually and generating forms - submit action modifying student/class/lesson
 
-    // clear the existing forms
+    // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
-    // update itemCreate form to take pre-filled options
-    // switch for item type
-    switch(itemCreateType){
+
+    let container;
+    let submitCallback;
+
+    // fill with appropriate form
+    switch(itemModifyType){
       case 'class':
+        container = document.querySelector('.item-create-form.class');
 
-        const container = document.querySelector('.item-create-form.class')
-
-        dbHelper.getClass({classId:itemId})
-        .then( classObject =>{
-          container.appendChild(ItemCreateHelper.generateClassForm({
-
-          }))
+        // submit callback
+        submitCallback = ({ className, attachedStudents})=>{
+          dbHelper.modifyOfflineClass({classId: itemId,className, attachedStudents})
+        }
+        // get the form
+        generateItemCreateForm('class', submitCallback)
+        // pre-fill the form with class details
+        .then( classCreateForm =>{
+          // get the class
+          return dbHelper.getClass(itemId)
+          // combine the class Object with the form
+          .then( classObject =>{
+            return ItemCreateHelper.prefillForm({
+              generatedForm: classCreateForm,
+              classObject
+            })
+          })
         })
-      break
+        // add the form to the container
+        .then( formElement =>{
+          container.appendChild(formElement)
+        })
+      break;
       case 'lesson':
-        console.log("modify lesson not implemented")
-      break;
+        container = document.querySelector('.item-create-form.lesson');
+
+        submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+        
+          // get the attached class' student to add to the lesson
+          dbHelper.getClass(attachedClass)
+          // modify the lesson object in memory
+          .then( ({attachedStudents}) =>{
+            dbHelper.modifyOfflineLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
+          })
+
+        }
+
+        // get the student form
+        generateItemCreateForm('lesson', submitCallback)
+        // prefill the lesson values in the form
+        .then( lessonCreateForm =>{
+          // get the lessonObject to pre-fill
+          return dbHelper.getLesson(itemId)
+          // combine the lesson object with the form
+          .then( lessonObject =>{
+            return ItemCreateHelper.prefillForm({
+              generatedForm: lessonCreateForm,
+              lessonObject
+            })
+          })
+        })
+        // add the from element to the page
+        .then( formElement => container.appendChild(formElement))
+        
+      break;  
       case 'student':
-        console.log("mofdify student not implmented")
+        container = document.querySelector('.item-create-form.student');
+
+        submitCallback = ({studentName})=>{
+          dbHelper.modifyOfflineStudent({studentId:itemId,studentName});
+        }
+
+        const studentForm = generateItemCreateForm('student', submitCallback)
+        // TODO: Prefill the form
+        container.appendChild(studentForm);
       break;
-      default: 
-        throw new Error(`unknown modifyType: ${itemModifyType}`)
-      break
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
-      // get the item
-      // define the callback function
-      // generate the form HTML
   }
 
 
@@ -980,6 +1054,7 @@ const recorderApp = function RecorderApp(){
     dbHelper,
     studentSelectModel,
     updateFilterDisplay,
-    updateItemCreate
+    updateItemCreate,
+    updateItemCreateModify
   }
 }();
