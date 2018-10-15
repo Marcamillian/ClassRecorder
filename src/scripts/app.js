@@ -40,7 +40,9 @@ const recorderApp = function RecorderApp(){
   var recordTabBody = document.querySelector('.tab-body.record');
 
   var itemCreateTabBody = document.querySelector('.tab-body.item-create');
-  var itemCreateDropdown = document.querySelector('.tab-body.item-create .item-create-dropdown');
+  var itemCreateTypeDropdown = document.querySelector('.tab-body.item-create .item-create-type-dropdown');
+  var itemCreateOperationDropdown = document.querySelector('.tab-body.item-create .item-create-operation-dropdown');
+  var itemModifyItemSelect = document.querySelector('.tab-body.item-create .item-modify-item-select');
 
   var playbackTabBody = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
@@ -837,9 +839,6 @@ const recorderApp = function RecorderApp(){
 
   const updateItemCreateModify = (itemModifyType, itemId)=>{
     
-    // TODO: Generate a pre-filled form to modify an entry
-      // Tested in console manually and generating forms - submit action modifying student/class/lesson
-
     // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
 
@@ -931,7 +930,77 @@ const recorderApp = function RecorderApp(){
     }
   }
 
+  const itemCreateDropdownCallback = ()=>{
+    var operationType = itemCreateOperationDropdown.value;
+    var itemType = itemCreateTypeDropdown.value;
 
+    
+    switch(operationType){
+      case 'create':
+        updateItemCreate(itemType)
+      break;
+      case 'modify':
+        var selectOptions;
+
+        emptyHTML(itemModifyItemSelect);
+
+        // get the select options - format then to option objects
+        switch(itemType){
+          case 'class':
+            selectOptions = dbHelper.getClasses().then( classObjects=>{
+              return classObjects.map(classObject =>{
+                return {
+                  labelText: classObject.className,
+                  id: classObject.classId
+                }
+              })
+            });
+          break;
+          case 'lesson':
+            selectOptions = dbHelper.getLessons( lessonObjects =>{
+              return lessonObjects.map(lessonObject =>{
+                return{
+                  labelText: lessonObject.lessonName,
+                  id: lessonObject.lessonId
+                }
+              })
+            });
+          break;
+          case 'student':
+            selectOptions = dbHelper.getAllStudents( studentObjects =>{
+              return studentObjects.map( studentObject =>{
+                return{
+                  labelText: studentObject.studentName,
+                  id: studentObject.studentId
+                }
+              })
+            });
+          break;
+        }
+
+        selectOptions.then( itemOptions =>{
+          // !TODO: see if these itemOptions are making it to the list properly
+          return ItemCreateHelper.generateModifyItemSelect({
+            labelText : `Select ${itemType}`,
+            listId: 'modify-item-option',
+            itemObjects: itemOptions,
+            modifyItemSelectCallback: ({itemId})=>{
+              updateItemCreateModify(itemType, itemId)
+            }
+          })
+        })
+        .then( selectOptionElements =>{
+          selectOptionElements.forEach( selectOption => itemModifyItemSelect.appendChild(selectOption))
+        })
+
+      break;
+      default:
+        console.log(`unknown operation ${operationType}`)
+      break
+    }  
+    // if its a modify
+
+  }
 
 
   //    === INIT / IMPLEMENTATION    == 
@@ -1050,9 +1119,8 @@ const recorderApp = function RecorderApp(){
     updateClipList({searchType: filterType, searchKey})
   }
 
-  itemCreateDropdown.addEventListener('change', event =>{
-    updateItemCreate(event.target.value);
-  })
+  itemCreateTypeDropdown.addEventListener('change', itemCreateDropdownCallback);
+  itemCreateOperationDropdown.addEventListener('change', itemCreateDropdownCallback);
 
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());

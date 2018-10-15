@@ -293,5 +293,32 @@ class ItemCreateHelper{
     return generatedForm
   }
 
+  static generateModifyItemSelect({
+    labelText = "Some list",
+    listId = unedfined,
+    itemObjects,
+    modifyItemSelectCallback = console.log
+  }){
+    var modifyCallback = (event)=>{
+      let itemId = event.target.value;
+
+      modifyItemSelectCallback({itemId})
+    }
+
+    var listElements = ItemCreateHelper.generateListSingleSelect({
+      labelText,
+      listId
+    })
+
+    listElements.forEach( listElement =>{
+      listElement.addEventListener('click', modifyCallback);
+    })
+
+    // add callback to the checkbox items
+
+    // return the select element
+    return listElements;
+  }
+
   
 }

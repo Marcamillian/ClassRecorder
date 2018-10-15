@@ -63,11 +63,20 @@
 
         <section class="tab-body item-create">
             <div class="tab-container">
-                <select class="item-create-dropdown">
+
+                <select class="item-create-operation-dropdown">
+                    <option value="create">Create</option>
+                    <option value="modify">Modify</option>
+                </select>
+
+                <select class="item-create-type-dropdown">
                     <option value="class">Class</option>
                     <option value="lesson">Lesson</option>
                     <option value="student">Student</option>
                 </select>
+
+                <div class="item-modify-item-select"></div>
+
                 <div class="item-create-form class"></div>
                 <div class="item-create-form lesson"></div>
                 <div class="item-create-form student"></div>
