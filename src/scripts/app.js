@@ -934,71 +934,78 @@ const recorderApp = function RecorderApp(){
     var operationType = itemCreateOperationDropdown.value;
     var itemType = itemCreateTypeDropdown.value;
 
+    emptyHTML(itemModifyItemSelect);
     
     switch(operationType){
       case 'create':
         updateItemCreate(itemType)
       break;
       case 'modify':
-        var selectOptions;
-
-        emptyHTML(itemModifyItemSelect);
-
-        // get the select options - format then to option objects
-        switch(itemType){
-          case 'class':
-            selectOptions = dbHelper.getClasses().then( classObjects=>{
-              return classObjects.map(classObject =>{
-                return {
-                  labelText: classObject.className,
-                  id: classObject.classId
-                }
-              })
-            });
-          break;
-          case 'lesson':
-            selectOptions = dbHelper.getLessons( lessonObjects =>{
-              return lessonObjects.map(lessonObject =>{
-                return{
-                  labelText: lessonObject.lessonName,
-                  id: lessonObject.lessonId
-                }
-              })
-            });
-          break;
-          case 'student':
-            selectOptions = dbHelper.getAllStudents( studentObjects =>{
-              return studentObjects.map( studentObject =>{
-                return{
-                  labelText: studentObject.studentName,
-                  id: studentObject.studentId
-                }
-              })
-            });
-          break;
-        }
-
-        selectOptions.then( itemOptions =>{
-          // !TODO: see if these itemOptions are making it to the list properly
-          return ItemCreateHelper.generateModifyItemSelect({
-            labelText : `Select ${itemType}`,
-            listId: 'modify-item-option',
-            itemObjects: itemOptions,
-            modifyItemSelectCallback: ({itemId})=>{
-              updateItemCreateModify(itemType, itemId)
-            }
-          })
-        })
-        .then( selectOptionElements =>{
-          selectOptionElements.forEach( selectOption => itemModifyItemSelect.appendChild(selectOption))
-        })
-
+        generateModifyOptions(itemType)
       break;
       default:
         console.log(`unknown operation ${operationType}`)
       break
     }  
-    // if its a modify
+  }
+
+  const generateModifyOptions = (itemModifyType)=>{
+    
+    var optionObjects;
+    
+    // get the right option elements
+    switch(itemModifyType){
+      case 'class':
+        // get classObjects
+        optionObjects = dbHelper.getClasses()
+        //format them for option generation
+        .then(classObjects => classObjects.map( ({classId, className }) =>{
+            return {id: classId, labelText: className }
+        }))
+      break;
+      case 'lesson':
+        // get the lessons
+        optionObjects = dbHelper.getLessons()
+        // format lessons for option generation
+        .then(lessonObjects => lessonObjects.map( ({lessonId, lessonName})=>{
+          return {id:lessonId, labelText: lessonName}
+        }))
+      break;
+      case 'student':
+        // get the students
+        optionObjects = dbHelper.getAllStudents()
+        // format them for option generation
+        .then(studentObjects => studentObjects.map( ({studentId, studentName})=>{
+          return {id: studentId, labelText: studentName}
+        }))
+      break;
+      default:
+        throw new Error(`Unknown item type: ${itemModifyType}`)
+      break;
+    }
+
+    // generate the option elements
+    optionObjects.then(optionObjects =>{
+
+      var itemSelectCallback = (event)=>{
+        [...event.target.parentNode.children].forEach( element => element.checked = false)
+        event.target.checked = true;
+        updateItemCreateModify(itemModifyType, event.target.value)
+      }
+
+      return generateOptionElements({
+        optionLabel: 'modify-item-select',
+        optionList: optionObjects,
+        clickFunction: itemSelectCallback
+      })
+    })
+    // add it to the document
+    .then( optionElements =>{
+      optionElements.forEach( element =>{
+        itemModifyItemSelect.appendChild(element)
+      })
+    })
+
 
   }
 
