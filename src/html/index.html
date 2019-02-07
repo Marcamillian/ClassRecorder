@@ -29,6 +29,9 @@
             <li class="tab-label listen" tab-dest="playback">
                 <h2>Listen</h2>
             </li>
+            <li class="tab-label item-create" tab-dest="item-create">
+                <h2>Item Create</h2>
+            </li>
         </nav>
 
         <section class="tab-body record active">
@@ -58,6 +61,28 @@
             </div>
         </section>
 
+        <section class="tab-body item-create">
+            <div class="tab-container">
+
+                <select class="item-create-operation-dropdown">
+                    <option value="create">Create</option>
+                    <option value="modify">Modify</option>
+                </select>
+
+                <select class="item-create-type-dropdown">
+                    <option value="class">Class</option>
+                    <option value="lesson">Lesson</option>
+                    <option value="student">Student</option>
+                </select>
+
+                <div class="item-modify-item-select"></div>
+
+                <div class="item-create-form class"></div>
+                <div class="item-create-form lesson"></div>
+                <div class="item-create-form student"></div>
+            </div>
+        </section>
+
     </body>
     
     <script type="application/javascript" charset="utf-8" src="scripts/idb.js"></script>
@@ -65,6 +90,7 @@
     <script type="application/javascript" charset="utf-8" src="scripts/StudentSelectModel.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/ServiceWorkerHelper.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/FilterModel.js"></script>
+    <script type="application/javascript" charset="utf-8" src="scripts/ItemCreateHelper.js"></script>
     <script type="application/javascript" charset="utf-8" src="scripts/app.js"></script>
 </html>
 

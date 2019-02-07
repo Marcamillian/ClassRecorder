@@ -39,7 +39,12 @@ const recorderApp = function RecorderApp(){
 
   var recordTabBody = document.querySelector('.tab-body.record');
 
-  var playbackContainer = document.querySelector('.tab-body.playback');
+  var itemCreateTabBody = document.querySelector('.tab-body.item-create');
+  var itemCreateTypeDropdown = document.querySelector('.tab-body.item-create .item-create-type-dropdown');
+  var itemCreateOperationDropdown = document.querySelector('.tab-body.item-create .item-create-operation-dropdown');
+  var itemModifyItemSelect = document.querySelector('.tab-body.item-create .item-modify-item-select');
+
+  var playbackTabBody = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
   var clipListDisplay = document.querySelector('.clip-list');
   let clipFilterButton = document.querySelector('.clip-filter-button');
@@ -78,8 +83,9 @@ const recorderApp = function RecorderApp(){
     switch(tabDest){
       case 'record': recordTabBody.classList.add('active')
       break;
-      case 'playback': playbackContainer.classList.add('active')
+      case 'playback': playbackTabBody.classList.add('active')
       break;
+      case 'item-create': itemCreateTabBody.classList.add('active')
       default:
       break;
     }
@@ -128,7 +134,7 @@ const recorderApp = function RecorderApp(){
       event.preventDefault();
 
       // set the option
-      studentSelectModel.selectOption(Number(event.target.value))
+      studentSelectModel.selectOption(event.target.value);
       // change the page
       try{
         let activePage = studentSelectModel.nextPage();
@@ -195,7 +201,6 @@ const recorderApp = function RecorderApp(){
         break;
       }
       
-      console.log(recorder.state)
     })
     
   }
@@ -209,7 +214,7 @@ const recorderApp = function RecorderApp(){
   // show/hide the filter window
   const filterOptionSelectClicked = ({event, optionType})=>{
 
-    let optionId = Number(event.target.value);
+    let optionId = event.target.value;
 
     // prevent if filterSelectContainer is not active
     if(!clipFilterContainer.classList.contains('active')){
@@ -380,7 +385,9 @@ const recorderApp = function RecorderApp(){
       case 'class':
         // clear the class page
 
-          // fill the class list
+        // fill the class list
+
+          // get all the classObjects (offline and online)
         return dbHelper.getClasses()
         .then( classObjects =>{
           return classObjects.map( classObject =>{
@@ -401,19 +408,19 @@ const recorderApp = function RecorderApp(){
       case 'lesson':
         
         return dbHelper.getLessons(selectedClass)
+        // format data for options generator
         .then((lessonsForClass)=>{
-          // format data for options generator
           return lessonsForClass.map( lessonObject =>{
             return {id: lessonObject.lessonId, labelText: lessonObject.lessonName}
           })
         })
+        // generate the HTML elements
         .then( (optionObjects)=>{
-          // generate the elements
           return generateOptionElements({optionLabel:'sselect-lesson', optionList:optionObjects, selectedOptions, clickFunction: studentSelectOptionClicked})
         })
+        // add each element to the right page
         .then( lessonElements =>{
           emptyHTML(studentSelect_lessonList);
-          // add each element to the right page
           lessonElements.forEach(lessonElement => {
             studentSelect_lessonList.appendChild(lessonElement)
           })
@@ -422,17 +429,21 @@ const recorderApp = function RecorderApp(){
       break;
       case 'student':
 
+        // get the selected class (offline or online)
         return dbHelper.getClass(selectedClass)
+        // get each of the students objects on the class (offline and online)
         .then((classObject)=>{
           return Promise.all(classObject.attachedStudents.map((studentId)=>{
             return dbHelper.getStudent(studentId);
           }))
         })
+        // format the student object for creating object element
         .then( (studentArray)=>{
           return studentArray.map( studentObject =>{
             return {id: studentObject.studentId, labelText: studentObject.studentName}
           })
         })
+        // generate the option HTML
         .then(( optionObjects )=>{
           return generateOptionElements({
             optionLabel:'sselect-student',
@@ -440,6 +451,7 @@ const recorderApp = function RecorderApp(){
             multiSelect:true, selectedOptions,
             clickFunction: studentSelectOptionClicked})
         })
+        // attach the HTML to the document
         .then( (studentElements)=>{
           emptyHTML(studentSelect_studentList)
           studentElements.forEach( studentElement =>{
@@ -610,12 +622,11 @@ const recorderApp = function RecorderApp(){
     })
     // attach options to section and return section
     .then( optionElements =>{
-
       // generate the section container
       let classSection = generateFilterSectionElement({sectionName:'Class'});
       
-      optionElements.forEach( element =>{
-        classSection.appendChild(element)  
+      optionElements.forEach( (element, index) =>{
+        classSection.appendChild(element);
       })
 
       return classSection;
@@ -690,7 +701,6 @@ const recorderApp = function RecorderApp(){
     Promise.all(sectionPromises)
     // attach all the promises to the filter list
     .then( filterSections =>{
-
       // make the last one in the list active
       filterSections[filterSections.length-1].classList.add('active');
       // clear the container
@@ -725,7 +735,279 @@ const recorderApp = function RecorderApp(){
   }
 
 
+  // ITEM CREATE FORMS
 
+  const generateItemCreateForm = (itemCreateType, submitCallback)=>{
+    // fill with appropriate form
+    switch(itemCreateType){
+      case 'class':
+
+        // get all students
+        return dbHelper.getAllStudents()
+        // format for the options
+        .then( studentObjects =>{
+          return studentObjects.map( studentObject =>{
+            return {id: studentObject.studentId, labelText:studentObject.studentName}
+          })
+        // return the class form
+        }).then( studentOptions =>{
+          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback })
+        })
+      break;
+      case 'lesson':
+
+        // get the classes
+        return dbHelper.getClasses()
+        // format the options
+        .then( classObjects =>{
+          return classObjects.map( ({classId, className}) =>{
+            return{id: classId, labelText: className}
+          })
+        })
+        // return the lesson form
+        .then( optionObjects =>{
+          return ItemCreateHelper.generateLessonForm({
+            classOptions: optionObjects,
+            submitCallback
+          })
+        })
+        
+      break;  
+      case 'student':
+        // return the student form 
+        return ItemCreateHelper.generateStudentForm({submitCallback});
+      break;
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+    }
+  }
+
+  const updateItemCreate =  (itemCreateType)=>{
+
+    // clear all the containers
+    document.querySelectorAll('.item-create-form').forEach(emptyHTML);
+
+    let container;
+    let submitCallback;
+
+
+    // fill with appropriate form
+    switch(itemCreateType){
+      case 'class':
+        container = document.querySelector('.item-create-form.class');
+
+        // submit callback
+        submitCallback = ({ className, attachedStudents})=>{
+          dbHelper.addOfflineClass({className, attachedStudents})
+        }
+        // get the form
+        generateItemCreateForm('class', submitCallback).then( formElement =>{
+          container.appendChild(formElement)
+        })
+      break;
+      case 'lesson':
+        container = document.querySelector('.item-create-form.lesson');
+
+        submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+        
+          dbHelper.getClass(attachedClass).then( ({attachedStudents}) =>{
+
+            dbHelper.addOfflineLesson({lessonName, lessonDate, attachedClass, attachedStudents })
+
+          })
+
+        }
+
+        // get the student form
+        generateItemCreateForm('lesson', submitCallback)
+        .then( formElement => container.appendChild(formElement))
+        
+      break;  
+      case 'student':
+        container = document.querySelector('.item-create-form.student');
+
+        submitCallback = ({studentName})=>{
+          dbHelper.addOfflineStudent({studentName});
+        }
+
+        const studentForm = generateItemCreateForm('student', submitCallback)
+        container.appendChild(studentForm);
+      break;
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+    }
+    
+  }
+
+  const updateItemCreateModify = (itemModifyType, itemId)=>{
+    
+    // clear all the containers
+    document.querySelectorAll('.item-create-form').forEach(emptyHTML);
+
+    let container;
+    let submitCallback;
+
+    // fill with appropriate form
+    switch(itemModifyType){
+      case 'class':
+        container = document.querySelector('.item-create-form.class');
+
+        // submit callback
+        submitCallback = ({ className, attachedStudents})=>{
+          dbHelper.modifyOfflineClass({classId: itemId,className, attachedStudents})
+        }
+        // get the form
+        generateItemCreateForm('class', submitCallback)
+        // pre-fill the form with class details
+        .then( classCreateForm =>{
+          // get the class
+          return dbHelper.getClass(itemId)
+          // combine the class Object with the form
+          .then( classObject =>{
+            return ItemCreateHelper.prefillForm({
+              generatedForm: classCreateForm,
+              classObject
+            })
+          })
+        })
+        // add the form to the container
+        .then( formElement =>{
+          container.appendChild(formElement)
+        })
+      break;
+      case 'lesson':
+        container = document.querySelector('.item-create-form.lesson');
+
+        submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+        
+          // get the attached class' student to add to the lesson
+          dbHelper.getClass(attachedClass)
+          // modify the lesson object in memory
+          .then( ({attachedStudents}) =>{
+            dbHelper.modifyOfflineLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
+          })
+
+        }
+
+        // get the student form
+        generateItemCreateForm('lesson', submitCallback)
+        // prefill the lesson values in the form
+        .then( lessonCreateForm =>{
+          // get the lessonObject to pre-fill
+          return dbHelper.getLesson(itemId)
+          // combine the lesson object with the form
+          .then( lessonObject =>{
+            return ItemCreateHelper.prefillForm({
+              generatedForm: lessonCreateForm,
+              lessonObject
+            })
+          })
+        })
+        // add the from element to the page
+        .then( formElement => container.appendChild(formElement))
+        
+      break;  
+      case 'student':
+        container = document.querySelector('.item-create-form.student');
+
+        submitCallback = ({studentName})=>{
+          dbHelper.modifyOfflineStudent({studentId:itemId,studentName});
+        }
+
+        // get the student
+        dbHelper.getStudent(itemId)
+        // generate the form & combine with student object
+        .then( studentObject =>{
+          let studentForm = generateItemCreateForm('student', submitCallback);
+          return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
+        })
+        // attached filled form to the document
+        .then( filledForm =>{
+          container.appendChild(filledForm);
+        })
+
+       
+      break;
+      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+    }
+  }
+
+  const itemCreateDropdownCallback = ()=>{
+    var operationType = itemCreateOperationDropdown.value;
+    var itemType = itemCreateTypeDropdown.value;
+
+    emptyHTML(itemModifyItemSelect);
+    
+    switch(operationType){
+      case 'create':
+        updateItemCreate(itemType)
+      break;
+      case 'modify':
+        generateModifyOptions(itemType)
+      break;
+      default:
+        console.log(`unknown operation ${operationType}`)
+      break
+    }  
+  }
+
+  const generateModifyOptions = (itemModifyType)=>{
+    
+    var optionObjects;
+    
+    // get the right option elements
+    switch(itemModifyType){
+      case 'class':
+        // get classObjects
+        optionObjects = dbHelper.getClasses()
+        //format them for option generation
+        .then(classObjects => classObjects.map( ({classId, className }) =>{
+            return {id: classId, labelText: className }
+        }))
+      break;
+      case 'lesson':
+        // get the lessons
+        optionObjects = dbHelper.getLessons()
+        // format lessons for option generation
+        .then(lessonObjects => lessonObjects.map( ({lessonId, lessonName})=>{
+          return {id:lessonId, labelText: lessonName}
+        }))
+      break;
+      case 'student':
+        // get the students
+        optionObjects = dbHelper.getAllStudents()
+        // format them for option generation
+        .then(studentObjects => studentObjects.map( ({studentId, studentName})=>{
+          return {id: studentId, labelText: studentName}
+        }))
+      break;
+      default:
+        throw new Error(`Unknown item type: ${itemModifyType}`)
+      break;
+    }
+
+    // generate the option elements
+    optionObjects.then(optionObjects =>{
+
+      var itemSelectCallback = (event)=>{
+        [...event.target.parentNode.children].forEach( element => element.checked = false)
+        event.target.checked = true;
+        updateItemCreateModify(itemModifyType, event.target.value)
+      }
+
+      return generateOptionElements({
+        optionLabel: 'modify-item-select',
+        optionList: optionObjects,
+        clickFunction: itemSelectCallback
+      })
+    })
+    // add it to the document
+    .then( optionElements =>{
+      optionElements.forEach( element =>{
+        itemModifyItemSelect.appendChild(element)
+      })
+    })
+
+
+  }
 
 
   //    === INIT / IMPLEMENTATION    == 
@@ -757,7 +1039,6 @@ const recorderApp = function RecorderApp(){
         
         // move to the next page
         showStudentSelectPage(selectedPageName);
-        // TODO : REVERT ALL THESE CHANGES
           // seems to be working - except its a page out (e.g. title shows current page selection)
         updateStudentSelectTitle(studentSelectModel.selectedOptions);
           
@@ -845,13 +1126,20 @@ const recorderApp = function RecorderApp(){
     updateClipList({searchType: filterType, searchKey})
   }
 
+  itemCreateTypeDropdown.addEventListener('change', itemCreateDropdownCallback);
+  itemCreateOperationDropdown.addEventListener('change', itemCreateDropdownCallback);
+
   // display the current student select list
   updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
   // update the clip filter display
   updateFilterDisplay()
+  updateItemCreate('class');
 
   return {
     dbHelper,
-    studentSelectModel
+    studentSelectModel,
+    updateFilterDisplay,
+    updateItemCreate,
+    updateItemCreateModify
   }
 }();
