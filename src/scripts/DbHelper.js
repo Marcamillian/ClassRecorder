@@ -114,7 +114,7 @@ class DBHelper{
 
   constructor(){
     // popualte the database
-    this.dbPromise = idb.open(DBHelper.RECORDER_DB_NAME,3,(upgradeDb)=>{
+    this.dbPromise = idb.openDb(DBHelper.RECORDER_DB_NAME,3,(upgradeDb)=>{
       switch(upgradeDb.oldVersion){
         case 0:
           var clipStore = upgradeDb.createObjectStore( DBHelper.CLIP_STORE_NAME, {autoIncrement:true})
