@@ -63,7 +63,10 @@ function get_IDBScript(cb){
   .pipe( dest('./dist/scripts') )
 }
 
-
+function mjsScripts(cb){
+  return src('./src/scripts/**/*.js')
+  .pipe( dest('./dist/scripts') )
+}
 //utility functions
 
 // browser sync used from here - https://gist.github.com/jeromecoupe/0b807b0c1050647eb340360902c3203a

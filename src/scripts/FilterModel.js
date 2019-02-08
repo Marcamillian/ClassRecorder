@@ -46,5 +46,3 @@ class FilterModel{
   }
 
 }
-
-//module.exports = FilterModel;
