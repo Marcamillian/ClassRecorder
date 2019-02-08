@@ -121,4 +121,4 @@ exports.build_images = build_images;
 exports.serve_dev = serve_dev;
 exports.serve_prod = serve_prod;
 
-exports.default = serve_dev
+exports.default = series( build_files, serve_dev)
