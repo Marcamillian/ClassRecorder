@@ -14,8 +14,8 @@ export default class DbHelperMod {
 
   // constructor
   constructor(){
-    this.offlineHelper = new DbHelperOffline;
-    this.onlineHelper = new DbHelperOnline;
+    this.offlineHelper = new DbHelperOffline(DbHelperMod.DATABASE_NAME);
+    this.onlineHelper = new DbHelperOnline(DbHelperMod.DATABASE_NAME);
     
     this.dbPromise = idb.openDb( DbHelperMod.DATABASE_NAME , 1,(upgradeDb)=>{
       this.offlineHelper.storeInit(upgradeDb);
@@ -28,29 +28,29 @@ export default class DbHelperMod {
 
 
   // get methods
-  getClass({
+  getClasses({
     id = undefined,
     className = undefined,
     attachedStudents = undefined
   }){
-
+    return this.onlineHelper.getClasses(arguments[0])
   }
   
-  getLesson({
+  getLessons({
     id = undefined,
-    inClass = undefined,
-    student = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
     date = undefined,
-    lesson
+    name = undefined
   }){
-
+    return this.onlineHelper.getLessons(arguments[0])
   }
 
-  getStudent({
+  getStudents({
     id = undefined,
     name = undefined
   }){
-    
+    return this.onlineHelper.getStudents(arguments[0])
   }
 
   getClip({
@@ -58,18 +58,6 @@ export default class DbHelperMod {
     lessonId = undefined,
     studentId = undefined
   }){
-
-  }
-
-  getClasses(options){
-
-  }
-
-  getLessons(options){
-
-  }
-
-  getStudents(){
 
   }
 

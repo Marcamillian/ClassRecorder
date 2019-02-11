@@ -15,7 +15,7 @@ class DbHelperOnline{
 
   // constructor
   constructor( dbName ){
-
+    this.dbName = dbName;
   }
 
   storeInit(upgradeDb){
@@ -44,44 +44,95 @@ class DbHelperOnline{
     this.dbPromise = dbPromise;
   }
 
+  static hasMember(members = [], searchArray = []){
+
+    let result = false;
+
+    members.forEach( member =>{
+      if (searchArray.includes(member)) result = true
+    })
+
+    return result
+  }
+
+  searchRecords(storeName, searchFunction){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(storeName)
+      let recordStore = tx.objectStore(storeName)
+      let results = [];
+
+      recordStore.openCursor()
+      .then( function searchRecord(cursor){
+        // exit condition
+        if(cursor == undefined) return 
+
+        let recordObject = cursor.value
+        if( searchFunction(recordObject) ) results.push(recordObject)
+
+        return cursor.continue().then( searchRecord)
+      })
+
+      return tx.complete.then( ()=> results )
+    })
+      
+  }
+
   // get methods
-  getClass({
+  getClasses({
     id = undefined,
     className = undefined,
     attachedStudents = undefined
   }){
+    
+    function classSearch(classObject){
+      return (
+        (id == undefined || classObject.classId == id )
+        && (className == undefined || classObject.className == className)
+        && (attachedStudents == undefined || DbHelperOnline.hasMember( attachedStudents, classObject.attachedStudents))
+      )
+    }
 
+    return this.searchRecords(DbHelperOnline.STORE_NAMES.class, classSearch)
   }
   
-  getLesson({
+  getLessons({
     id = undefined,
-    inClass = undefined,
-    student = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
     date = undefined,
-    lesson
+    name = undefined
   }){
 
+    function lessonSearch(lessonObject){
+      return (
+        (id == undefined || id == lessonObject.lessonId)
+        && (attachedClass == undefined || attachedClass == lessonObject.attachedClass)
+        && (attachedStudents == undefined || DbHelperOnline.hasMember(attachedStudents, lessonObject.attachedStudents))
+        && (date == undefined || date == lessonObject.lessonDate)
+        && (name == undefined || name == lessonObject.lessonName)
+      )
+    }
+
+    return this.searchRecords(DbHelperOnline.STORE_NAMES.lesson, lessonSearch)
   }
 
-  getStudent({
+  getStudents({
     id = undefined,
     name = undefined
   }){
     
+    function studentSearch(studentObject){
+      return(
+        (id == undefined || id == studentObject.studentId)
+        && (name == undefined || name == studentObject.studentName)
+      )
+    }
+
+    return this.searchRecords(DbHelperOnline.STORE_NAMES.student, studentSearch )
   }
 
+  
 
-  getClasses(options){
-
-  }
-
-  getLessons(options){
-
-  }
-
-  getStudents(){
-
-  }
 
   // put methods (create)
   addRecord(storeName, recordObject){

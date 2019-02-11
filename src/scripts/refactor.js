@@ -4,7 +4,9 @@ import DbHelperMod from './DbHelperMod.js';
 
 let dbHelper = new DbHelperMod;
 
-dbHelper.populateFromSource()
+document.recorderApp = {
+  dbHelper
+}
 
 export default {
   dbHelper
