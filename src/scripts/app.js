@@ -1,4 +1,6 @@
 'use strict';
+import {DbHelperMod} from "./DbHelperMod.js";
+
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
