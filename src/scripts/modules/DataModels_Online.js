@@ -25,5 +25,4 @@ export const modelClip = {
   audioData: undefined
 } 
 
-
-
+export default {modelClass, modelLesson, modelStudent, modelClip}

@@ -1,5 +1,8 @@
 export { DbHelperOffline }
 
+import {modelClass, modelLesson, modelStudent, modelClip} from './DataModels_Offline.js';
+
+
 class DbHelperOffline{
 
   static get STORE_NAMES(){
@@ -41,14 +44,58 @@ class DbHelperOffline{
     this.dbPromise = dbPromise;
   }
 
+  // utilities
+  static hasMember(members = [], searchArray = []){
+    let result = false;
+    members.forEach( member =>{
+      if (searchArray.includes(member)) result = true
+    })
+
+    return result
+  }
+
+  static maskId(){
+
+  }
+
+  static revealId(){
+
+  }
 
   // get methods
+  searchRecords(storeName, searchFunction){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(storeName)
+      let recordStore = tx.objectStore(storeName)
+      let results = [];
+
+      recordStore.openCursor()
+      .then( function searchRecord(cursor){
+        // exit condition
+        if(cursor == undefined) return 
+        
+        //see if object passes
+        let recordObject = cursor.value;
+        if( searchFunction(recordObject) ) results.push(recordObject)
+
+        // continue the search
+        return cursor.continue().then( searchRecord )
+      })
+
+      return tx.complete.then( () => results )
+    })
+  }
+  
   getClass({
     id = undefined,
     className = undefined,
     attachedStudents = undefined
   }){
-
+    function classSearch(classObject){
+      return(
+        (id == undefined || i)
+      )
+    }
   }
   
   getLesson({
@@ -68,22 +115,9 @@ class DbHelperOffline{
     
   }
 
-
-  getClasses(options){
-
-  }
-
-  getLessons(options){
-
-  }
-
-  getStudents(){
-
-  }
-
   // put methods (create)
-  addRecord(dbPromise, storeName, recordObject){
-    return dbPromise.then((db)=>{
+  addRecord(storeName, recordObject){
+    return this.dbPromise.then((db)=>{
       let tx = db.transaction(storeName, 'readwrite');
       let objectStore = tx.objectStore(storeName);
 
@@ -92,16 +126,34 @@ class DbHelperOffline{
     })
   }
 
-  addClass(){
+  addClass({
+    className = modelClass.className,
+    attachedStudents = modelClass.attachedStudents
+  }){
+    attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
+    this.addRecord(DbHelperOffline.STORE_NAMES.class, {className, attachedStudents})
   }
 
-  addLesson(){
+  addLesson({
+    attachedClass = modelLesson.attachedClass,
+    attachedStudents = modelLesson.attachedStudents,
+    lessonDate = modelLesson.lessonDate,
+    lessonName = modelLesson.lessonName
+  }){
+    var dateMillisecond = new Date(lessonDate);
+    lessonDate = dateMillisecond.valueOf();
 
+    attachedClass = attachedClass.toString();
+    attachedStudents = attachedStudents.map( studentId => studentId.toString())
+
+    this.addRecord(DbHelperOffline.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
-  addStudent(){
-
+  addStudent({
+    studentName = modelStudent.studentName
+  }){
+    this.addRecord(DBHelperOffline.STORE_NAMES.student, {studentId})
   }
 
 }

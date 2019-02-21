@@ -1,6 +1,5 @@
 'use strict';
-import {DbHelperMod} from "./DbHelperMod.js";
-
+import DbHelperMod from "./DbHelperMod.js";
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
@@ -1145,3 +1144,5 @@ const recorderApp = function RecorderApp(){
     updateItemCreateModify
   }
 }();
+
+export default {updateManager, recorderApp}
