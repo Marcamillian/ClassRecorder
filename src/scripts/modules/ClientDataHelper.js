@@ -1,15 +1,15 @@
-export { DbHelperOffline }
+export { ClientDataHelper }
 
-import {modelClass, modelLesson, modelStudent, modelClip} from './DataModels_Offline.js';
+import {modelClass, modelLesson, modelStudent, modelClip} from './DataModels_Client.js';
 
 
-class DbHelperOffline{
+class ClientDataHelper{
 
   static get STORE_NAMES(){
     return {
-      class: 'offline-class-store',
-      lesson: 'offline-lesson-store',
-      student: 'offline-student-store'
+      class: 'client-class-store',
+      lesson: 'client-lesson-store',
+      student: 'client-student-store'
     }
   }
 
@@ -22,18 +22,18 @@ class DbHelperOffline{
     switch(upgradeDb.oldVersion){
       case 0:
 
-        var classStore = upgradeDb.createObjectStore( DbHelperOffline.STORE_NAMES.class, {autoIncrement: true} )
+        var classStore = upgradeDb.createObjectStore( ClientDataHelper.STORE_NAMES.class, {autoIncrement: true} )
         classStore.createIndex('by-name', 'className');
         classStore.createIndex('by-class-id', 'classId');
 
         
-        var lessonStore = upgradeDb.createObjectStore( DbHelperOffline.STORE_NAMES.lesson, {autoIncrement: true})
+        var lessonStore = upgradeDb.createObjectStore( ClientDataHelper.STORE_NAMES.lesson, {autoIncrement: true})
         lessonStore.createIndex('by-date', 'lessonDate')
         lessonStore.createIndex('by-name', 'className')
         lessonStore.createIndex('by-lesson-id', 'lessonId')
         lessonStore.createIndex('by-attached-class-id','attachedClass')
 
-        var studentStore = upgradeDb.createObjectStore( DbHelperOffline.STORE_NAMES.student, {autoIncrement: true})
+        var studentStore = upgradeDb.createObjectStore( ClientDataHelper.STORE_NAMES.student, {autoIncrement: true})
         studentStore.createIndex('by-name','studentName');
         studentStore.createIndex('by-student-id', 'studentId')
         
@@ -132,7 +132,7 @@ class DbHelperOffline{
   }){
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(DbHelperOffline.STORE_NAMES.class, {className, attachedStudents})
+    this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents})
   }
 
   addLesson({
@@ -147,13 +147,13 @@ class DbHelperOffline{
     attachedClass = attachedClass.toString();
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(DbHelperOffline.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
+    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
   addStudent({
     studentName = modelStudent.studentName
   }){
-    this.addRecord(DBHelperOffline.STORE_NAMES.student, {studentId})
+    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentId})
   }
 
 }

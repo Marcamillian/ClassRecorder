@@ -1,8 +1,8 @@
-export { DbHelperOnline }
+export { ServerDataHelper }
 
 import {modelClass, modelLesson, modelStudent, modelClip} from './OnlineDataModels.js';
 
-class DbHelperOnline{
+class ServerDataHelper{
 
   static get STORE_NAMES(){
     return {
@@ -22,19 +22,19 @@ class DbHelperOnline{
     switch(upgradeDb.oldVersion){
       case 0:
 
-        var clipStore = upgradeDb.createObjectStore( DbHelperOnline.STORE_NAMES.clip, {autoIncrement: true} )
+        var clipStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.clip, {autoIncrement: true} )
         clipStore.createIndex('by-date', 'recordedDate');
         clipStore.createIndex('by-class', 'classId')
         clipStore.createIndex('by-lesson', 'lessonId')
 
-        var classStore = upgradeDb.createObjectStore( DbHelperOnline.STORE_NAMES.class, {autoIncrement: true} )
+        var classStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.class, {autoIncrement: true} )
         classStore.createIndex('by-name', 'className');
         
-        var lessonStore = upgradeDb.createObjectStore( DbHelperOnline.STORE_NAMES.lesson, {autoIncrement: true})
+        var lessonStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.lesson, {autoIncrement: true})
         lessonStore.createIndex('by-date', 'lessonDate')
         lessonStore.createIndex('by-attached-class-id','attachedClass')
 
-        var studentStore = upgradeDb.createObjectStore( DbHelperOnline.STORE_NAMES.student, {autoIncrement: true})
+        var studentStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.student, {autoIncrement: true})
         studentStore.createIndex('by-name','studentName');
         
     }
@@ -88,11 +88,11 @@ class DbHelperOnline{
       return (
         (id == undefined || classObject.classId == id )
         && (className == undefined || classObject.className == className)
-        && (attachedStudents == undefined || DbHelperOnline.hasMember( attachedStudents, classObject.attachedStudents))
+        && (attachedStudents == undefined || ServerDataHelper.hasMember( attachedStudents, classObject.attachedStudents))
       )
     }
 
-    return this.searchRecords(DbHelperOnline.STORE_NAMES.class, classSearch)
+    return this.searchRecords(ServerDataHelper.STORE_NAMES.class, classSearch)
   }
   
   getLessons({
@@ -107,13 +107,13 @@ class DbHelperOnline{
       return (
         (id == undefined || id == lessonObject.lessonId)
         && (attachedClass == undefined || attachedClass == lessonObject.attachedClass)
-        && (attachedStudents == undefined || DbHelperOnline.hasMember(attachedStudents, lessonObject.attachedStudents))
+        && (attachedStudents == undefined || ServerDataHelper.hasMember(attachedStudents, lessonObject.attachedStudents))
         && (date == undefined || date == lessonObject.lessonDate)
         && (name == undefined || name == lessonObject.lessonName)
       )
     }
 
-    return this.searchRecords(DbHelperOnline.STORE_NAMES.lesson, lessonSearch)
+    return this.searchRecords(ServerDataHelper.STORE_NAMES.lesson, lessonSearch)
   }
 
   getStudents({
@@ -128,7 +128,7 @@ class DbHelperOnline{
       )
     }
 
-    return this.searchRecords(DbHelperOnline.STORE_NAMES.student, studentSearch )
+    return this.searchRecords(ServerDataHelper.STORE_NAMES.student, studentSearch )
   }
 
   
@@ -154,7 +154,7 @@ class DbHelperOnline{
     classId = classId.toString();
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(DbHelperOnline.STORE_NAMES.class, {classId, className, attachedStudents})
+    this.addRecord(ServerDataHelper.STORE_NAMES.class, {classId, className, attachedStudents})
   }
 
   addLesson({
@@ -171,7 +171,7 @@ class DbHelperOnline{
     attachedClass = attachedClass.toString()
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(DbHelperOnline.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
+    this.addRecord(ServerDataHelper.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
   addStudent({
@@ -180,7 +180,7 @@ class DbHelperOnline{
   }){
     studentId = studentId.toString();
 
-    this.addRecord(DbHelperOnline.STORE_NAMES.student, {studentId, studentName})
+    this.addRecord(ServerDataHelper.STORE_NAMES.student, {studentId, studentName})
   }
 
   populateDatabase(dataUrl){

@@ -1,5 +1,5 @@
-import { DbHelperOffline } from './modules/DbHelper_Offline.js'
-import { DbHelperOnline } from './modules/DbHelper_Online.js'
+import { ClientDataHelper } from './modules/ClientDataHelper.js'
+import { ServerDataHelper } from './modules/ServerDataHelper.js'
 
 export default class DbHelperMod {
 
@@ -14,16 +14,16 @@ export default class DbHelperMod {
 
   // constructor
   constructor(){
-    this.offlineHelper = new DbHelperOffline(DbHelperMod.DATABASE_NAME);
-    this.onlineHelper = new DbHelperOnline(DbHelperMod.DATABASE_NAME);
+    this.clientDataHelper = new ClientDataHelper(DbHelperMod.DATABASE_NAME);
+    this.serverDataHelper = new ServerDataHelper(DbHelperMod.DATABASE_NAME);
     
     this.dbPromise = idb.openDb( DbHelperMod.DATABASE_NAME , 1,(upgradeDb)=>{
-      this.offlineHelper.storeInit(upgradeDb);
-      this.onlineHelper.storeInit(upgradeDb);
+      this.clientDataHelper.storeInit(upgradeDb);
+      this.serverDataHelper.storeInit(upgradeDb);
     })
 
-    this.onlineHelper.dbPromiseInit(this.dbPromise)
-    this.offlineHelper.dbPromiseInit(this.dbPromise)
+    this.clientDataHelper.dbPromiseInit(this.dbPromise)
+    this.serverDataHelper.dbPromiseInit(this.dbPromise)
   }
 
 
@@ -33,7 +33,7 @@ export default class DbHelperMod {
     className = undefined,
     attachedStudents = undefined
   }){
-    return this.onlineHelper.getClasses(arguments[0])
+    return this.serverDataHelper.getClasses(arguments[0])
   }
   
   getLessons({
@@ -43,14 +43,14 @@ export default class DbHelperMod {
     date = undefined,
     name = undefined
   }){
-    return this.onlineHelper.getLessons(arguments[0])
+    return this.serverDataHelper.getLessons(arguments[0])
   }
 
   getStudents({
     id = undefined,
     name = undefined
   }){
-    return this.onlineHelper.getStudents(arguments[0])
+    return this.serverDataHelper.getStudents(arguments[0])
   }
 
   getClip({
@@ -101,6 +101,6 @@ export default class DbHelperMod {
   }
 
   populateFromSource(){
-    this.onlineHelper.populateDatabase(DbHelperMod.DATA_URL)
+    this.serverDataHelper.populateDatabase(DbHelperMod.DATA_URL)
   }
 }
