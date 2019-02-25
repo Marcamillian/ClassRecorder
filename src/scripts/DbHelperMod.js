@@ -61,12 +61,25 @@ export default class DbHelperMod {
 
   }
 
-  // put methods (create)
-  addDBRecord(){
+  getCompleteInfo(){ // get information of objects linked to clip (e.g. className from classId)
 
   }
 
+  getNames(){ // get class/lesson/student names for filter list display
+
+  }
+
+  // put methods (create)
+
   addClass(){
+    /* // DECIDE WHICH MODULE TO USE if we can hit server with a request
+    if(navigator.onLine){
+      console.log("do online class")
+    }else{
+      console.log("do offline class")
+    }
+    */
+
 
   }
 
