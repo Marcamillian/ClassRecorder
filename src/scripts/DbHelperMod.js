@@ -32,7 +32,7 @@ export default class DbHelperMod {
     id = undefined,
     className = undefined,
     attachedStudents = undefined
-  }){
+  }={}){
     return this.serverDataHelper.getClasses(arguments[0])
   }
   
@@ -42,14 +42,14 @@ export default class DbHelperMod {
     attachedStudents = undefined,
     date = undefined,
     name = undefined
-  }){
+  }={}){
     return this.serverDataHelper.getLessons(arguments[0])
   }
 
   getStudents({
     id = undefined,
     name = undefined
-  }){
+  }={}){
     return this.serverDataHelper.getStudents(arguments[0])
   }
 
@@ -58,7 +58,7 @@ export default class DbHelperMod {
     lessonId = undefined,
     studentId = undefined
   }){
-
+    
   }
 
   getCompleteInfo(){ // get information of objects linked to clip (e.g. className from classId)

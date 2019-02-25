@@ -55,6 +55,16 @@ class ServerDataHelper{
     return result
   }
 
+
+  getAllRecords(storeName){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(storeName)
+      let recordStore = tx.objectStore(storeName);
+      
+      return recordStore.getAll()
+    })
+  }
+
   searchRecords(storeName, searchFunction){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(storeName)
@@ -82,8 +92,15 @@ class ServerDataHelper{
     id = undefined,
     className = undefined,
     attachedStudents = undefined
-  }){
-    
+  } = {} ){
+    let storeName = ServerDataHelper.STORE_NAMES.class;
+
+    // if no objects specified - RETURN ALL
+    if( id == undefined && className == undefined && attachedStudents == undefined){
+      this.getAllRecords(storeName)
+    }
+
+    // if attributes specified - search for them
     function classSearch(classObject){
       return (
         (id == undefined || classObject.classId == id )
@@ -92,7 +109,7 @@ class ServerDataHelper{
       )
     }
 
-    return this.searchRecords(ServerDataHelper.STORE_NAMES.class, classSearch)
+    return this.searchRecords( storeName, classSearch)
   }
   
   getLessons({
@@ -101,7 +118,13 @@ class ServerDataHelper{
     attachedStudents = undefined,
     date = undefined,
     name = undefined
-  }){
+  }={}){
+    let storeName = ServerDataHelper.STORE_NAMES.lesson;
+
+    // if no attributes specified - return all
+    if( id == undefined && attachedClass == undefined && attachedStudents == undefined, date == undefined, name == undefined){
+      return this.getAllRecords(storeName)
+    }
 
     function lessonSearch(lessonObject){
       return (
@@ -113,14 +136,21 @@ class ServerDataHelper{
       )
     }
 
-    return this.searchRecords(ServerDataHelper.STORE_NAMES.lesson, lessonSearch)
+    return this.searchRecords(storeName, lessonSearch)
   }
 
   getStudents({
     id = undefined,
     name = undefined
-  }){
+  }={}){
     
+    let storeName = ServerDataHelper.STORE_NAMES.student
+
+    // if no attributes specified - return all
+    if( id == undefined && name == undefined){
+      return this.getAllRecords(storeName)
+    }
+
     function studentSearch(studentObject){
       return(
         (id == undefined || id == studentObject.studentId)
@@ -128,12 +158,10 @@ class ServerDataHelper{
       )
     }
 
-    return this.searchRecords(ServerDataHelper.STORE_NAMES.student, studentSearch )
+    return this.searchRecords(storeName, studentSearch )
   }
 
   
-
-
   // put methods (create)
   addRecord(storeName, recordObject){
     
