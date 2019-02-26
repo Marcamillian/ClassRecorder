@@ -152,16 +152,25 @@ class ClientDataHelper{
   }
 
   getStudents({
-    id = undefined,
+    studentId = undefined,
     studentName = undefined
   }={}){
 
     let storeName = ClientDataHelper.STORE_NAMES.student;
 
-    if( id == undefined && studentName == undefined ){
+    if( studentId == undefined && studentName == undefined ){
       return this.getAllRecords(storeName)
     }
     
+    function studentSearch(studentObject){
+      return(
+        (studentId == undefined || studentId == studentObject.studentId)
+        && ( studentName == undefined || studentName == studentObject.studentName)
+      )
+    }
+
+    return this.searchRecords( storeName, studentSearch )
+
   }
 
   // put methods (create)
