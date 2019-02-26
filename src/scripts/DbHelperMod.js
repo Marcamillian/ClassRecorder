@@ -29,7 +29,7 @@ export default class DbHelperMod {
 
   // get methods
   getClasses({
-    id = undefined,
+    classId = undefined,
     className = undefined,
     attachedStudents = undefined
   }={}){
@@ -37,7 +37,7 @@ export default class DbHelperMod {
   }
   
   getLessons({
-    id = undefined,
+    lessonId = undefined,
     attachedClass = undefined,
     attachedStudents = undefined,
     date = undefined,
@@ -47,7 +47,7 @@ export default class DbHelperMod {
   }
 
   getStudents({
-    id = undefined,
+    studentId = undefined,
     name = undefined
   }={}){
     return this.serverDataHelper.getStudents(arguments[0])

@@ -89,21 +89,21 @@ class ServerDataHelper{
 
   // get methods
   getClasses({
-    id = undefined,
+    classId = undefined,
     className = undefined,
     attachedStudents = undefined
   } = {} ){
     let storeName = ServerDataHelper.STORE_NAMES.class;
 
     // if no objects specified - RETURN ALL
-    if( id == undefined && className == undefined && attachedStudents == undefined){
+    if( classId == undefined && className == undefined && attachedStudents == undefined){
       this.getAllRecords(storeName)
     }
 
     // if attributes specified - search for them
     function classSearch(classObject){
       return (
-        (id == undefined || classObject.classId == id )
+        (classId == undefined || classId == classObject.classId )
         && (className == undefined || classObject.className == className)
         && (attachedStudents == undefined || ServerDataHelper.hasMember( attachedStudents, classObject.attachedStudents))
       )
@@ -113,26 +113,26 @@ class ServerDataHelper{
   }
   
   getLessons({
-    id = undefined,
+    lessonId = undefined,
     attachedClass = undefined,
     attachedStudents = undefined,
-    date = undefined,
-    name = undefined
+    lessonDate = undefined,
+    lessonName = undefined
   }={}){
     let storeName = ServerDataHelper.STORE_NAMES.lesson;
 
     // if no attributes specified - return all
-    if( id == undefined && attachedClass == undefined && attachedStudents == undefined, date == undefined, name == undefined){
+    if( lessonId == undefined && attachedClass == undefined && attachedStudents == undefined && lessonDate == undefined && lessonName == undefined){
       return this.getAllRecords(storeName)
     }
 
     function lessonSearch(lessonObject){
       return (
-        (id == undefined || id == lessonObject.lessonId)
+        (lessonId == undefined || lessonId == lessonObject.lessonId)
         && (attachedClass == undefined || attachedClass == lessonObject.attachedClass)
         && (attachedStudents == undefined || ServerDataHelper.hasMember(attachedStudents, lessonObject.attachedStudents))
-        && (date == undefined || date == lessonObject.lessonDate)
-        && (name == undefined || name == lessonObject.lessonName)
+        && (lessonDate == undefined || lessonDate == lessonObject.lessonDate)
+        && (lessonName == undefined || lessonName == lessonObject.lessonName)
       )
     }
 
@@ -140,21 +140,21 @@ class ServerDataHelper{
   }
 
   getStudents({
-    id = undefined,
-    name = undefined
+    studentId = undefined,
+    studentName = undefined
   }={}){
     
     let storeName = ServerDataHelper.STORE_NAMES.student
 
     // if no attributes specified - return all
-    if( id == undefined && name == undefined){
+    if( studentId == undefined && name == undefined){
       return this.getAllRecords(storeName)
     }
 
     function studentSearch(studentObject){
       return(
-        (id == undefined || id == studentObject.studentId)
-        && (name == undefined || name == studentObject.studentName)
+        (studentId == undefined || studentId == studentObject.studentId)
+        && (studentName == undefined || studentName == studentObject.studentName)
       )
     }
 
