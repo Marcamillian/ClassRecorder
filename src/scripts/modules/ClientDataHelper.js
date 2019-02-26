@@ -60,12 +60,12 @@ class ClientDataHelper{
     return result
   }
 
-  static maskId(){
-
+  static maskId(index){
+    return `#${index}`
   }
 
-  static revealId(){
-
+  static revealId(maskedIndex){
+    return maskedIndex.replace(/#/g, "");
   }
 
   // get methods
@@ -92,8 +92,7 @@ class ClientDataHelper{
         
         //see if object passes
         let recordObject = cursor.value;
-        let recordKey = cursor.key
-        if( searchFunction(recordObject, recordKey) ) results.push(recordObject)
+        if( searchFunction(recordObject) ) results.push(recordObject)
 
         // continue the search
         return cursor.continue().then( searchRecord )
@@ -104,28 +103,21 @@ class ClientDataHelper{
   }
   
   getClasses({
-    id = undefined,
+    classId = undefined,
     className = undefined,
     attachedStudents = undefined
   }={}){
 
-    // !! TODO : In Returning the objects we need to append their key?
-    // !! TODO : Where should we deal with the mask of the id (having a hash on it)
-    /*    -- outside ID comes in (serching for server data)
-          -- Don't want to return a false positive
-          -- Must include the hash at the search level
-    */
-
     let storeName = ClientDataHelper.STORE_NAMES.class;
 
-    if( id == undefined && className == undefined && attachedStudents == undefined ){
+    if( classId == undefined && className == undefined && attachedStudents == undefined ){
       return this.getAllRecords(storeName)
     }
 
     // if attributes stated - create a function to determine 
-    function classSearch(classObject, classKey){
+    function classSearch(classObject){
       return(
-        (id == undefined || id == classKey)
+        (classId == undefined || classId == classObject.classId)
         && (className == undefined || className == classObject.className )
         && (attachedStudents == undefined || ClientDataHelper.hasMember( attachedStudents, classObject.attachedStudents))
       )
@@ -165,12 +157,23 @@ class ClientDataHelper{
   }
 
   // put methods (create)
-  addRecord(storeName, recordObject){
+  addRecord(storeName, recordObject, idLabel = "id"){
     return this.dbPromise.then((db)=>{
       let tx = db.transaction(storeName, 'readwrite');
       let objectStore = tx.objectStore(storeName);
 
-      objectStore.put(recordObject);
+      // add the object to the store
+      objectStore.put(recordObject)
+      .then( autoKey =>{ // take the key that was automatically assigned to the record
+        objectStore.openCursor(autoKey) // open that record 
+        .then( cursor =>{ 
+          if(cursor){
+            // update the record - adding a id field with a value of the autokey with a mask 
+            cursor.update({...cursor.value, [idLabel]:ClientDataHelper.maskId(cursor.key)})
+            cursor.continue()
+          }
+        })
+      })
       return tx.complete;
     })
   }
@@ -181,7 +184,7 @@ class ClientDataHelper{
   }){
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents})
+    this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents}, "classId")
   }
 
   addLesson({
@@ -196,13 +199,13 @@ class ClientDataHelper{
     attachedClass = attachedClass.toString();
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, { attachedClass, attachedStudents, lessonDate, lessonName})
+    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, { attachedClass, attachedStudents, lessonDate, lessonName}, "lessonId")
   }
 
   addStudent({
     studentName = modelStudent.studentName
   }){
-    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName})
+    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName}, "studentId")
   }
 
   populateTestData(){
