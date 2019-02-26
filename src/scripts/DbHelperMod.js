@@ -33,7 +33,12 @@ export default class DbHelperMod {
     className = undefined,
     attachedStudents = undefined
   }={}){
-    return this.serverDataHelper.getClasses(arguments[0])
+    return Promise.all([
+      this.serverDataHelper.getClasses(arguments[0]),
+      this.clientDataHelper.getClasses(arguments[0])
+    ])
+    .then( resultsArray => resultsArray.flat()) // merge the array of results together
+    .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
   
   getLessons({
@@ -43,14 +48,24 @@ export default class DbHelperMod {
     date = undefined,
     name = undefined
   }={}){
-    return this.serverDataHelper.getLessons(arguments[0])
+    return Promise.all([
+      this.serverDataHelper.getLessons(arguments[0]),
+      this.clientDataHelper.getLessons(arguments[0])
+    ])
+    .then( resultsArray => resultsArray.flat()) // merge the array of results together
+    .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
   getStudents({
     studentId = undefined,
     name = undefined
   }={}){
-    return this.serverDataHelper.getStudents(arguments[0])
+    return Promise.all([
+      this.serverDataHelper.getStudents(arguments[0]),
+      this.clientDataHelper.getStudents(arguments[0])
+    ])
+    .then( resultsArray => resultsArray.flat()) // merge the array of results together
+    .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
   getClip({
