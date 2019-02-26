@@ -127,20 +127,28 @@ class ClientDataHelper{
   }
   
   getLessons({
-    id = undefined,
+    lessonId = undefined,
+    lessonName = undefined,
     attachedClass = undefined,
-    attachedStudents = undefined,
-    date = undefined,
-    name = undefined
+    attachedStudents = undefined
   }={}){
 
     let storeName = ClientDataHelper.STORE_NAMES.lesson;
 
-    if( id == undefined && attachedClass == undefined && attachedStudents == undefined && date == undefined && name == undefined  ){
+    if( lessonId == undefined && lessonName == undefined && attachedClass == undefined && attachedStudents == undefined  ){
       return this.getAllRecords(storeName)
     }
 
+    function lessonSearch(lessonObject){
+      return(
+        (lessonId == undefined || lessonId == lessonObject.lessonId)
+        && (lessonName == undefined || lessonName == lessonObject.lessonName)
+        && (attachedClass == undefined || attachedClass == lessonObject.attachedClass)
+        && (attachedStudents == undefined || ClientDataHelper.hasMember(attachedStudents, lessonObject.attachedStudents))
+      )
+    }
 
+    return this.searchRecords( storeName, lessonSearch)
   }
 
   getStudents({
