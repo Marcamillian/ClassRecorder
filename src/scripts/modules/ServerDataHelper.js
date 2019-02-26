@@ -6,10 +6,10 @@ class ServerDataHelper{
 
   static get STORE_NAMES(){
     return {
-      class: 'class-store',
-      lesson: 'lesson-store',
-      student: 'student-store',
-      clip: 'clip-store'
+      class: 'server-class-store',
+      lesson: 'server-lesson-store',
+      student: 'server-student-store',
+      clip: 'server-clip-store'
     }
   }
 
@@ -22,11 +22,6 @@ class ServerDataHelper{
     switch(upgradeDb.oldVersion){
       case 0:
 
-        var clipStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.clip, {autoIncrement: true} )
-        clipStore.createIndex('by-date', 'recordedDate');
-        clipStore.createIndex('by-class', 'classId')
-        clipStore.createIndex('by-lesson', 'lessonId')
-
         var classStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.class, {autoIncrement: true} )
         classStore.createIndex('by-name', 'className');
         
@@ -36,6 +31,11 @@ class ServerDataHelper{
 
         var studentStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.student, {autoIncrement: true})
         studentStore.createIndex('by-name','studentName');
+
+        var clipStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.clip, {autoIncrement: true} )
+        clipStore.createIndex('by-date', 'recordedDate');
+        clipStore.createIndex('by-class', 'classId')
+        clipStore.createIndex('by-lesson', 'lessonId')
         
     }
   }

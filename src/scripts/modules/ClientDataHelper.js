@@ -9,7 +9,8 @@ class ClientDataHelper{
     return {
       class: 'client-class-store',
       lesson: 'client-lesson-store',
-      student: 'client-student-store'
+      student: 'client-student-store',
+      clip: 'client-clip-store'
     }
   }
 
@@ -36,6 +37,11 @@ class ClientDataHelper{
         var studentStore = upgradeDb.createObjectStore( ClientDataHelper.STORE_NAMES.student, {autoIncrement: true})
         studentStore.createIndex('by-name','studentName');
         studentStore.createIndex('by-student-id', 'studentId')
+
+        var clipStore = upgradeDb.createObjectStore( ClientDataHelper.STORE_NAMES.clip, {autoIncrement: true} )
+        clipStore.createIndex('by-date', 'recordedDate');
+        clipStore.createIndex('by-class', 'classId')
+        clipStore.createIndex('by-lesson', 'lessonId')
         
     }
   }
@@ -63,6 +69,16 @@ class ClientDataHelper{
   }
 
   // get methods
+  
+  getAllRecords(storeName){
+    return this.dbPromise.then((db)=>{
+      let tx = db.transaction(storeName)
+      let recordStore = tx.objectStore(storeName)
+
+      return recordStore.getAll()
+    })
+  }
+  
   searchRecords(storeName, searchFunction){
     return this.dbPromise.then( db =>{
       let tx = db.transaction(storeName)
@@ -76,7 +92,8 @@ class ClientDataHelper{
         
         //see if object passes
         let recordObject = cursor.value;
-        if( searchFunction(recordObject) ) results.push(recordObject)
+        let recordKey = cursor.key
+        if( searchFunction(recordObject, recordKey) ) results.push(recordObject)
 
         // continue the search
         return cursor.continue().then( searchRecord )
@@ -86,32 +103,64 @@ class ClientDataHelper{
     })
   }
   
-  getClass({
+  getClasses({
     id = undefined,
     className = undefined,
     attachedStudents = undefined
-  }){
-    function classSearch(classObject){
+  }={}){
+
+    // !! TODO : In Returning the objects we need to append their key?
+    // !! TODO : Where should we deal with the mask of the id (having a hash on it)
+    /*    -- outside ID comes in (serching for server data)
+          -- Don't want to return a false positive
+          -- Must include the hash at the search level
+    */
+
+    let storeName = ClientDataHelper.STORE_NAMES.class;
+
+    if( id == undefined && className == undefined && attachedStudents == undefined ){
+      return this.getAllRecords(storeName)
+    }
+
+    // if attributes stated - create a function to determine 
+    function classSearch(classObject, classKey){
       return(
-        (id == undefined || i)
+        (id == undefined || id == classKey)
+        && (className == undefined || className == classObject.className )
+        && (attachedStudents == undefined || ClientDataHelper.hasMember( attachedStudents, classObject.attachedStudents))
       )
     }
+
+    return this.searchRecords( storeName, classSearch)
   }
   
-  getLesson({
+  getLessons({
     id = undefined,
-    inClass = undefined,
-    student = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
     date = undefined,
-    lesson
-  }){
+    name = undefined
+  }={}){
+
+    let storeName = ClientDataHelper.STORE_NAMES.lesson;
+
+    if( id == undefined && attachedClass == undefined && attachedStudents == undefined && date == undefined && name == undefined  ){
+      return this.getAllRecords(storeName)
+    }
+
 
   }
 
-  getStudent({
+  getStudents({
     id = undefined,
-    name = undefined
-  }){
+    studentName = undefined
+  }={}){
+
+    let storeName = ClientDataHelper.STORE_NAMES.student;
+
+    if( id == undefined && studentName == undefined ){
+      return this.getAllRecords(storeName)
+    }
     
   }
 
@@ -147,13 +196,26 @@ class ClientDataHelper{
     attachedClass = attachedClass.toString();
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, {lessonId, attachedClass, attachedStudents, lessonDate, lessonName})
+    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, { attachedClass, attachedStudents, lessonDate, lessonName})
   }
 
   addStudent({
     studentName = modelStudent.studentName
   }){
-    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentId})
+    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName})
+  }
+
+  populateTestData(){
+    this.addClass({className:"Test Class 1", attachedStudents:['2','#1'] });
+    this.addClass({className:"Test Class 2", attachedStudents:['1','2','3'] });
+
+    this.addLesson({lessonName:"Test lesson 1", attachedClass:'#1', attachedStudents:['2','#1'] });
+    this.addLesson({lessonName:"Test lesson 2", attachedClass:1, attachedStudents:['1','2','3'] });
+
+    this.addStudent({studentName:"Test Student1"});
+    this.addStudent({studentName:"Test Student2"});
+
+    console.log( "populated test client data")
   }
 
 }
