@@ -73,11 +73,21 @@ export default class DbHelperMod {
     lessonId = undefined,
     studentId = undefined
   }){
-    
+    return Promise.all([
+      this.serverDataHelper.getClips(arguments[0]),
+      this.clientDataHelper.getClips(arguments[0])
+    ])
+    .then( resultsArray => resultsArray.flat()) // merge the array of results together
+    .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
-  getCompleteInfo(){ // get information of objects linked to clip (e.g. className from classId)
-
+  // !!TODO : rewrite this  
+  getCompleteInfo({
+    classId = undefined,
+    lessonId = undefined,
+    studentId = undefined
+  }={}){ // get information of objects linked to clip (e.g. className from classId)
+    
   }
 
   getNames(){ // get class/lesson/student names for filter list display

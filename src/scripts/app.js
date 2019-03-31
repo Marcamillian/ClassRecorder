@@ -60,7 +60,7 @@ const recorderApp = function RecorderApp(){
   
   let studentSelectModel = new StudentSelectPageModel(); // for the tagging of clips
   let clipFilterModel = new FilterModel();  // for selecting the clip filter
-  let dbHelper = new DBHelper(); // for interacting with the database
+  let dbHelper = new DBHelperMod(); // for interacting with the database
 
   // == JS VARIABLES
 
@@ -177,7 +177,7 @@ const recorderApp = function RecorderApp(){
     lessonId,
     studentIds
   })=>{
-    return dbHelper.addClip({classId, lessonId, studentIds, audioData:audioBlob})
+    return dbHelper.addClip({attachedClass: classId, attachedLesson: lessonId, attachedStudents:studentIds, audioData:audioBlob})
   }
 
   // combine audio chunks into one file
@@ -408,7 +408,7 @@ const recorderApp = function RecorderApp(){
       break;
       case 'lesson':
         
-        return dbHelper.getLessons(selectedClass)
+        return dbHelper.getLessons({attachedClass: selectedClass})
         // format data for options generator
         .then((lessonsForClass)=>{
           return lessonsForClass.map( lessonObject =>{
@@ -431,11 +431,11 @@ const recorderApp = function RecorderApp(){
       case 'student':
 
         // get the selected class (offline or online)
-        return dbHelper.getClass(selectedClass)
+        return dbHelper.getClasses({classId: selectedClass})
         // get each of the students objects on the class (offline and online)
         .then((classObject)=>{
           return Promise.all(classObject.attachedStudents.map((studentId)=>{
-            return dbHelper.getStudent(studentId);
+            return dbHelper.getStudents({studentId: studentId});
           }))
         })
         // format the student object for creating object element
@@ -520,8 +520,8 @@ const recorderApp = function RecorderApp(){
     
     let requests = []
 
-    if(selectState.class) requests.push(dbHelper.getClass(selectState.class))
-    if(selectState.lesson) requests.push(dbHelper.getLesson(selectState.lesson))
+    if(selectState.class) requests.push(dbHelper.getClasses({ classId: selectState.class }))
+    if(selectState.lesson) requests.push(dbHelper.getLessons({ lessonId: selectState.lesson} ))
 
     Promise.all(requests)
     .then((response)=>{
@@ -546,15 +546,16 @@ const recorderApp = function RecorderApp(){
 
     let clipRequest;
 
+    // search key is classId / lessonId / studentId
     switch(searchType){
       case "class":
-        clipRequest = dbHelper.getClipsByClass(searchKey);
+        clipRequest = dbHelper.getClips({ classId: searchKey });
       break;
       case "lesson":
-        clipRequest = dbHelper.getClipsByLesson(searchKey);
+        clipRequest = dbHelper.getClips({ lessonId: searchKey });
       break;
       case "student":
-        clipRequest = dbHelper.getClipsByStudent(searchKey);
+        clipRequest = dbHelper.getClips({ studentId: searchKey });
       break;
       default:
         throw new Error(`Cannot get clips from db: searchType ${searchType} not supported`)
@@ -571,7 +572,7 @@ const recorderApp = function RecorderApp(){
 
       // add the new clips in
       clipObjects.forEach((clipObject)=>{
-
+        // !! TODO : Working from here - re-write getCompleteInfo
         // get the details of the classes/lessons/students attached to the clip
         return dbHelper.getCompleteInfo({
           classId:clipObject.classId,
