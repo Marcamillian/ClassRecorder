@@ -86,7 +86,10 @@ export default class DbHelperMod {
 
   // put methods (create)
 
-  addClass(){
+  addClass({
+    className,
+    attachedStudents
+  }={}){
     /* // DECIDE WHICH MODULE TO USE if we can hit server with a request
     if(navigator.onLine){
       console.log("do online class")
@@ -94,16 +97,31 @@ export default class DbHelperMod {
       console.log("do offline class")
     }
     */
-
-
+    this.clientDataHelper.addClass({className, attachedStudents})
   }
 
-  addLesson(){
-
+  addLesson({
+    lessonName,
+    lessonDate = Date.now(),
+    attachedClass,
+    attachedStudents
+  }={}){
+    this.clientDataHelper.addLesson({lessonName, lessonDate, attachedClass, attachedStudents})
   }
 
-  addStudent(){
+  addStudent({
+    studentName
+  }){
+    this.clientDataHelper.addStudent({studentName})
+  }
 
+  addClip({
+    attachedClass,
+    attachedLesson,
+    attachedStudent,
+    audioData
+  }={}){
+    this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
   }
 
 
@@ -116,6 +134,7 @@ export default class DbHelperMod {
   }
 
   populateFromSource(){
-    this.serverDataHelper.populateDatabase(DbHelperMod.DATA_URL)
+    this.serverDataHelper.populateDatabase(DbHelperMod.DATA_URL);
+    this.clientDataHelper.populateTestData();
   }
 }

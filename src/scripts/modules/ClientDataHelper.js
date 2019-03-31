@@ -198,7 +198,7 @@ class ClientDataHelper{
   addClass({
     className = modelClass.className,
     attachedStudents = modelClass.attachedStudents
-  }){
+  }={}){
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
     this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents}, "classId")
@@ -209,20 +209,28 @@ class ClientDataHelper{
     attachedStudents = modelLesson.attachedStudents,
     lessonDate = modelLesson.lessonDate,
     lessonName = modelLesson.lessonName
-  }){
+  }={}){
     var dateMillisecond = new Date(lessonDate);
     lessonDate = dateMillisecond.valueOf();
 
     attachedClass = attachedClass.toString();
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(ClientDataHelper.STORE_NAMES.lesson, { attachedClass, attachedStudents, lessonDate, lessonName}, "lessonId")
+    return this.addRecord(ClientDataHelper.STORE_NAMES.lesson, { attachedClass, attachedStudents, lessonDate, lessonName}, "lessonId")
   }
 
   addStudent({
     studentName = modelStudent.studentName
-  }){
+  }={}){
     this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName}, "studentId")
+  }
+
+  addClip({
+    attachedLesson = modelClip.attachedLesson,
+    attachedStudents = modelClip.attachedStudents,
+    audioData = modelClip.audioData
+  }={}){
+    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedLesson, attachedStudents, audioData}, "clipId")
   }
 
   populateTestData(){
