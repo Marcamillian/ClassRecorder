@@ -81,17 +81,51 @@ export default class DbHelperMod {
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
-  // !!TODO : rewrite this  
   getCompleteInfo({
     classId = undefined,
     lessonId = undefined,
     studentId = undefined
-  }={}){ // get information of objects linked to clip (e.g. className from classId)
-    
+  }={}){// get information of objects linked to clip (e.g. associated class/lesson/student)
+
+    // exit if not given al the points
+    if(classId == undefined || lessonId == undefined || studentIds == undefined){
+      throw new Error(`Complete info not provided | Class:${classId}, lesson:${lessonId}, student:${studentIds}`)
+    }
+
+    return Promise.all([
+      this.getClass(classId),
+      this.getLesson(lessonId),
+      this.getStudents(studentIds)
+    ])
+    .then( infoObjects=>{
+      return {
+        class:infoObjects[0],
+        lesson:infoObjects[1],
+        students:infoObjects[2]
+      }
+    })
   }
 
-  getNames(){ // get class/lesson/student names for filter list display
+  // !TODO : attached Students equivilent - NEED TO GET STUDENT OBJECTS FROM their IDs
+  getNames({
+    classId = undefined,
+    lessonId = undefined,
+    attachedStudents = []
+  }={}){ // get class/lesson/student names for filter list display
+    
+    let studentsPromise = attachedStudents.map( studentId => this.getStudents({ studentId }))
 
+    return Promise.all([
+      this.getClasses({ classId }),
+      this.getLessons({ lessonId }),
+      Promise.all(studentPromises)
+    ]).then( responses =>{
+      return {
+        className: responses[0] ? responses[0].className : undefined,
+        lessonName: responses[1] ? responses[1].className : undefined,
+        studentNames: responses[2] ? responses[2].map( studentObject => studentObject.studentName ) : undefined
+      }
+    })
   }
 
   // put methods (create)
@@ -132,6 +166,17 @@ export default class DbHelperMod {
     audioData
   }={}){
     this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
+  }
+
+  // ! TODO: fill out this call - replace modifyOfflineClass - in both client and server helper
+  updateClass({
+    classId = undefined,
+    className = undefined,
+    attachedStudents = undefined
+  }){
+    // check if we need to do for client or server
+
+    // assume that all modification at this point is client?
   }
 
 

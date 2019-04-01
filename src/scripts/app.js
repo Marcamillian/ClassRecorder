@@ -60,7 +60,7 @@ const recorderApp = function RecorderApp(){
   
   let studentSelectModel = new StudentSelectPageModel(); // for the tagging of clips
   let clipFilterModel = new FilterModel();  // for selecting the clip filter
-  let dbHelper = new DBHelperMod(); // for interacting with the database
+  let dbHelper = new DbHelperMod(); // for interacting with the database
 
   // == JS VARIABLES
 
@@ -572,7 +572,7 @@ const recorderApp = function RecorderApp(){
 
       // add the new clips in
       clipObjects.forEach((clipObject)=>{
-        // !! TODO : Working from here - re-write getCompleteInfo
+        
         // get the details of the classes/lessons/students attached to the clip
         return dbHelper.getCompleteInfo({
           classId:clipObject.classId,
@@ -639,7 +639,7 @@ const recorderApp = function RecorderApp(){
     // if we have a class we need to show the lesson list
     if(filterState.class != undefined){
       // get the lesson data - adding promise to the list
-      sectionPromises[1] = dbHelper.getLessons(filterState.class)
+      sectionPromises[1] = dbHelper.getLessons({ attachedClass: filterState.class })
       // process into option element format
       .then( lessonObjects =>{
         return lessonObjects.map( ({lessonId, lessonName }) =>{
@@ -669,11 +669,11 @@ const recorderApp = function RecorderApp(){
     // if we have a lesson we need to show a student list
     if(filterState.lesson != undefined){
       // get the students in the class
-      sectionPromises[2] = dbHelper.getClass(filterState.class)
+      sectionPromises[2] = dbHelper.getClass({ attachedClass: filterState.class })
       // get each student in the class
       .then( ({attachedStudents}) =>{
         return Promise.all( attachedStudents.map( studentId =>{
-          return dbHelper.getStudent(studentId)
+          return dbHelper.getStudent({studentId})
         }))
       })
       // format studentObjects into option format
@@ -717,7 +717,7 @@ const recorderApp = function RecorderApp(){
       return dbHelper.getNames({
         classId:filterState.class,
         lessonId:filterState.lesson,
-        studentIds:[filterState.student]
+        attachedStudents:[filterState.student]
       
       })
       // combine names into a title
@@ -745,7 +745,7 @@ const recorderApp = function RecorderApp(){
       case 'class':
 
         // get all students
-        return dbHelper.getAllStudents()
+        return dbHelper.getStudents()
         // format for the options
         .then( studentObjects =>{
           return studentObjects.map( studentObject =>{
@@ -799,7 +799,7 @@ const recorderApp = function RecorderApp(){
 
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
-          dbHelper.addOfflineClass({className, attachedStudents})
+          dbHelper.addClass({className, attachedStudents})
         }
         // get the form
         generateItemCreateForm('class', submitCallback).then( formElement =>{
@@ -811,9 +811,9 @@ const recorderApp = function RecorderApp(){
 
         submitCallback = ({lessonName, lessonDate, attachedClass})=>{
         
-          dbHelper.getClass(attachedClass).then( ({attachedStudents}) =>{
+          dbHelper.getClasses({classId: attachedClass}).then( ({ attachedStudents }) =>{
 
-            dbHelper.addOfflineLesson({lessonName, lessonDate, attachedClass, attachedStudents })
+            dbHelper.addLesson({lessonName, lessonDate, attachedClass, attachedStudents })
 
           })
 
@@ -828,7 +828,7 @@ const recorderApp = function RecorderApp(){
         container = document.querySelector('.item-create-form.student');
 
         submitCallback = ({studentName})=>{
-          dbHelper.addOfflineStudent({studentName});
+          dbHelper.addStudent({studentName});
         }
 
         const studentForm = generateItemCreateForm('student', submitCallback)
@@ -854,6 +854,7 @@ const recorderApp = function RecorderApp(){
 
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
+          // !TODO: Working from here - need to write modify offline class
           dbHelper.modifyOfflineClass({classId: itemId,className, attachedStudents})
         }
         // get the form
@@ -1015,7 +1016,7 @@ const recorderApp = function RecorderApp(){
   //    === INIT / IMPLEMENTATION    == 
 
   // populate data to the database
-  dbHelper.populateDatabase()
+  dbHelper.populateFromSource()
 
   // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
