@@ -106,7 +106,6 @@ export default class DbHelperMod {
     })
   }
 
-  // !TODO : attached Students equivilent - NEED TO GET STUDENT OBJECTS FROM their IDs
   getNames({
     classId = undefined,
     lessonId = undefined,

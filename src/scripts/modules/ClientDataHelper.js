@@ -256,6 +256,45 @@ class ClientDataHelper{
     this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedLesson, attachedStudents, audioData}, "clipId")
   }
 
+  // !TODO - writing the modify functions
+
+  modifyRecord( objectType, objectId ,recordObject){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(STORE_NAMES[ objectType ], 'readwrite');
+      let objectStore = tx.objectStore(STORE_NAMES[ objcetType ])
+
+      return objectStore.openCursor( objectId, 'next' )
+      .then( cursor =>{
+        if( !cursor ) throw new Error(`No record found in store ${STORE_NAMES[objectType]} objectId:${objectId}`)
+
+        // !!TODO - will overwrite cursor.value object with the undefined in the record object
+        return cursor.update( ...cursor.value, ...recordObject )
+      })
+
+    })
+  }
+
+  modifyClass({classId, className, attachedStudents}){
+    if (classId == undefined) throw new Error('cannot modify without classId') 
+
+    updateValues = {}
+
+    return modifyRecord('class', classId, {className, attachedStudents})
+  }
+
+  modifyLesson({ lessonId, attachedClass, attachedStudents, lessonDate, lessonName }){
+    if (lessonId == undefined) throw new Error('cannot modify without lessonId') 
+    return modifyRecord('lesson', lessonId, {attachedClass, attachedStudents, lessonDate, lessonName})
+  }
+
+  modifyStudent({ studentId, studentName }){
+    if (studentId == undefined) throw new Error('cannot modify without studentId')
+    return modifyRecord( 'student', studentId,{ studentName })
+  }
+
+
+  modifyLes
+
   populateTestData(){
     this.addClass({className:"Test Class 1", attachedStudents:['2','#1'] });
     this.addClass({className:"Test Class 2", attachedStudents:['1','2','3'] });
