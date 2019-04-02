@@ -102,7 +102,7 @@ export default class DbHelperMod {
       this.clientDataHelper.getClips(arguments[0])
     ])
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
-    .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
+    .then ( clipObjects => clipObjects.filter( clipObject => clipObject != undefined)) // remove undefined students
   }
 
   getCompleteInfo({

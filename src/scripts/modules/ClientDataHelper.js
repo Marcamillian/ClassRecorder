@@ -181,7 +181,7 @@ class ClientDataHelper{
     let storeName = ClientDataHelper.STORE_NAMES.clip;
 
     // if no attributes specified - return all
-    if( classId == undefined, lessonId == undefined, studentId == undefined){
+    if( classId == undefined && lessonId == undefined && studentId == undefined){
       return this.getAllRecords(storeName)
     }
 
