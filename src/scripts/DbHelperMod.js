@@ -68,7 +68,7 @@ export default class DbHelperMod {
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
-  getClip({
+  getClips({
     classId = undefined,
     lessonId = undefined,
     studentId = undefined
@@ -84,7 +84,7 @@ export default class DbHelperMod {
   getCompleteInfo({
     classId = undefined,
     lessonId = undefined,
-    studentId = undefined
+    studentIds = undefined
   }={}){// get information of objects linked to clip (e.g. associated class/lesson/student)
 
     // exit if not given al the points
@@ -92,16 +92,21 @@ export default class DbHelperMod {
       throw new Error(`Complete info not provided | Class:${classId}, lesson:${lessonId}, student:${studentIds}`)
     }
 
+    let studentPromises = studentIds.map( studentId =>
+      this.getStudents({ studentId })
+      .then( studentArray => studentArray[0] ) 
+    );
+
     return Promise.all([
-      this.getClass(classId),
-      this.getLesson(lessonId),
-      this.getStudents(studentIds)
+      this.getClasses({ classId }),
+      this.getLessons({ lessonId }),
+      Promise.all( studentPromises )
     ])
     .then( infoObjects=>{
       return {
-        class:infoObjects[0],
-        lesson:infoObjects[1],
-        students:infoObjects[2]
+        class:infoObjects[0][0],
+        lesson:infoObjects[1][0],
+        students:infoObjects[2] // does this pass the right value?
       }
     })
   }
@@ -112,7 +117,7 @@ export default class DbHelperMod {
     attachedStudents = []
   }={}){ // get class/lesson/student names for filter list display
     
-    let studentsPromise = attachedStudents.map( studentId => this.getStudents({ studentId }))
+    let studentPromises = attachedStudents.map( studentId => this.getStudents({ studentId }))
 
     return Promise.all([
       this.getClasses({ classId }),
@@ -161,14 +166,14 @@ export default class DbHelperMod {
   addClip({
     attachedClass,
     attachedLesson,
-    attachedStudent,
+    attachedStudents,
     audioData
   }={}){
     this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
   }
 
-  // ! TODO: fill out this call - replace modifyOfflineClass - in both client and server helper
-  updateClass({
+
+  modifyClass({
     classId = undefined,
     className = undefined,
     attachedStudents = undefined
@@ -176,8 +181,25 @@ export default class DbHelperMod {
     // check if we need to do for client or server
 
     // assume that all modification at this point is client?
+    return clientDataHelper.modifyClass(arguments[0])
   }
 
+  modifyLesson({
+    lessonId = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
+    lessonDate = undefined,
+    lessonName = undefined
+  }={}){
+    return clientDataHelper.modifyLesson(arguments[0])
+  }
+
+  modifyStudent({
+    studentId = undefined,
+    studentName = undefined
+  }={}){
+    return clientDataHelper.modifyStudent(arguments[0])
+  }
 
   // post methods (udpate) post TO somewhere
 

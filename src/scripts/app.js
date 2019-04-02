@@ -434,8 +434,9 @@ const recorderApp = function RecorderApp(){
         return dbHelper.getClasses({classId: selectedClass})
         // get each of the students objects on the class (offline and online)
         .then((classObject)=>{
-          return Promise.all(classObject.attachedStudents.map((studentId)=>{
-            return dbHelper.getStudents({studentId: studentId});
+          return Promise.all(classObject[0].attachedStudents.map((studentId)=>{
+            return dbHelper.getStudents({studentId: studentId})
+            .then( response => response[0] )  // take the first result
           }))
         })
         // format the student object for creating object element
@@ -529,9 +530,9 @@ const recorderApp = function RecorderApp(){
       
       switch(response.length){
         case 2: // class & lesson
-          titleText = ' | '.concat(response[1].lessonName)
+          titleText = ' | '.concat(response[1][0].lessonName)
         case 1: // class only
-          titleText = response[0].className.concat(titleText)
+          titleText = response[0][0].className.concat(titleText)
         default:
           titleText = "◀ ".concat(titleText)
       }
@@ -575,18 +576,17 @@ const recorderApp = function RecorderApp(){
         
         // get the details of the classes/lessons/students attached to the clip
         return dbHelper.getCompleteInfo({
-          classId:clipObject.classId,
-          lessonId:clipObject.lessonId,
-          studentIds:clipObject.studentIds
+          classId:clipObject.attachedClass,
+          lessonId:clipObject.attachedLesson,
+          studentIds:clipObject.attachedStudents
         }).then( clipInfo =>{
 
+          // !TODO work on this studentNames call - names not making it through correctly
           let studentNames = clipInfo.students.map(studentObject => studentObject.studentName)
-
 
           let audioURL = window.URL.createObjectURL(clipObject.audioData);
           let clipTitle = `${clipInfo.class.className} | ${clipInfo.lesson.lessonName}`
           let clipStudents = studentNames.join(", ");
-
 
           clipListDisplay.appendChild(generateAudioClip( {audioURL, clipTitle, clipStudents} ))
         })
@@ -669,11 +669,11 @@ const recorderApp = function RecorderApp(){
     // if we have a lesson we need to show a student list
     if(filterState.lesson != undefined){
       // get the students in the class
-      sectionPromises[2] = dbHelper.getClass({ attachedClass: filterState.class })
+      sectionPromises[2] = dbHelper.getClasses({ attachedClass: filterState.class }).then( classList => classList[0] )
       // get each student in the class
       .then( ({attachedStudents}) =>{
         return Promise.all( attachedStudents.map( studentId =>{
-          return dbHelper.getStudent({studentId})
+          return dbHelper.getStudents({studentId}).then( studentList => studentList[0] )
         }))
       })
       // format studentObjects into option format
@@ -854,15 +854,14 @@ const recorderApp = function RecorderApp(){
 
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
-          // !TODO: Working from here - need to write modify offline class
-          dbHelper.modifyOfflineClass({classId: itemId,className, attachedStudents})
+          dbHelper.modifyClass({classId: itemId, className, attachedStudents})
         }
         // get the form
         generateItemCreateForm('class', submitCallback)
         // pre-fill the form with class details
         .then( classCreateForm =>{
           // get the class
-          return dbHelper.getClass(itemId)
+          return dbHelper.getClasses({classId: itemId})
           // combine the class Object with the form
           .then( classObject =>{
             return ItemCreateHelper.prefillForm({
@@ -882,10 +881,10 @@ const recorderApp = function RecorderApp(){
         submitCallback = ({lessonName, lessonDate, attachedClass})=>{
         
           // get the attached class' student to add to the lesson
-          dbHelper.getClass(attachedClass)
+          dbHelper.getClasses({classId: attachedClass})
           // modify the lesson object in memory
           .then( ({attachedStudents}) =>{
-            dbHelper.modifyOfflineLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
+            dbHelper.modifyLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
           })
 
         }
@@ -895,7 +894,7 @@ const recorderApp = function RecorderApp(){
         // prefill the lesson values in the form
         .then( lessonCreateForm =>{
           // get the lessonObject to pre-fill
-          return dbHelper.getLesson(itemId)
+          return dbHelper.getLessons({ lessonId: itemId })
           // combine the lesson object with the form
           .then( lessonObject =>{
             return ItemCreateHelper.prefillForm({
@@ -912,11 +911,11 @@ const recorderApp = function RecorderApp(){
         container = document.querySelector('.item-create-form.student');
 
         submitCallback = ({studentName})=>{
-          dbHelper.modifyOfflineStudent({studentId:itemId,studentName});
+          dbHelper.modifyStudent({ studentId:itemId, studentName });
         }
 
         // get the student
-        dbHelper.getStudent(itemId)
+        dbHelper.getStudents({ studentId: itemId })
         // generate the form & combine with student object
         .then( studentObject =>{
           let studentForm = generateItemCreateForm('student', submitCallback);
@@ -976,7 +975,7 @@ const recorderApp = function RecorderApp(){
       break;
       case 'student':
         // get the students
-        optionObjects = dbHelper.getAllStudents()
+        optionObjects = dbHelper.getStudents()
         // format them for option generation
         .then(studentObjects => studentObjects.map( ({studentId, studentName})=>{
           return {id: studentId, labelText: studentName}
@@ -1015,8 +1014,8 @@ const recorderApp = function RecorderApp(){
 
   //    === INIT / IMPLEMENTATION    == 
 
-  // populate data to the database
-  dbHelper.populateFromSource()
+  // populate data to the database - disabled for now as causing multiples
+  // dbHelper.populateFromSource()
 
   // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});

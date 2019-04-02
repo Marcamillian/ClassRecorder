@@ -187,8 +187,8 @@ class ClientDataHelper{
 
     function clipSearch(clipObject){
       return(
-        (classId == undefined || classId == clipObject.classId)
-        && (lessonId == undefined || lessonId == clipObject.lessonId)
+        (classId == undefined || classId == clipObject.attachedClass)
+        && (lessonId == undefined || lessonId == clipObject.attachedLesson)
         && (studentId == undefined || studentId == clipObject.studentId)
       )
     }
@@ -249,14 +249,13 @@ class ClientDataHelper{
   }
 
   addClip({
+    attachedClass = modelClip.attachedClass,
     attachedLesson = modelClip.attachedLesson,
     attachedStudents = modelClip.attachedStudents,
     audioData = modelClip.audioData
   }={}){
-    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedLesson, attachedStudents, audioData}, "clipId")
+    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedClass,attachedLesson, attachedStudents, audioData}, "clipId")
   }
-
-  // !TODO - writing the modify functions
 
   modifyRecord( objectType, objectId ,recordObject){
     return this.dbPromise.then( db =>{
@@ -267,33 +266,55 @@ class ClientDataHelper{
       .then( cursor =>{
         if( !cursor ) throw new Error(`No record found in store ${STORE_NAMES[objectType]} objectId:${objectId}`)
 
-        // !!TODO - will overwrite cursor.value object with the undefined in the record object
+        // !!NB - keys set to undefined in cursor.value object will overwrite  with the undefined in the record object
         return cursor.update( ...cursor.value, ...recordObject )
       })
 
     })
   }
 
-  modifyClass({classId, className, attachedStudents}){
+  modifyClass({classId, className, attachedStudents}){ // NB could use rest operator to do this - better way to do this
     if (classId == undefined) throw new Error('cannot modify without classId') 
 
-    updateValues = {}
+    let updateValues = {}
+    if (className) updateValues['className'] = className;
+    if (attachedStudents) updateValues['attachedStudents'] = attachedStudents;
 
-    return modifyRecord('class', classId, {className, attachedStudents})
+    return modifyRecord('class', classId, updateValues)
   }
 
   modifyLesson({ lessonId, attachedClass, attachedStudents, lessonDate, lessonName }){
-    if (lessonId == undefined) throw new Error('cannot modify without lessonId') 
-    return modifyRecord('lesson', lessonId, {attachedClass, attachedStudents, lessonDate, lessonName})
+    if (lessonId == undefined) throw new Error('cannot modify without lessonId')
+
+    let updateValues = {}
+    if ( attachedClass ) updateValues['attachedClass'] = attachedClass;
+    if ( attachedStudents ) updateValues['attachedStudents'] = attachedStudents;
+    if ( lessonDate ) updateValues['lessonDate'] = lessonDate;
+    if ( lessonName ) updateValues['lessonName'] = lessonName;
+ 
+    return modifyRecord('lesson', lessonId, updateValues)
   }
 
   modifyStudent({ studentId, studentName }){
     if (studentId == undefined) throw new Error('cannot modify without studentId')
-    return modifyRecord( 'student', studentId,{ studentName })
+
+    let updateValues = {}
+    if ( studentName ) updateValues['studentName'] = studentName;
+
+    return modifyRecord( 'student', studentId, updateValues)
   }
 
+  modifyClip({ clipId, attachedClass, attachedLesson, attachedStudents, audioData}){
+    if (clipId == undefined) throw new Error('cannot modify without clipId')
 
-  modifyLes
+    let updateValues = {}
+    if ( attachedClass ) updateValues['attachedClass'] = attachedClass;
+    if ( attachedLesson ) updateValues['attachedLesson'] = attachedLesson;
+    if ( attachedStudents ) updateValues['attachedStudents'] = attachedStudents;
+    if ( audioData ) updateValues['audioData'] = audioData;
+
+    return modifyRecord( 'clip', clipId, updateValues )
+  }
 
   populateTestData(){
     this.addClass({className:"Test Class 1", attachedStudents:['2','#1'] });
