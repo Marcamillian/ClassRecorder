@@ -40,6 +40,14 @@ export default class DbHelperMod {
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
+
+  getClass({
+    classId = undefined,
+    className = undefined,
+    attachedStudents = undefined
+  }){
+    return this.getClasses(arguments[0]).then( responseArray => responseArray[0])
+  }
   
   getLessons({
     lessonId = undefined,
@@ -55,6 +63,15 @@ export default class DbHelperMod {
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
+  getLesson({
+    lessonId = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
+    date = undefined,
+    name = undefined
+  }={}){
+    return this.getLessons(arguments[0]).then( responseArray => responseArray[0])
+  }
 
   getStudents({
     studentId = undefined,
@@ -68,20 +85,75 @@ export default class DbHelperMod {
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
 
-  getClip({
+  getStudent({
+    studentId = undefined,
+    name = undefined
+  }={}){
+    return this.getStudents(arguments[0]).then( responseArray => responseArray[0])
+  }
+
+  getClips({
     classId = undefined,
     lessonId = undefined,
     studentId = undefined
   }){
+    return Promise.all([
+      this.serverDataHelper.getClips(arguments[0]),
+      this.clientDataHelper.getClips(arguments[0])
+    ])
+    .then( resultsArray => resultsArray.flat()) // merge the array of results together
+    .then ( clipObjects => clipObjects.filter( clipObject => clipObject != undefined)) // remove undefined students
+  }
+
+  getCompleteInfo({
+    classId = undefined,
+    lessonId = undefined,
+    studentIds = undefined
+  }={}){// get information of objects linked to clip (e.g. associated class/lesson/student)
+
+    // exit if not given al the points
+    if(classId == undefined || lessonId == undefined || studentIds == undefined){
+      throw new Error(`Complete info not provided | Class:${classId}, lesson:${lessonId}, student:${studentIds}`)
+    }
+
+    let studentPromises = studentIds.map( studentId =>
+      this.getStudents({ studentId })
+      .then( studentArray => studentArray[0] ) 
+    );
+
+    return Promise.all([
+      this.getClasses({ classId }),
+      this.getLessons({ lessonId }),
+      Promise.all( studentPromises )
+    ])
+    .then( infoObjects=>{
+      return {
+        class:infoObjects[0][0],
+        lesson:infoObjects[1][0],
+        students:infoObjects[2] // does this pass the right value?
+      }
+    })
+  }
+
+  getNames({
+    classId = undefined,
+    lessonId = undefined,
+    attachedStudents = []
+  }={}){ // get class/lesson/student names for filter list display
     
-  }
+    let studentPromises = attachedStudents.map( studentId => this.getStudents({ studentId }))
 
-  getCompleteInfo(){ // get information of objects linked to clip (e.g. className from classId)
-
-  }
-
-  getNames(){ // get class/lesson/student names for filter list display
-
+    return Promise.all([
+      this.getClasses({ classId }),
+      this.getLessons({ lessonId }),
+      Promise.all( studentPromises )
+    ]).then( responses =>{
+      return {
+        className: ( classId != undefined && responses[0] ) ? responses[0][0].className : undefined,
+        lessonName: ( lessonId != undefined && responses[1] ) ? responses[1][0].lessonName : undefined,
+        studentNames: ( attachedStudents[0] != undefined && responses[2] ) ? responses[2][0].map( studentObject => studentObject.studentName ) : undefined
+      }
+    })
   }
 
   // put methods (create)
@@ -118,12 +190,40 @@ export default class DbHelperMod {
   addClip({
     attachedClass,
     attachedLesson,
-    attachedStudent,
+    attachedStudents,
     audioData
   }={}){
     this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
   }
 
+
+  modifyClass({
+    classId = undefined,
+    className = undefined,
+    attachedStudents = undefined
+  }){
+    // check if we need to do for client or server
+
+    // assume that all modification at this point is client?
+    return this.clientDataHelper.modifyClass(arguments[0])
+  }
+
+  modifyLesson({
+    lessonId = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
+    lessonDate = undefined,
+    lessonName = undefined
+  }={}){
+    return this.clientDataHelper.modifyLesson(arguments[0])
+  }
+
+  modifyStudent({
+    studentId = undefined,
+    studentName = undefined
+  }={}){
+    return this.clientDataHelper.modifyStudent(arguments[0])
+  }
 
   // post methods (udpate) post TO somewhere
 

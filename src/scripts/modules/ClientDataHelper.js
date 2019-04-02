@@ -14,6 +14,14 @@ class ClientDataHelper{
     }
   }
 
+  static get STORE_INDEXES(){
+    return{
+      class: 'by-class-id',
+      lesson: 'by-lesson-id',
+      student: 'by-student-id'
+    }
+  }
+
   // constructor
   constructor( dbName ){
     this.dbPromise = undefined;
@@ -173,6 +181,29 @@ class ClientDataHelper{
 
   }
 
+  getClips({
+    classId = undefined,
+    lessonId = undefined,
+    studentId = undefined,
+  }){
+    let storeName = ClientDataHelper.STORE_NAMES.clip;
+
+    // if no attributes specified - return all
+    if( classId == undefined && lessonId == undefined && studentId == undefined){
+      return this.getAllRecords(storeName)
+    }
+
+    function clipSearch(clipObject){
+      return(
+        (classId == undefined || classId == clipObject.attachedClass)
+        && (lessonId == undefined || lessonId == clipObject.attachedLesson)
+        && (studentId == undefined || studentId == clipObject.studentId)
+      )
+    }
+
+    return this.searchRecords( storeName, clipSearch )
+  }
+
   // put methods (create)
   addRecord(storeName, recordObject, idLabel = "id"){
     return this.dbPromise.then((db)=>{
@@ -226,11 +257,73 @@ class ClientDataHelper{
   }
 
   addClip({
+    attachedClass = modelClip.attachedClass,
     attachedLesson = modelClip.attachedLesson,
     attachedStudents = modelClip.attachedStudents,
     audioData = modelClip.audioData
   }={}){
-    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedLesson, attachedStudents, audioData}, "clipId")
+    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedClass,attachedLesson, attachedStudents, audioData}, "clipId")
+  }
+
+  modifyRecord( objectType, objectId ,recordObject){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction(ClientDataHelper.STORE_NAMES[ objectType ], 'readwrite');
+      let objectStore = tx.objectStore(ClientDataHelper.STORE_NAMES[ objectType ])
+
+      // !TODO: previously went on indexes (e.g. objectStore.index).openCursor
+
+      return objectStore.index( ClientDataHelper.STORE_INDEXES[ objectType ] ).openCursor( objectId , 'next' )
+      .then( cursor =>{
+        if( !cursor ) throw new Error(`No record found in store ${ClientDataHelper.STORE_NAMES[objectType]} objectId:${objectId}`)
+
+        // !!NB - keys set to undefined in cursor.value object will overwrite  with the undefined in the record object
+        return cursor.update( { ...cursor.value, ...recordObject } )
+      })
+
+    })
+  }
+
+  modifyClass({classId, className, attachedStudents}){ // NB could use rest operator to do this - better way to do this
+    if (classId == undefined) throw new Error('cannot modify without classId') 
+
+    let updateValues = {}
+    if (className) updateValues['className'] = className;
+    if (attachedStudents) updateValues['attachedStudents'] = attachedStudents;
+
+    return this.modifyRecord('class', classId, updateValues)
+  }
+
+  modifyLesson({ lessonId, attachedClass, attachedStudents, lessonDate, lessonName }){
+    if (lessonId == undefined) throw new Error('cannot modify without lessonId')
+
+    let updateValues = {}
+    if ( attachedClass ) updateValues['attachedClass'] = attachedClass;
+    if ( attachedStudents ) updateValues['attachedStudents'] = attachedStudents;
+    if ( lessonDate ) updateValues['lessonDate'] = lessonDate;
+    if ( lessonName ) updateValues['lessonName'] = lessonName;
+ 
+    return this.modifyRecord('lesson', lessonId, updateValues)
+  }
+
+  modifyStudent({ studentId, studentName }){
+    if (studentId == undefined) throw new Error('cannot modify without studentId')
+
+    let updateValues = {}
+    if ( studentName ) updateValues['studentName'] = studentName;
+
+    return this.modifyRecord( 'student', studentId, updateValues)
+  }
+
+  modifyClip({ clipId, attachedClass, attachedLesson, attachedStudents, audioData}){
+    if (clipId == undefined) throw new Error('cannot modify without clipId')
+
+    let updateValues = {}
+    if ( attachedClass ) updateValues['attachedClass'] = attachedClass;
+    if ( attachedLesson ) updateValues['attachedLesson'] = attachedLesson;
+    if ( attachedStudents ) updateValues['attachedStudents'] = attachedStudents;
+    if ( audioData ) updateValues['audioData'] = audioData;
+
+    return modifyRecord( 'clip', clipId, updateValues )
   }
 
   populateTestData(){

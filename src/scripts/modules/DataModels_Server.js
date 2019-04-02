@@ -20,6 +20,7 @@ export const modelStudent = {
 
 export const modelClip = {
   clipId: undefined,
+  attachedClass: undefined,
   attachedLesson: undefined,
   attachedStudents: [],
   audioData: undefined

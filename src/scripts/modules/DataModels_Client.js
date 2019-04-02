@@ -16,6 +16,7 @@ export const modelStudent = {
 }
 
 export const modelClip = {
+  attachedClass: undefined,
   attachedLesson: undefined,
   attachedStudents: [],
   audioData: undefined

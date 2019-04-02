@@ -161,6 +161,29 @@ class ServerDataHelper{
     return this.searchRecords(storeName, studentSearch )
   }
 
+  getClips({
+    classId = undefined,
+    lessonId = undefined,
+    studentId = undefined,
+  }){
+    let storeName = ServerDataHelper.STORE_NAMES.clip;
+
+    // if no attributes specified - return all
+    if( classId == undefined, lessonId == undefined, studentId == undefined){
+      return this.getAllRecords(storeName)
+    }
+
+    function clipSearch(clipObject){
+      return(
+        (classId == undefined || classId == clipObject.classId)
+        && (lessonId == undefined || lessonId == clipObject.lessonId)
+        && (studentId == undefined || studentId == clipObject.studentId)
+      )
+    }
+
+    return this.searchRecords( storeName, clipSearch )
+  }
+
   
   // put methods (create)
   addRecord(storeName, recordObject){
