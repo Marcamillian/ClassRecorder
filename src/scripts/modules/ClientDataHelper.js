@@ -14,6 +14,14 @@ class ClientDataHelper{
     }
   }
 
+  static get STORE_INDEXES(){
+    return{
+      class: 'by-class-id',
+      lesson: 'by-lesson-id',
+      student: 'by-student-id'
+    }
+  }
+
   // constructor
   constructor( dbName ){
     this.dbPromise = undefined;
@@ -259,15 +267,17 @@ class ClientDataHelper{
 
   modifyRecord( objectType, objectId ,recordObject){
     return this.dbPromise.then( db =>{
-      let tx = db.transaction(STORE_NAMES[ objectType ], 'readwrite');
-      let objectStore = tx.objectStore(STORE_NAMES[ objcetType ])
+      let tx = db.transaction(ClientDataHelper.STORE_NAMES[ objectType ], 'readwrite');
+      let objectStore = tx.objectStore(ClientDataHelper.STORE_NAMES[ objectType ])
 
-      return objectStore.openCursor( objectId, 'next' )
+      // !TODO: previously went on indexes (e.g. objectStore.index).openCursor
+
+      return objectStore.index( ClientDataHelper.STORE_INDEXES[ objectType ] ).openCursor( objectId , 'next' )
       .then( cursor =>{
-        if( !cursor ) throw new Error(`No record found in store ${STORE_NAMES[objectType]} objectId:${objectId}`)
+        if( !cursor ) throw new Error(`No record found in store ${ClientDataHelper.STORE_NAMES[objectType]} objectId:${objectId}`)
 
         // !!NB - keys set to undefined in cursor.value object will overwrite  with the undefined in the record object
-        return cursor.update( ...cursor.value, ...recordObject )
+        return cursor.update( { ...cursor.value, ...recordObject } )
       })
 
     })
@@ -280,7 +290,7 @@ class ClientDataHelper{
     if (className) updateValues['className'] = className;
     if (attachedStudents) updateValues['attachedStudents'] = attachedStudents;
 
-    return modifyRecord('class', classId, updateValues)
+    return this.modifyRecord('class', classId, updateValues)
   }
 
   modifyLesson({ lessonId, attachedClass, attachedStudents, lessonDate, lessonName }){
@@ -292,7 +302,7 @@ class ClientDataHelper{
     if ( lessonDate ) updateValues['lessonDate'] = lessonDate;
     if ( lessonName ) updateValues['lessonName'] = lessonName;
  
-    return modifyRecord('lesson', lessonId, updateValues)
+    return this.modifyRecord('lesson', lessonId, updateValues)
   }
 
   modifyStudent({ studentId, studentName }){
@@ -301,7 +311,7 @@ class ClientDataHelper{
     let updateValues = {}
     if ( studentName ) updateValues['studentName'] = studentName;
 
-    return modifyRecord( 'student', studentId, updateValues)
+    return this.modifyRecord( 'student', studentId, updateValues)
   }
 
   modifyClip({ clipId, attachedClass, attachedLesson, attachedStudents, audioData}){

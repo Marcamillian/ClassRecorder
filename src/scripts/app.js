@@ -860,7 +860,7 @@ const recorderApp = function RecorderApp(){
         // pre-fill the form with class details
         .then( classCreateForm =>{
           // get the class
-          return dbHelper.getClasses({classId: itemId})
+          return dbHelper.getClass({classId: itemId})
           // combine the class Object with the form
           .then( classObject =>{
             return ItemCreateHelper.prefillForm({
@@ -880,7 +880,7 @@ const recorderApp = function RecorderApp(){
         submitCallback = ({lessonName, lessonDate, attachedClass})=>{
         
           // get the attached class' student to add to the lesson
-          dbHelper.getClasses({classId: attachedClass})
+          dbHelper.getClass({classId: attachedClass})
           // modify the lesson object in memory
           .then( ({attachedStudents}) =>{
             dbHelper.modifyLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
@@ -893,7 +893,7 @@ const recorderApp = function RecorderApp(){
         // prefill the lesson values in the form
         .then( lessonCreateForm =>{
           // get the lessonObject to pre-fill
-          return dbHelper.getLessons({ lessonId: itemId })
+          return dbHelper.getLesson({ lessonId: itemId })
           // combine the lesson object with the form
           .then( lessonObject =>{
             return ItemCreateHelper.prefillForm({
@@ -914,7 +914,7 @@ const recorderApp = function RecorderApp(){
         }
 
         // get the student
-        dbHelper.getStudents({ studentId: itemId })
+        dbHelper.getStudent({ studentId: itemId })
         // generate the form & combine with student object
         .then( studentObject =>{
           let studentForm = generateItemCreateForm('student', submitCallback);

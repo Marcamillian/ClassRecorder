@@ -205,7 +205,7 @@ export default class DbHelperMod {
     // check if we need to do for client or server
 
     // assume that all modification at this point is client?
-    return clientDataHelper.modifyClass(arguments[0])
+    return this.clientDataHelper.modifyClass(arguments[0])
   }
 
   modifyLesson({
@@ -215,14 +215,14 @@ export default class DbHelperMod {
     lessonDate = undefined,
     lessonName = undefined
   }={}){
-    return clientDataHelper.modifyLesson(arguments[0])
+    return this.clientDataHelper.modifyLesson(arguments[0])
   }
 
   modifyStudent({
     studentId = undefined,
     studentName = undefined
   }={}){
-    return clientDataHelper.modifyStudent(arguments[0])
+    return this.clientDataHelper.modifyStudent(arguments[0])
   }
 
   // post methods (udpate) post TO somewhere
