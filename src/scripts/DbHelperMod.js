@@ -40,6 +40,14 @@ export default class DbHelperMod {
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
+
+  getClass({
+    classId = undefined,
+    className = undefined,
+    attachedStudents = undefined
+  }){
+    return this.getClasses(arguments[0]).then( responseArray => responseArray[0])
+  }
   
   getLessons({
     lessonId = undefined,
@@ -55,6 +63,15 @@ export default class DbHelperMod {
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
+  getLesson({
+    lessonId = undefined,
+    attachedClass = undefined,
+    attachedStudents = undefined,
+    date = undefined,
+    name = undefined
+  }={}){
+    return this.getLessons(arguments[0]).then( responseArray => responseArray[0])
+  }
 
   getStudents({
     studentId = undefined,
@@ -66,6 +83,13 @@ export default class DbHelperMod {
     ])
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
+  }
+
+  getStudent({
+    studentId = undefined,
+    name = undefined
+  }={}){
+    return this.getStudents(arguments[0]).then( responseArray => responseArray[0])
   }
 
   getClips({
@@ -122,12 +146,12 @@ export default class DbHelperMod {
     return Promise.all([
       this.getClasses({ classId }),
       this.getLessons({ lessonId }),
-      Promise.all(studentPromises)
+      Promise.all( studentPromises )
     ]).then( responses =>{
       return {
-        className: responses[0] ? responses[0].className : undefined,
-        lessonName: responses[1] ? responses[1].className : undefined,
-        studentNames: responses[2] ? responses[2].map( studentObject => studentObject.studentName ) : undefined
+        className: ( classId != undefined && responses[0] ) ? responses[0][0].className : undefined,
+        lessonName: ( lessonId != undefined && responses[1] ) ? responses[1][0].lessonName : undefined,
+        studentNames: ( attachedStudents[0] != undefined && responses[2] ) ? responses[2][0].map( studentObject => studentObject.studentName ) : undefined
       }
     })
   }

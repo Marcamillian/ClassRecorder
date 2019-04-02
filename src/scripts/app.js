@@ -1,5 +1,6 @@
 'use strict';
 import DbHelperMod from "./DbHelperMod.js";
+import FilterModel from "./modules/FilterModel.js";
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
@@ -581,7 +582,6 @@ const recorderApp = function RecorderApp(){
           studentIds:clipObject.attachedStudents
         }).then( clipInfo =>{
 
-          // !TODO work on this studentNames call - names not making it through correctly
           let studentNames = clipInfo.students.map(studentObject => studentObject.studentName)
 
           let audioURL = window.URL.createObjectURL(clipObject.audioData);
@@ -599,7 +599,7 @@ const recorderApp = function RecorderApp(){
   // update the html element carrying the filter options
   const updateFilterDisplay = ({ filterState = clipFilterModel.filterSettings }={})=>{
 
-    let sectionPromises = []
+    let sectionPromises = [];
     let filterTitleText = "";
 
     // == CREATE CLASS SECTION
@@ -635,7 +635,6 @@ const recorderApp = function RecorderApp(){
     })
     
     // == CREATE LESSON SECTION
-
     // if we have a class we need to show the lesson list
     if(filterState.class != undefined){
       // get the lesson data - adding promise to the list
