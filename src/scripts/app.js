@@ -2,6 +2,7 @@
 import DbHelperMod from "./DbHelperMod.js";
 import FilterModel from "./modules/FilterModel.js";
 import ItemCreateHelper from "./modules/ItemCreateHelper.js";
+import StudentSelectPageModel from "./modules/StudentSelectPageModel.js"
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container

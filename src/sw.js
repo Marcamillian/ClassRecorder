@@ -31,7 +31,6 @@ self.addEventListener('install', (event)=>{
         '/scripts/app.js',
         '/scripts/idb.js',
         '/scripts/ServiceWorkerHelper.js',
-        '/scripts/StudentSelectModel.js',
         '/scripts/DbHelper.js',
         '/scripts/modules/ClientDataHelper.js',
         '/scripts/modules/ServerDataHelper.js',
@@ -39,6 +38,7 @@ self.addEventListener('install', (event)=>{
         '/scripts/modules/DataModels_Server.js',
         '/scripts/modules/FilterModel.js',
         '/scripts/modules/ItemCreateHelper.js',
+        '/scripts/modules/StudentSelectPageModel.js',
         // data
         '/data/appData.json',
       ])
