@@ -1,6 +1,7 @@
 'use strict';
 import DbHelperMod from "./DbHelperMod.js";
 import FilterModel from "./modules/FilterModel.js";
+import ItemCreateHelper from "./modules/ItemCreateHelper.js";
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
