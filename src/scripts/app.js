@@ -20,14 +20,13 @@ const updateManager = function UpdateManager(serviceWorkerPath){
     updateContainer.classList.remove('visible')
   }
   
-  
   myWorker = new ServiceWorkerHelper(serviceWorkerPath, updateUIShow)
 
   updateButton.addEventListener('click', myWorker.workerSkipWaiting);
   dismissUpdate.addEventListener('click', updateUIHide)
 
   return { something: "Something"}
-}('./sw.js');
+}//('./sw.js'); !!TODO: Uncomment this line when done altering 
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
