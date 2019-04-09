@@ -1,22 +1,9 @@
 export default class ServiceWorkerHelper{
 
-  // static things
-
-  // function to run when the service worker finishes installing
-  static trackInstalling(worker, callback){
-    worker.addEventListener('statechange', ()=>{
-      if(worker.state == 'installed'){
-        activeWorker = worker;  // make the newly installed worker the active worker
-        callback() // show the update UI
-      }
-    })
-  }
-
   constructor(workerLocation, openUICallback ){
     if(!navigator.serviceWorker) throw new Error("Service worker not supported")
 
-    this.activeWorker;
-
+    this.activeWorker = undefined;
 
     navigator.serviceWorker.register(workerLocation)
     .then( reg => {
@@ -33,11 +20,11 @@ export default class ServiceWorkerHelper{
 
 
       if(reg.installing){  // if THIS newly registered worker is still installing
-        ServiceWorkerHelper.trackInstalling( reg.installing, openUICallback ) // wait till it finishes
+        this.trackInstalling( reg.installing, openUICallback ) // wait till it finishes
       }
 
       reg.addEventListener('updatefound', ()=>{ // listen for state changes in THIS registed worker
-        ServiceWorkerHelper.trackInstalling( reg.installing, openUICallback ) // when it has an update notify the user
+        this.trackInstalling( reg.installing, openUICallback ) // when it has an update notify the user
       })
 
 
@@ -53,6 +40,18 @@ export default class ServiceWorkerHelper{
   }
 
   // functions depenant on instance
+  
+  // function to run when the service worker finishes installing
+  trackInstalling(worker, callback){
+    worker.addEventListener('statechange', ()=>{
+      if(worker.state == 'installed'){
+        this.activeWorker = worker;  // make the newly installed worker the active worker
+        callback() // show the update UI
+      }
+    })
+  }
+  
+  
   // function for dismissing the update to the service worker
   workerSkipWaiting = ()=>{
     if(this.activeWorker == undefined) throw new Error("No active worker");
