@@ -270,8 +270,6 @@ class ClientDataHelper{
       let tx = db.transaction(ClientDataHelper.STORE_NAMES[ objectType ], 'readwrite');
       let objectStore = tx.objectStore(ClientDataHelper.STORE_NAMES[ objectType ])
 
-      // !TODO: previously went on indexes (e.g. objectStore.index).openCursor
-
       return objectStore.index( ClientDataHelper.STORE_INDEXES[ objectType ] ).openCursor( objectId , 'next' )
       .then( cursor =>{
         if( !cursor ) throw new Error(`No record found in store ${ClientDataHelper.STORE_NAMES[objectType]} objectId:${objectId}`)

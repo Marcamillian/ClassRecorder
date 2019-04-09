@@ -1,6 +1,4 @@
-'use strict';
-
-class ItemCreateHelper{
+export default class ItemCreateHelper{
   constructor(){
 
   }

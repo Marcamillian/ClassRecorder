@@ -1,6 +1,9 @@
 'use strict';
-import DbHelperMod from "./DbHelperMod.js";
+import DbHelper from "./DbHelper.js";
 import FilterModel from "./modules/FilterModel.js";
+import ItemCreateHelper from "./modules/ItemCreateHelper.js";
+import StudentSelectPageModel from "./modules/StudentSelectPageModel.js";
+import ServiceWorkerHelper from "./ServiceWorkerHelper.js"
 
 const updateManager = function UpdateManager(serviceWorkerPath){
   // update container
@@ -18,7 +21,7 @@ const updateManager = function UpdateManager(serviceWorkerPath){
   }
   
   
-  myWorker = ServiceWorkerHelper(serviceWorkerPath, updateUIShow)
+  myWorker = new ServiceWorkerHelper(serviceWorkerPath, updateUIShow)
 
   updateButton.addEventListener('click', myWorker.workerSkipWaiting);
   dismissUpdate.addEventListener('click', updateUIHide)
@@ -61,7 +64,7 @@ const recorderApp = function RecorderApp(){
   
   let studentSelectModel = new StudentSelectPageModel(); // for the tagging of clips
   let clipFilterModel = new FilterModel();  // for selecting the clip filter
-  let dbHelper = new DbHelperMod(); // for interacting with the database
+  let dbHelper = new DbHelper(); // for interacting with the database
 
   // == JS VARIABLES
 

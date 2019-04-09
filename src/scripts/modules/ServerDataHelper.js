@@ -1,6 +1,6 @@
 export { ServerDataHelper }
 
-import {modelClass, modelLesson, modelStudent, modelClip} from './OnlineDataModels.js';
+import {modelClass, modelLesson, modelStudent, modelClip} from './DataModels_Server.js';
 
 class ServerDataHelper{
 

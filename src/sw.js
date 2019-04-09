@@ -29,11 +29,16 @@ self.addEventListener('install', (event)=>{
         '/styles/style.css',
         // javascript
         '/scripts/app.js',
-        '/scripts/DbHelper.js',
-        '/scripts/FilterModel.js',
         '/scripts/idb.js',
         '/scripts/ServiceWorkerHelper.js',
-        '/scripts/StudentSelectModel.js',
+        '/scripts/DbHelper.js',
+        '/scripts/modules/ClientDataHelper.js',
+        '/scripts/modules/ServerDataHelper.js',
+        '/scripts/modules/DataModels_Client.js',
+        '/scripts/modules/DataModels_Server.js',
+        '/scripts/modules/FilterModel.js',
+        '/scripts/modules/ItemCreateHelper.js',
+        '/scripts/modules/StudentSelectPageModel.js',
         // data
         '/data/appData.json',
       ])
