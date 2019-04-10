@@ -25,8 +25,7 @@ const updateManager = function UpdateManager(serviceWorkerPath){
   updateButton.addEventListener('click', myWorker.workerSkipWaiting);
   dismissUpdate.addEventListener('click', updateUIHide)
 
-  return { something: "Something"}
-}('./sw.js');
+}//('./sw.js');
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
@@ -934,6 +933,7 @@ const recorderApp = function RecorderApp(){
   }
 
   const itemCreateDropdownCallback = ()=>{
+
     var operationType = itemCreateOperationDropdown.value;
     var itemType = itemCreateTypeDropdown.value;
 
@@ -1017,6 +1017,13 @@ const recorderApp = function RecorderApp(){
 
   // populate data to the database - disabled for now as causing multiples
   dbHelper.populateFromSource()
+  .then(()=>{
+    // display the current student select list
+    updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
+    // update the clip filter display
+    updateFilterDisplay()
+    updateItemCreate('class');
+  })
 
   // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});
@@ -1131,12 +1138,6 @@ const recorderApp = function RecorderApp(){
 
   itemCreateTypeDropdown.addEventListener('change', itemCreateDropdownCallback);
   itemCreateOperationDropdown.addEventListener('change', itemCreateDropdownCallback);
-
-  // display the current student select list
-  updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
-  // update the clip filter display
-  updateFilterDisplay()
-  updateItemCreate('class');
 
   return {
     dbHelper,

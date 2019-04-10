@@ -235,7 +235,7 @@ class ServerDataHelper{
   }
 
   populateDatabase(dataUrl){
-    fetch(dataUrl)
+    return fetch(dataUrl)
     .then( response => { return response.json()} )
     .then( appData =>{
       appData.students.forEach(this.addStudent.bind(this))

@@ -244,6 +244,6 @@ export default class DbHelper {
   }
 
   populateFromSource(){
-    this.serverDataHelper.populateDatabase(DbHelper.DATA_URL);
+    return this.serverDataHelper.populateDatabase(DbHelper.DATA_URL);
   }
 }
