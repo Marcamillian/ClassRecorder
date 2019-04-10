@@ -26,7 +26,7 @@ const updateManager = function UpdateManager(serviceWorkerPath){
   dismissUpdate.addEventListener('click', updateUIHide)
 
   return { something: "Something"}
-}//('./sw.js'); !!TODO: Uncomment this line when done altering 
+}('./sw.js');
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
@@ -1016,7 +1016,7 @@ const recorderApp = function RecorderApp(){
   //    === INIT / IMPLEMENTATION    == 
 
   // populate data to the database - disabled for now as causing multiples
-  // dbHelper.populateFromSource()
+  dbHelper.populateFromSource()
 
   // set up the media recorder
   mediaRecorder = getStream().then(createRecorder).then(recorder => {return recorder});

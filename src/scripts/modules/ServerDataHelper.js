@@ -22,17 +22,17 @@ class ServerDataHelper{
     switch(upgradeDb.oldVersion){
       case 0:
 
-        var classStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.class, {autoIncrement: true} )
+        var classStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.class, {keyPath: 'classId'} )
         classStore.createIndex('by-name', 'className');
         
-        var lessonStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.lesson, {autoIncrement: true})
+        var lessonStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.lesson, {keyPath: 'lessonId'})
         lessonStore.createIndex('by-date', 'lessonDate')
         lessonStore.createIndex('by-attached-class-id','attachedClass')
 
-        var studentStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.student, {autoIncrement: true})
+        var studentStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.student, {keyPath: 'studentId'})
         studentStore.createIndex('by-name','studentName');
 
-        var clipStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.clip, {autoIncrement: true} )
+        var clipStore = upgradeDb.createObjectStore( ServerDataHelper.STORE_NAMES.clip, {keyPath: 'clipId'} )
         clipStore.createIndex('by-date', 'recordedDate');
         clipStore.createIndex('by-class', 'classId')
         clipStore.createIndex('by-lesson', 'lessonId')
