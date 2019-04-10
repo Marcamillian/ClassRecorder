@@ -737,6 +737,9 @@ const recorderApp = function RecorderApp(){
   }
 
 
+
+
+
   // == ITEM MANAGEMENT FUNCTIONS
   const showItemManageMessage = ( messageString )=>{
     clearItemManageMessage()
@@ -812,8 +815,10 @@ const recorderApp = function RecorderApp(){
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
           dbHelper.addClass({className, attachedStudents})
-          .then(()=>{
+          .then(() =>{
             showItemManageMessage(`Class Created ${className}`)
+          }, (err) =>{
+            showItemManageMessage(`Class not created: ${err.message}`)
           })
         }
         // get the form
@@ -835,6 +840,8 @@ const recorderApp = function RecorderApp(){
           // show user add was successful
           .then( ()=>{
             showItemManageMessage(`Lesson Created: ${lessonName}`)
+          }, ( err ) =>{
+            showItemManageMessage(`Lesson not created: ${err.message}`)
           })
 
         }
@@ -853,6 +860,8 @@ const recorderApp = function RecorderApp(){
           // show user that add was successful
           .then(()=>{
             showItemManageMessage(`Student Created: ${studentName}`)
+          }, ( err ) =>{
+            showItemManageMessage(`Student not created: ${err.message}`)
           })
         }
 
@@ -883,6 +892,8 @@ const recorderApp = function RecorderApp(){
           .then(()=>{
             showItemManageMessage(`Class updated: ${className}`)
             updateModifyOptions('class')
+          }, ( err ) =>{
+            showItemManageMessage(`Class not updated: ${err.message}`)
           })
         }
         // get the form
@@ -918,6 +929,8 @@ const recorderApp = function RecorderApp(){
           .then(()=>{
             showItemManageMessage(`Lesson updated: ${lessonName}`)
             updateModifyOptions('lesson')
+          }, ( err ) =>{
+            showItemManageMessage(`Lesson not updated: ${err.message}`)
           })
 
         }
@@ -948,6 +961,8 @@ const recorderApp = function RecorderApp(){
           .then(()=>{
             showItemManageMessage(`Student updated: ${studentName}`);
             updateModifyOptions('student')
+          }, ( err ) =>{
+            showItemManageMessage(`Student not modified: ${err.message}`)
           })
         }
 
@@ -1052,6 +1067,9 @@ const recorderApp = function RecorderApp(){
 
 
   }
+
+
+
 
 
   //    === INIT / IMPLEMENTATION    == 
