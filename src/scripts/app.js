@@ -25,7 +25,7 @@ const updateManager = function UpdateManager(serviceWorkerPath){
   updateButton.addEventListener('click', myWorker.workerSkipWaiting);
   dismissUpdate.addEventListener('click', updateUIHide)
 
-}('./sw.js');
+}//('./sw.js');
 
 // tutorial used - https://developer.mozilla.org/en-US/docs/Web/API/MediaStream_Recording_API/Using_the_MediaStream_Recording_API
 const recorderApp = function RecorderApp(){ 
@@ -46,6 +46,8 @@ const recorderApp = function RecorderApp(){
   var itemCreateTypeDropdown = document.querySelector('.tab-body.item-create .item-create-type-dropdown');
   var itemCreateOperationDropdown = document.querySelector('.tab-body.item-create .item-create-operation-dropdown');
   var itemModifyItemSelect = document.querySelector('.tab-body.item-create .item-modify-item-select');
+  var itemMangementMessageDisplay = document.querySelector('.tab-body.item-create .message-display');
+
 
   var playbackTabBody = document.querySelector('.tab-body.playback');
   var clipFilterContainer = document.querySelector('.clip-filter');
@@ -490,8 +492,6 @@ const recorderApp = function RecorderApp(){
 
 
 
-
-
   // == DISPLAY UPDATE FUNCTIONS
 
   // update the html element carrying student select options
@@ -737,7 +737,20 @@ const recorderApp = function RecorderApp(){
   }
 
 
-  // ITEM CREATE FORMS
+  // == ITEM MANAGEMENT FUNCTIONS
+  const showItemManageMessage = ( messageString )=>{
+    clearItemManageMessage()
+    let messageElement = document.createElement('p')
+    messageElement.innerText = messageString
+
+    itemMangementMessageDisplay.appendChild(messageElement)
+  }
+
+  const clearItemManageMessage = ()=>{
+    emptyHTML(itemMangementMessageDisplay);
+  }
+
+  // ITEM MANAGEMENT FORMS
 
   const generateItemCreateForm = (itemCreateType, submitCallback)=>{
     // fill with appropriate form
@@ -791,7 +804,6 @@ const recorderApp = function RecorderApp(){
     let container;
     let submitCallback;
 
-
     // fill with appropriate form
     switch(itemCreateType){
       case 'class':
@@ -800,6 +812,9 @@ const recorderApp = function RecorderApp(){
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
           dbHelper.addClass({className, attachedStudents})
+          .then(()=>{
+            showItemManageMessage(`Class Created ${className}`)
+          })
         }
         // get the form
         generateItemCreateForm('class', submitCallback).then( formElement =>{
@@ -811,10 +826,15 @@ const recorderApp = function RecorderApp(){
 
         submitCallback = ({lessonName, lessonDate, attachedClass})=>{
         
-          dbHelper.getClasses({classId: attachedClass}).then( ({ attachedStudents }) =>{
-
+          // get attached class' students
+          dbHelper.getClasses({classId: attachedClass})
+          // add the lesson object
+          .then( ({ attachedStudents }) =>{
             dbHelper.addLesson({lessonName, lessonDate, attachedClass, attachedStudents })
-
+          })
+          // show user add was successful
+          .then( ()=>{
+            showItemManageMessage(`Lesson Created: ${lessonName}`)
           })
 
         }
@@ -828,7 +848,12 @@ const recorderApp = function RecorderApp(){
         container = document.querySelector('.item-create-form.student');
 
         submitCallback = ({studentName})=>{
-          dbHelper.addStudent({studentName});
+          // add the student
+          dbHelper.addStudent({studentName})
+          // show user that add was successful
+          .then(()=>{
+            showItemManageMessage(`Student Created: ${studentName}`)
+          })
         }
 
         const studentForm = generateItemCreateForm('student', submitCallback)
@@ -855,6 +880,10 @@ const recorderApp = function RecorderApp(){
         // submit callback
         submitCallback = ({ className, attachedStudents})=>{
           dbHelper.modifyClass({classId: itemId, className, attachedStudents})
+          .then(()=>{
+            showItemManageMessage(`Class updated: ${className}`)
+            updateModifyOptions('class')
+          })
         }
         // get the form
         generateItemCreateForm('class', submitCallback)
@@ -886,6 +915,10 @@ const recorderApp = function RecorderApp(){
           .then( ({attachedStudents}) =>{
             dbHelper.modifyLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
           })
+          .then(()=>{
+            showItemManageMessage(`Lesson updated: ${lessonName}`)
+            updateModifyOptions('lesson')
+          })
 
         }
 
@@ -911,7 +944,11 @@ const recorderApp = function RecorderApp(){
         container = document.querySelector('.item-create-form.student');
 
         submitCallback = ({studentName})=>{
-          dbHelper.modifyStudent({ studentId:itemId, studentName });
+          dbHelper.modifyStudent({ studentId:itemId, studentName })
+          .then(()=>{
+            showItemManageMessage(`Student updated: ${studentName}`);
+            updateModifyOptions('student')
+          })
         }
 
         // get the student
@@ -938,13 +975,14 @@ const recorderApp = function RecorderApp(){
     var itemType = itemCreateTypeDropdown.value;
 
     emptyHTML(itemModifyItemSelect);
+    clearItemManageMessage()
     
     switch(operationType){
       case 'create':
         updateItemCreate(itemType)
       break;
       case 'modify':
-        generateModifyOptions(itemType)
+        updateModifyOptions(itemType)
       break;
       default:
         console.log(`unknown operation ${operationType}`)
@@ -952,7 +990,7 @@ const recorderApp = function RecorderApp(){
     }  
   }
 
-  const generateModifyOptions = (itemModifyType)=>{
+  const updateModifyOptions = (itemModifyType)=>{
     
     var optionObjects;
     
@@ -1004,6 +1042,9 @@ const recorderApp = function RecorderApp(){
     })
     // add it to the document
     .then( optionElements =>{
+      // remove the old options
+      emptyHTML(itemModifyItemSelect)
+      // add the new
       optionElements.forEach( element =>{
         itemModifyItemSelect.appendChild(element)
       })
@@ -1144,7 +1185,9 @@ const recorderApp = function RecorderApp(){
     studentSelectModel,
     updateFilterDisplay,
     updateItemCreate,
-    updateItemCreateModify
+    updateItemCreateModify,
+    showItemManageMessage,
+    clearItemManageMessage
   }
 }();
 
