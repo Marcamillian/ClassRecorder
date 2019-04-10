@@ -73,7 +73,7 @@ class ClientDataHelper{
   }
 
   static revealId(maskedIndex){
-    return maskedIndex.replace(/#/g, "");
+    return Number(maskedIndex.replace(/#/g, ""));
   }
 
   // get methods
@@ -323,6 +323,28 @@ class ClientDataHelper{
 
     return modifyRecord( 'clip', clipId, updateValues )
   }
+
+  deleteRecord( objectType , objectId ){
+    return this.dbPromise.then( db =>{
+      let tx = db.transaction( ClientDataHelper.STORE_NAMES[ objectType ], 'readwrite' );
+      let objectStore = tx.objectStore( ClientDataHelper.STORE_NAMES[ objectType ] );
+
+      objectStore.delete( ClientDataHelper.revealId(objectId) )
+    })
+  }
+
+  deleteClass( classId ){
+    return this.deleteRecord('class', classId)
+  }
+
+  deleteLesson( lessonId ){
+    return this.deleteRecord('lesson', lessonId)
+  }
+
+  deleteStudent( studentId ){
+    return this.deleteRecord('student', studentId)
+  }
+  
 
   populateTestData(){
     this.addClass({className:"Test Class 1", attachedStudents:['2','#1'] });
