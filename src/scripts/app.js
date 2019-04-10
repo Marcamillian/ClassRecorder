@@ -960,7 +960,7 @@ const recorderApp = function RecorderApp(){
     switch(itemModifyType){
       case 'class':
         // get classObjects
-        optionObjects = dbHelper.getClasses()
+        optionObjects = dbHelper.getClasses({ source:'local' })
         //format them for option generation
         .then(classObjects => classObjects.map( ({classId, className }) =>{
             return {id: classId, labelText: className }
@@ -968,7 +968,7 @@ const recorderApp = function RecorderApp(){
       break;
       case 'lesson':
         // get the lessons
-        optionObjects = dbHelper.getLessons()
+        optionObjects = dbHelper.getLessons({ source:'local' })
         // format lessons for option generation
         .then(lessonObjects => lessonObjects.map( ({lessonId, lessonName})=>{
           return {id:lessonId, labelText: lessonName}
@@ -976,7 +976,7 @@ const recorderApp = function RecorderApp(){
       break;
       case 'student':
         // get the students
-        optionObjects = dbHelper.getStudents()
+        optionObjects = dbHelper.getStudents({ source:'local' })
         // format them for option generation
         .then(studentObjects => studentObjects.map( ({studentId, studentName})=>{
           return {id: studentId, labelText: studentName}

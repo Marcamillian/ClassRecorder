@@ -31,12 +31,16 @@ export default class DbHelper {
   getClasses({
     classId = undefined,
     className = undefined,
-    attachedStudents = undefined
+    attachedStudents = undefined,
+    source = undefined
   }={}){
-    return Promise.all([
-      this.serverDataHelper.getClasses(arguments[0]),
-      this.clientDataHelper.getClasses(arguments[0])
-    ])
+
+    let classPromises = [];
+    if( source != "local" ) classPromises.push( this.serverDataHelper.getClasses( arguments[0] ));
+    if( source != "server" ) classPromises.push( this.clientDataHelper.getClasses( arguments[0] ));
+    
+
+    return Promise.all( classPromises )
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
@@ -54,12 +58,15 @@ export default class DbHelper {
     attachedClass = undefined,
     attachedStudents = undefined,
     date = undefined,
-    name = undefined
+    name = undefined,
+    source = undefined
   }={}){
-    return Promise.all([
-      this.serverDataHelper.getLessons(arguments[0]),
-      this.clientDataHelper.getLessons(arguments[0])
-    ])
+
+    let lessonPromises = []
+    if ( source != "local" ) lessonPromises.push( this.serverDataHelper.getLessons( arguments[0] ));
+    if ( source != "server" ) lessonPromises.push( this.clientDataHelper.getLessons( arguments[0] ));
+
+    return Promise.all( lessonPromises )
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
@@ -75,12 +82,15 @@ export default class DbHelper {
 
   getStudents({
     studentId = undefined,
-    name = undefined
+    name = undefined,
+    source = undefined
   }={}){
-    return Promise.all([
-      this.serverDataHelper.getStudents(arguments[0]),
-      this.clientDataHelper.getStudents(arguments[0])
-    ])
+
+    let studentPromises = [];
+    if ( source != 'local' ) studentPromises.push( this.serverDataHelper.getStudents( arguments[0] ));
+    if ( source != 'server' ) studentPromises.push( this.clientDataHelper.getStudents( arguments[0] ));
+
+    return Promise.all( studentPromises )
     .then( resultsArray => resultsArray.flat()) // merge the array of results together
     .then ( studentObjects => studentObjects.filter( studentObject => studentObject != undefined)) // remove undefined students
   }
