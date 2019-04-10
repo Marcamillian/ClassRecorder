@@ -161,7 +161,7 @@ body{
 
             /* when not active hide labels that arn't checked*/
             label{
-                font-size:1.5rem;
+                font-size:$ex-large-font;
                 display:none;
             }
 
@@ -289,7 +289,7 @@ body{
   }
 
   section{
-    padding: 1em;
+    margin: 0.5em;
   }
 
   .manage-options{
@@ -299,10 +299,10 @@ body{
     justify-content: center;
 
     select{
-      font-size: 1.5em;
-      margin:1em;
+      font-size: $large-font;
       padding:0.5em 1em;
       border-radius: 50px;
+      margin:0.2em;
     }
   }
 
@@ -311,18 +311,28 @@ body{
       display:flex;
       flex-direction:column;
 
-      font-size: 1.5em;
+      font-size: $large-font;
       text-align:center;
 
       input[type="checkbox"]{
         display:none;
       }
 
+      label{
+        padding:0.3em;
+      }
+
+    }
+  }
+
+  .message-display{
+    p{
+      margin:0.1em;
     }
   }
 
   .target-form{
-    font-size:1.2em;
+    font-size: $large-font;
     text-align:center;
 
     label{
