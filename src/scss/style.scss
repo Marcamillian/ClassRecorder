@@ -197,6 +197,12 @@ nav{
       }
     }
 
+    .message-display{
+      p {
+        color: $manage-dark-pri;
+      }
+    }
+
     .item-create-form{
       button{
         background-color:$manage-dark-pri;

@@ -232,7 +232,7 @@ class ClientDataHelper{
   }={}){
     attachedStudents = attachedStudents.map( studentId => studentId.toString())
 
-    this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents}, "classId")
+    return this.addRecord(ClientDataHelper.STORE_NAMES.class, {className, attachedStudents}, "classId")
   }
 
   addLesson({
@@ -253,7 +253,7 @@ class ClientDataHelper{
   addStudent({
     studentName = modelStudent.studentName
   }={}){
-    this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName}, "studentId")
+    return this.addRecord(ClientDataHelper.STORE_NAMES.student, {studentName}, "studentId")
   }
 
   addClip({
@@ -262,7 +262,7 @@ class ClientDataHelper{
     attachedStudents = modelClip.attachedStudents,
     audioData = modelClip.audioData
   }={}){
-    this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedClass,attachedLesson, attachedStudents, audioData}, "clipId")
+    return this.addRecord(ClientDataHelper.STORE_NAMES.clip, {attachedClass,attachedLesson, attachedStudents, audioData}, "clipId")
   }
 
   modifyRecord( objectType, objectId ,recordObject){

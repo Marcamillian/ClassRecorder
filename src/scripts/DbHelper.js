@@ -179,7 +179,7 @@ export default class DbHelper {
       console.log("do offline class")
     }
     */
-    this.clientDataHelper.addClass({className, attachedStudents})
+    return this.clientDataHelper.addClass({className, attachedStudents})
   }
 
   addLesson({
@@ -188,13 +188,13 @@ export default class DbHelper {
     attachedClass,
     attachedStudents
   }={}){
-    this.clientDataHelper.addLesson({lessonName, lessonDate, attachedClass, attachedStudents})
+    return this.clientDataHelper.addLesson({lessonName, lessonDate, attachedClass, attachedStudents})
   }
 
   addStudent({
     studentName
   }){
-    this.clientDataHelper.addStudent({studentName})
+    return this.clientDataHelper.addStudent({studentName})
   }
 
   addClip({
@@ -203,7 +203,7 @@ export default class DbHelper {
     attachedStudents,
     audioData
   }={}){
-    this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
+    return this.clientDataHelper.addClip({attachedClass, attachedLesson, attachedStudents, audioData})
   }
 
 
