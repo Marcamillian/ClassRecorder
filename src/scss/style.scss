@@ -8,10 +8,15 @@ $listen-light-pri-color: #B2EBF2;
 $listen-pri-color: #00BCD4;
 $listen-accent-color: #8BC34A;
 
+$manage-dark-pri: #F99600;
+$manage-accent-color:  #8BC34A;
+
+$box-color: white;
 
 $text-icons: #212121;
 $pri-text: #212121;
 $sec-text: #757575;
+$accent-text: white;
 $divider-color: #BDBDBD;
 
 // == GENERIC STYLING ===
@@ -109,6 +114,7 @@ nav{
     
 }
 
+// === TAB STYLING ===
 // style the record body
 
 .tab-body.record{
@@ -175,8 +181,36 @@ nav{
 // style the item create body
 
 .tab-body.item-create{
-    background-color:#F99600;
+  background-color: $manage-dark-pri;
 
+  .tab-container{
+    background-color:$box-color;
+    border-radius: 50px;
+
+    .manage-target{
+      .item-modify-item-select{
+        color:$sec-text;
+  
+        input[type="checkbox"]:checked+label{
+          color:$pri-text;
+        }
+      }
+    }
+
+    .item-create-form{
+      button{
+        background-color:$manage-dark-pri;
+        border-radius:50px;
+        color:$accent-text;
+      }
+
+      button:focus{
+        outline: none;
+        border-color:$pri-text;
+      }
+    }
+
+  }
     
 }
 

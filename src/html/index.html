@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 
 <html lang="en-gb">
-    <head>
-        <meta charset="utf-8">
-        <meta name="theme-color" content="black">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title> Web Dictaphone</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="theme-color" content="black">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Web Dictaphone</title>
 
-        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="styles/layout.css">
-        <link rel="stylesheet" type="text/css" href="styles/style.css">
-        <link rel="stylesheet" type="text/css" media="screen and (min-width:350px) and (max-width:599px)" href="styles/layout-350plus.css" >
-        <link rel="stylesheet" type="text/css" media="screen and (min-width:600px)" href="styles/layout-600plus.css" >
-    </head>
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles/layout.css">
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+    <link rel="stylesheet" type="text/css" media="screen and (min-width:350px) and (max-width:599px)" href="styles/layout-350plus.css" >
+    <link rel="stylesheet" type="text/css" media="screen and (min-width:600px)" href="styles/layout-600plus.css" >
+  </head>
 
     
-    <body>
-        <section class="update-dialog">
-            <span> Update Available </span>
-            <button class="install-update">Install Update</button>
-            <button class="dismiss-update">Update Later</button>
+  <body>
+    <section class="update-dialog">
+      <span> Update Available </span>
+      <button class="install-update">Install Update</button>
+      <button class="dismiss-update">Update Later</button>
+    </section>
+
+    <nav>
+      <li class="tab-label record" tab-dest="record">
+        <h2> Record </h2>
+      </li>
+      <li class="tab-label listen" tab-dest="playback">
+        <h2> Listen </h2>
+      </li>
+      <li class="tab-label item-create" tab-dest="item-create">
+        <h2> Item Management </h2>
+      </li>
+    </nav>
+
+    <section class="tab-body record active">
+      <div class="tab-container">
+        <button class="button-record shadow">
+          <img src="img/mic.svg">
+        </button>
+
+        <div class="student-select student">
+          <h2 class="title"> </h2>
+          <section class="sselect-page student"></section>
+          <section class="sselect-page lesson"></section>
+          <section class="sselect-page class"></section>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-body playback">
+      <div class="tab-container">
+        <div class="clip-filter">
+          <button class="clip-filter-button"> Apply Filter </button>
+          <h2 class="clip-filter-title"> No Filter </h2>
+          <div class="filter-option-container"> </div>
+        </div>
+
+        <section class="clip-list"></section>
+      </div>
+    </section>
+
+    <section class="tab-body item-create">
+      <div class="tab-container">
+
+        <section class="manage-options">
+          <select class="item-create-operation-dropdown">
+            <option value="create">Create</option>
+            <option value="modify">Modify</option>
+          </select>
+
+          <select class="item-create-type-dropdown">
+            <option value="class">Class</option>
+            <option value="lesson">Lesson</option>
+            <option value="student">Student</option>
+          </select>
+        </section>
+      
+        <section class="manage-target">
+          <div class="item-modify-item-select"></div>
         </section>
 
-        <nav>
-            <li class="tab-label record" tab-dest="record">
-                <h2>Record</h2>
-            </li>
-            <li class="tab-label listen" tab-dest="playback">
-                <h2>Listen</h2>
-            </li>
-            <li class="tab-label item-create" tab-dest="item-create">
-                <h2>Item Create</h2>
-            </li>
-        </nav>
-
-        <section class="tab-body record active">
-            <div class="tab-container">
-                <button class="button-record shadow">
-                    <img src="img/mic.svg">
-                </button>
-
-                <div class="student-select student">
-                    <h2 class="title"> </h2>
-                    <section class="sselect-page student"></section>
-                    <section class="sselect-page lesson"></section>
-                    <section class="sselect-page class"></section>
-                </div>
-            </div>
+        <section class="target-form">
+          <div class="item-create-form class"></div>
+          <div class="item-create-form lesson"></div>
+          <div class="item-create-form student"></div>
         </section>
 
-        <section class="tab-body playback">
-            <div class="tab-container">
-                <div class="clip-filter">
-                    <button class="clip-filter-button"> Apply Filter </button>
-                    <h2 class="clip-filter-title"> No Filter </h2>
-                    <div class="filter-option-container"> </div>
-                </div>
+      </div>
+    </section>
 
-                <section class="clip-list"></section>
-            </div>
-        </section>
-
-        <section class="tab-body item-create">
-            <div class="tab-container">
-
-                <select class="item-create-operation-dropdown">
-                    <option value="create">Create</option>
-                    <option value="modify">Modify</option>
-                </select>
-
-                <select class="item-create-type-dropdown">
-                    <option value="class">Class</option>
-                    <option value="lesson">Lesson</option>
-                    <option value="student">Student</option>
-                </select>
-
-                <div class="item-modify-item-select"></div>
-
-                <div class="item-create-form class"></div>
-                <div class="item-create-form lesson"></div>
-                <div class="item-create-form student"></div>
-            </div>
-        </section>
-
-    </body>
+  </body>
     
-    <script type="application/javascript" charset="utf-8" src="scripts/idb.js"></script>
-    <script type="module">
-      import app from "/scripts/app.js";
-      document.myApp = app
-    </script>
+  <script type="application/javascript" charset="utf-8" src="scripts/idb.js"></script>
+  <script type="module">
+    import app from "/scripts/app.js";
+    document.myApp = app
+  </script>
 </html>
 
