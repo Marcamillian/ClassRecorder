@@ -1,4 +1,5 @@
-$large-font: 1.5em;
+$ex-large-font: 1.5em;
+$large-font: 1.2em;
 $small-font: 0.75em;
 
 html{
@@ -335,10 +336,11 @@ body{
     }
 
     button{
+      font-size: $large-font;
       margin:1em;
       margin-left:auto;
       margin-right:auto;
-      padding:1.2em;
+      padding:0.75em;
       display:block;
     }
   }

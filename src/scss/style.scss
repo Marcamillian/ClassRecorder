@@ -9,12 +9,14 @@ $listen-pri-color: #00BCD4;
 $listen-accent-color: #8BC34A;
 
 $manage-dark-pri: #F99600;
+$manage-accent-color:  #8BC34A;
 
 $box-color: white;
 
 $text-icons: #212121;
 $pri-text: #212121;
 $sec-text: #757575;
+$accent-text: white;
 $divider-color: #BDBDBD;
 
 // == GENERIC STYLING ===
@@ -195,9 +197,20 @@ nav{
       }
     }
 
-  }
-  
+    .item-create-form{
+      button{
+        background-color:$manage-dark-pri;
+        border-radius:50px;
+        color:$accent-text;
+      }
 
+      button:focus{
+        outline: none;
+        border-color:$pri-text;
+      }
+    }
+
+  }
     
 }
 
