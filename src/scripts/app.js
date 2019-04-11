@@ -896,6 +896,7 @@ const recorderApp = function RecorderApp(){
             showItemManageMessage(`Class not updated: ${err.message}`)
           })
         }
+        
         // get the form
         generateItemCreateForm('class', submitCallback)
         // pre-fill the form with class details
@@ -909,6 +910,28 @@ const recorderApp = function RecorderApp(){
               classObject
             })
           })
+        })
+        // add a button to delete the resource
+        .then( formElement =>{
+          var deleteButton = document.createElement('button');
+
+          deleteButton.classList.add('item-delete');
+          deleteButton.innerText = "Delete Class"
+          deleteButton.addEventListener('click', ( event )=>{
+            event.preventDefault();
+            
+            if(window.confirm(`Are you sure you want to delete?`)){
+              dbHelper.deleteClass(itemId)
+              .then( ()=>{
+                showItemManageMessage(`item deleted`);
+                updateModifyOptions('class');
+              })
+            }
+          })
+
+          formElement.appendChild(deleteButton)
+
+          return formElement;
         })
         // add the form to the container
         .then( formElement =>{
