@@ -45,7 +45,7 @@ const recorderApp = function RecorderApp(){
   var itemCreateTabBody = document.querySelector('.tab-body.item-create');
   var itemCreateTypeDropdown = document.querySelector('.tab-body.item-create .item-create-type-dropdown');
   var itemCreateOperationDropdown = document.querySelector('.tab-body.item-create .item-create-operation-dropdown');
-  var itemModifyItemSelect = document.querySelector('.tab-body.item-create .item-modify-item-select');
+  var modifyItemTargetList = document.querySelector('.tab-body.item-create .item-modify-target-list');
   var itemMangementMessageDisplay = document.querySelector('.tab-body.item-create .message-display');
 
 
@@ -752,7 +752,7 @@ const recorderApp = function RecorderApp(){
     emptyHTML(itemMangementMessageDisplay);
   }
 
-  // ITEM MANAGEMENT FORMS
+  // ITEM MANAGEMENT FORM FUNCTIONS
 
   const generateItemCreateForm = (itemCreateType, submitCallback, deleteCallback)=>{
     // fill with appropriate form
@@ -799,7 +799,7 @@ const recorderApp = function RecorderApp(){
     }
   }
 
-  const updateItemCreate =  (itemCreateType)=>{
+  const updateItemCreateForm =  (itemCreateType)=>{
 
     // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
@@ -873,7 +873,7 @@ const recorderApp = function RecorderApp(){
     
   }
 
-  const updateItemCreateModify = (itemModifyType, itemId)=>{
+  const updateItemModifyForm = (itemModifyType, itemId)=>{
     
     // clear all the containers
     document.querySelectorAll('.item-create-form').forEach(emptyHTML);
@@ -882,160 +882,166 @@ const recorderApp = function RecorderApp(){
     let submitCallback;
     let deleteCallback;
 
-    // fill with appropriate form
-    switch(itemModifyType){
-      case 'class':
-        container = document.querySelector('.item-create-form.class');
+    // fill with appropriate form if a id is defined
+    if( itemId != undefined){
+      switch(itemModifyType){
+        case 'class':
+          container = document.querySelector('.item-create-form.class');
 
-        // submit callback
-        submitCallback = ({ className, attachedStudents})=>{
-          dbHelper.modifyClass({classId: itemId, className, attachedStudents})
-          .then(()=>{
-            showItemManageMessage(`Class updated: ${className}`)
-            updateModifyOptions('class')
-          }, ( err ) =>{
-            showItemManageMessage(`Class not updated: ${err.message}`)
-          })
-        }
-
-        deleteCallback = ( event )=>{
-          event.preventDefault();
-          
-          if(window.confirm(`Are you sure you want to delete?`)){
-            dbHelper.deleteClass(itemId)
-            .then( ()=>{
-              showItemManageMessage(`item deleted`);
-              updateModifyOptions('class');
+          // submit callback
+          submitCallback = ({ className, attachedStudents})=>{
+            dbHelper.modifyClass({classId: itemId, className, attachedStudents})
+            .then(()=>{
+              showItemManageMessage(`Class updated: ${className}`)
+              updateModifyTargetList('class', itemId)
+            }, ( err ) =>{
+              showItemManageMessage(`Class not updated: ${err.message}`)
             })
           }
-        }
 
-        // get the form
-        generateItemCreateForm('class', submitCallback, deleteCallback)
-        // pre-fill the form with class details
-        .then( classCreateForm =>{
-          // get the class
-          return dbHelper.getClass({classId: itemId})
-          // combine the class Object with the form
-          .then( classObject =>{
-            return ItemCreateHelper.prefillForm({
-              generatedForm: classCreateForm,
-              classObject
+          deleteCallback = ( event )=>{
+            event.preventDefault();
+            
+            if(window.confirm(`Are you sure you want to delete?`)){
+              dbHelper.deleteClass(itemId)
+              .then( ()=>{
+                showItemManageMessage(`item deleted`);
+                updateModifyTargetList('class');
+                updateItemModifyForm('class')
+              })
+            }
+          }
+
+          // get the form
+          generateItemCreateForm('class', submitCallback, deleteCallback)
+          // pre-fill the form with class details
+          .then( classCreateForm =>{
+            // get the class
+            return dbHelper.getClass({classId: itemId})
+            // combine the class Object with the form
+            .then( classObject =>{
+              return ItemCreateHelper.prefillForm({
+                generatedForm: classCreateForm,
+                classObject
+              })
             })
           })
-        })
-        // add the form to the container
-        .then( formElement =>{
-          container.appendChild(formElement)
-        })
-      break;
-      case 'lesson':
-        container = document.querySelector('.item-create-form.lesson');
+          // add the form to the container
+          .then( formElement =>{
+            container.appendChild(formElement)
+          })
+        break;
+        case 'lesson':
+          container = document.querySelector('.item-create-form.lesson');
 
-        submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+          submitCallback = ({lessonName, lessonDate, attachedClass})=>{
+          
+            // get the attached class' student to add to the lesson
+            dbHelper.getClass({classId: attachedClass})
+            // modify the lesson object in memory
+            .then( ({attachedStudents}) =>{
+              dbHelper.modifyLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
+            })
+            .then(()=>{
+              showItemManageMessage(`Lesson updated: ${lessonName}`)
+              updateModifyTargetList('lesson', itemId)
+            }, ( err ) =>{
+              showItemManageMessage(`Lesson not updated: ${err.message}`)
+            })
+
+          }
+
+          deleteCallback = (event) => {
+            event.preventDefault();
+            
+            if(window.confirm(`Are you sure you want to delete?`)){
+              dbHelper.deleteLesson(itemId)
+              .then( ()=>{
+                showItemManageMessage(`item deleted`);
+                updateModifyTargetList('lesson');
+                updateItemModifyForm('lesson')
+              })
+            }
+          }
+
+          // get the student form
+          generateItemCreateForm('lesson', submitCallback, deleteCallback)
+          // prefill the lesson values in the form
+          .then( lessonCreateForm =>{
+            // get the lessonObject to pre-fill
+            return dbHelper.getLesson({ lessonId: itemId })
+            // combine the lesson object with the form
+            .then( lessonObject =>{
+              return ItemCreateHelper.prefillForm({
+                generatedForm: lessonCreateForm,
+                lessonObject
+              })
+            })
+          })
+          // add the from element to the page
+          .then( formElement => container.appendChild(formElement))
+          
+        break;  
+        case 'student':
+          container = document.querySelector('.item-create-form.student');
+
+          submitCallback = ({studentName})=>{
+            dbHelper.modifyStudent({ studentId:itemId, studentName })
+            .then(()=>{
+              showItemManageMessage(`Student updated: ${studentName}`);
+              updateModifyTargetList('student', itemId)
+            }, ( err ) =>{
+              showItemManageMessage(`Student not modified: ${err.message}`)
+            })
+          }
+
+          deleteCallback = ( event ) =>{
+            event.preventDefault();
+            
+            if(window.confirm(`Are you sure you want to delete?`)){
+              dbHelper.deleteStudent(itemId)
+              .then( ()=>{
+                showItemManageMessage(`item deleted`);
+                updateModifyTargetList('student');
+                updateItemModifyForm('student')
+              })
+            }
+          }
+
+          // get the student
+          dbHelper.getStudent({ studentId: itemId })
+          // generate the form & combine with student object
+          .then( studentObject =>{
+            let studentForm = generateItemCreateForm('student', submitCallback, deleteCallback );
+            return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
+          })
+          // attached filled form to the document
+          .then( filledForm =>{
+            container.appendChild(filledForm);
+          })
+
         
-          // get the attached class' student to add to the lesson
-          dbHelper.getClass({classId: attachedClass})
-          // modify the lesson object in memory
-          .then( ({attachedStudents}) =>{
-            dbHelper.modifyLesson({lessonId:itemId,lessonName, lessonDate, attachedClass, attachedStudents })
-          })
-          .then(()=>{
-            showItemManageMessage(`Lesson updated: ${lessonName}`)
-            updateModifyOptions('lesson')
-          }, ( err ) =>{
-            showItemManageMessage(`Lesson not updated: ${err.message}`)
-          })
-
-        }
-
-        deleteCallback = (event) => {
-          event.preventDefault();
-          
-          if(window.confirm(`Are you sure you want to delete?`)){
-            dbHelper.deleteLesson(itemId)
-            .then( ()=>{
-              showItemManageMessage(`item deleted`);
-              updateModifyOptions('lesson');
-            })
-          }
-        }
-
-        // get the student form
-        generateItemCreateForm('lesson', submitCallback, deleteCallback)
-        // prefill the lesson values in the form
-        .then( lessonCreateForm =>{
-          // get the lessonObject to pre-fill
-          return dbHelper.getLesson({ lessonId: itemId })
-          // combine the lesson object with the form
-          .then( lessonObject =>{
-            return ItemCreateHelper.prefillForm({
-              generatedForm: lessonCreateForm,
-              lessonObject
-            })
-          })
-        })
-        // add the from element to the page
-        .then( formElement => container.appendChild(formElement))
-        
-      break;  
-      case 'student':
-        container = document.querySelector('.item-create-form.student');
-
-        submitCallback = ({studentName})=>{
-          dbHelper.modifyStudent({ studentId:itemId, studentName })
-          .then(()=>{
-            showItemManageMessage(`Student updated: ${studentName}`);
-            updateModifyOptions('student')
-          }, ( err ) =>{
-            showItemManageMessage(`Student not modified: ${err.message}`)
-          })
-        }
-
-        deleteCallback = ( event ) =>{
-          event.preventDefault();
-          
-          if(window.confirm(`Are you sure you want to delete?`)){
-            dbHelper.deleteStudent(itemId)
-            .then( ()=>{
-              showItemManageMessage(`item deleted`);
-              updateModifyOptions('student');
-            })
-          }
-        }
-
-        // get the student
-        dbHelper.getStudent({ studentId: itemId })
-        // generate the form & combine with student object
-        .then( studentObject =>{
-          let studentForm = generateItemCreateForm('student', submitCallback, deleteCallback );
-          return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
-        })
-        // attached filled form to the document
-        .then( filledForm =>{
-          container.appendChild(filledForm);
-        })
-
-       
-      break;
-      default: throw new Error(`No recognised item type: ${itemCreateType}`)
+        break;
+        default: throw new Error(`No recognised item type: ${itemCreateType}`)
+      }
     }
   }
 
-  const itemCreateDropdownCallback = ()=>{
+  const itemManageDrowdownCallback = ()=>{
 
     var operationType = itemCreateOperationDropdown.value;
     var itemType = itemCreateTypeDropdown.value;
 
-    emptyHTML(itemModifyItemSelect);
-    clearItemManageMessage()
+    emptyHTML(modifyItemTargetList); // empty the itemModify targets
+    clearItemManageMessage() // clear the message
     
     switch(operationType){
       case 'create':
-        updateItemCreate(itemType)
+        updateItemCreateForm(itemType)
       break;
       case 'modify':
-        updateModifyOptions(itemType)
+        document.querySelectorAll('.item-create-form').forEach(emptyHTML);  // empty the form area
+        updateModifyTargetList(itemType)
       break;
       default:
         console.log(`unknown operation ${operationType}`)
@@ -1043,7 +1049,7 @@ const recorderApp = function RecorderApp(){
     }  
   }
 
-  const updateModifyOptions = (itemModifyType)=>{
+  const updateModifyTargetList = (itemModifyType, selectedItemId)=>{
     
     var optionObjects;
     
@@ -1084,22 +1090,23 @@ const recorderApp = function RecorderApp(){
       var itemSelectCallback = (event)=>{
         [...event.target.parentNode.children].forEach( element => element.checked = false)
         event.target.checked = true;
-        updateItemCreateModify(itemModifyType, event.target.value)
+        updateItemModifyForm(itemModifyType, event.target.value)
       }
 
       return generateOptionElements({
         optionLabel: 'modify-item-select',
         optionList: optionObjects,
-        clickFunction: itemSelectCallback
+        clickFunction: itemSelectCallback,
+        selectedOptions: [selectedItemId]
       })
     })
     // add it to the document
     .then( optionElements =>{
       // remove the old options
-      emptyHTML(itemModifyItemSelect)
+      emptyHTML(modifyItemTargetList)
       // add the new
       optionElements.forEach( element =>{
-        itemModifyItemSelect.appendChild(element)
+        modifyItemTargetList.appendChild(element)
       })
     })
 
@@ -1119,7 +1126,7 @@ const recorderApp = function RecorderApp(){
     updateStudentSelectDisplay(studentSelectModel.getSelectedOptions());
     // update the clip filter display
     updateFilterDisplay()
-    updateItemCreate('class');
+    updateItemCreateForm('class');
   })
 
   // set up the media recorder
@@ -1233,15 +1240,15 @@ const recorderApp = function RecorderApp(){
     updateClipList({searchType: filterType, searchKey})
   }
 
-  itemCreateTypeDropdown.addEventListener('change', itemCreateDropdownCallback);
-  itemCreateOperationDropdown.addEventListener('change', itemCreateDropdownCallback);
+  itemCreateTypeDropdown.addEventListener('change', itemManageDrowdownCallback);
+  itemCreateOperationDropdown.addEventListener('change', itemManageDrowdownCallback);
 
   return {
     dbHelper,
     studentSelectModel,
     updateFilterDisplay,
-    updateItemCreate,
-    updateItemCreateModify,
+    updateItemCreate: updateItemCreateForm,
+    updateItemCreateModify: updateItemModifyForm,
     showItemManageMessage,
     clearItemManageMessage
   }
