@@ -214,6 +214,11 @@ nav{
         outline: none;
         border-color:$pri-text;
       }
+
+      button.item-delete{
+        background-color: $box-color;
+        color:$manage-dark-pri;
+      }
     }
 
   }
