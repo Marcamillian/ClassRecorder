@@ -6,7 +6,8 @@ export default class ItemCreateHelper{
   static generateClassForm({
     studentOptions= [],
     existingClassObject= {},
-    submitCallback = console.log
+    submitCallback = console.log,
+    deleteCallback
   }={}){
     const form = document.createElement('form');
     const submitButton = document.createElement('button');
@@ -48,13 +49,27 @@ export default class ItemCreateHelper{
     submitButton.innerText = "Create Class";
     form.appendChild(submitButton);
 
+    // add delete button if needed
+    if(deleteCallback != undefined){
+      const deleteButton = document.createElement('button');
+
+      deleteButton.classList.add('item-delete');
+      deleteButton.innerText = "Delete Class"
+      deleteButton.addEventListener('click', deleteCallback)
+
+      form.appendChild(deleteButton)
+    }
+
+    
+
     return form;
   }
 
 
   static generateLessonForm({
     classOptions = [],
-    submitCallback = console.log
+    submitCallback = console.log,
+    deleteCallback
   }={}){
 
     const form = document.createElement('form');
@@ -94,11 +109,22 @@ export default class ItemCreateHelper{
     submitButton.innerText = "Create Lesson";
     form.appendChild(submitButton);
 
+    if(deleteCallback != undefined){
+      const deleteButton = document.createElement('button');
+
+      deleteButton.classList.add('item-delete');
+      deleteButton.innerText = "Delete Lesson"
+      deleteButton.addEventListener('click',deleteCallback)
+
+      form.appendChild(deleteButton)
+    }
+
     return form;
   }
 
   static generateStudentForm({
-    submitCallback = console.log
+    submitCallback = console.log,
+    deleteCallback
   }={}){
     const form = document.createElement('form');
     const submitButton = document.createElement('button')
@@ -125,6 +151,17 @@ export default class ItemCreateHelper{
     submitButton.type = 'submit';
     submitButton.innerText = "Create Student";
     form.appendChild(submitButton);
+
+    // add delete button if needed
+    if(deleteCallback != undefined){
+      const deleteButton = document.createElement('button');
+
+      deleteButton.classList.add('item-delete');
+      deleteButton.innerText = "Delete Student"
+      deleteButton.addEventListener('click', deleteCallback )
+
+      form.appendChild(deleteButton)
+    }
 
     return form;
   }

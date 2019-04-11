@@ -325,11 +325,12 @@ class ClientDataHelper{
   }
 
   deleteRecord( objectType , objectId ){
-    return this.dbPromise.then( db =>{
+    return this.dbPromise
+    .then( db =>{
       let tx = db.transaction( ClientDataHelper.STORE_NAMES[ objectType ], 'readwrite' );
       let objectStore = tx.objectStore( ClientDataHelper.STORE_NAMES[ objectType ] );
 
-      objectStore.delete( ClientDataHelper.revealId(objectId) )
+      return objectStore.delete( ClientDataHelper.revealId(objectId) )
     })
   }
 
@@ -344,6 +345,7 @@ class ClientDataHelper{
   deleteStudent( studentId ){
     return this.deleteRecord('student', studentId)
   }
+
   
 
   populateTestData(){

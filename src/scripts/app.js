@@ -382,7 +382,6 @@ const recorderApp = function RecorderApp(){
     return filterSection;
   }
 
-
   const fillOptions = ({fillPage, selectedClass, selectedOptions})=>{
     var options;
 
@@ -755,7 +754,7 @@ const recorderApp = function RecorderApp(){
 
   // ITEM MANAGEMENT FORMS
 
-  const generateItemCreateForm = (itemCreateType, submitCallback)=>{
+  const generateItemCreateForm = (itemCreateType, submitCallback, deleteCallback)=>{
     // fill with appropriate form
     switch(itemCreateType){
       case 'class':
@@ -769,7 +768,7 @@ const recorderApp = function RecorderApp(){
           })
         // return the class form
         }).then( studentOptions =>{
-          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback })
+          return ItemCreateHelper.generateClassForm({ studentOptions, submitCallback, deleteCallback })
         })
       break;
       case 'lesson':
@@ -786,14 +785,15 @@ const recorderApp = function RecorderApp(){
         .then( optionObjects =>{
           return ItemCreateHelper.generateLessonForm({
             classOptions: optionObjects,
-            submitCallback
+            submitCallback,
+            deleteCallback
           })
         })
         
       break;  
       case 'student':
         // return the student form 
-        return ItemCreateHelper.generateStudentForm({submitCallback});
+        return ItemCreateHelper.generateStudentForm({submitCallback, deleteCallback});
       break;
       default: throw new Error(`No recognised item type: ${itemCreateType}`)
     }
@@ -880,6 +880,7 @@ const recorderApp = function RecorderApp(){
 
     let container;
     let submitCallback;
+    let deleteCallback;
 
     // fill with appropriate form
     switch(itemModifyType){
@@ -896,9 +897,21 @@ const recorderApp = function RecorderApp(){
             showItemManageMessage(`Class not updated: ${err.message}`)
           })
         }
-        
+
+        deleteCallback = ( event )=>{
+          event.preventDefault();
+          
+          if(window.confirm(`Are you sure you want to delete?`)){
+            dbHelper.deleteClass(itemId)
+            .then( ()=>{
+              showItemManageMessage(`item deleted`);
+              updateModifyOptions('class');
+            })
+          }
+        }
+
         // get the form
-        generateItemCreateForm('class', submitCallback)
+        generateItemCreateForm('class', submitCallback, deleteCallback)
         // pre-fill the form with class details
         .then( classCreateForm =>{
           // get the class
@@ -910,28 +923,6 @@ const recorderApp = function RecorderApp(){
               classObject
             })
           })
-        })
-        // add a button to delete the resource
-        .then( formElement =>{
-          var deleteButton = document.createElement('button');
-
-          deleteButton.classList.add('item-delete');
-          deleteButton.innerText = "Delete Class"
-          deleteButton.addEventListener('click', ( event )=>{
-            event.preventDefault();
-            
-            if(window.confirm(`Are you sure you want to delete?`)){
-              dbHelper.deleteClass(itemId)
-              .then( ()=>{
-                showItemManageMessage(`item deleted`);
-                updateModifyOptions('class');
-              })
-            }
-          })
-
-          formElement.appendChild(deleteButton)
-
-          return formElement;
         })
         // add the form to the container
         .then( formElement =>{
@@ -958,8 +949,20 @@ const recorderApp = function RecorderApp(){
 
         }
 
+        deleteCallback = (event) => {
+          event.preventDefault();
+          
+          if(window.confirm(`Are you sure you want to delete?`)){
+            dbHelper.deleteLesson(itemId)
+            .then( ()=>{
+              showItemManageMessage(`item deleted`);
+              updateModifyOptions('lesson');
+            })
+          }
+        }
+
         // get the student form
-        generateItemCreateForm('lesson', submitCallback)
+        generateItemCreateForm('lesson', submitCallback, deleteCallback)
         // prefill the lesson values in the form
         .then( lessonCreateForm =>{
           // get the lessonObject to pre-fill
@@ -989,11 +992,23 @@ const recorderApp = function RecorderApp(){
           })
         }
 
+        deleteCallback = ( event ) =>{
+          event.preventDefault();
+          
+          if(window.confirm(`Are you sure you want to delete?`)){
+            dbHelper.deleteStudent(itemId)
+            .then( ()=>{
+              showItemManageMessage(`item deleted`);
+              updateModifyOptions('student');
+            })
+          }
+        }
+
         // get the student
         dbHelper.getStudent({ studentId: itemId })
         // generate the form & combine with student object
         .then( studentObject =>{
-          let studentForm = generateItemCreateForm('student', submitCallback);
+          let studentForm = generateItemCreateForm('student', submitCallback, deleteCallback );
           return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
         })
         // attached filled form to the document
