@@ -925,6 +925,13 @@ const recorderApp = function RecorderApp(){
                 classObject
               })
             })
+            // change form button from create to modify
+            .then( formElement =>{
+              let submitButton = formElement.querySelector('button[type=submit]')
+              submitButton.innerText = "Modify Class"
+
+              return formElement;
+            })
           })
           // add the form to the container
           .then( formElement =>{
@@ -977,6 +984,13 @@ const recorderApp = function RecorderApp(){
                 lessonObject
               })
             })
+            // change form button from create to modify
+            .then( formElement =>{
+              let submitButton = formElement.querySelector('button[type=submit]')
+              submitButton.innerText = "Modify Lesson"
+
+              return formElement;
+            })
           })
           // add the from element to the page
           .then( formElement => container.appendChild(formElement))
@@ -1014,6 +1028,13 @@ const recorderApp = function RecorderApp(){
           .then( studentObject =>{
             let studentForm = generateItemCreateForm('student', submitCallback, deleteCallback );
             return ItemCreateHelper.prefillForm({generatedForm: studentForm, studentObject})
+          })
+          // change form button from create to modify
+          .then( formElement =>{
+            let submitButton = formElement.querySelector('button[type=submit]')
+            submitButton.innerText = "Modify Student"
+
+            return formElement;
           })
           // attached filled form to the document
           .then( filledForm =>{
