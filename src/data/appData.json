@@ -2,19 +2,19 @@
   "students":[
     {"studentId":"1", "studentName": "Fred"},
     {"studentId":"2", "studentName": "Chloe "},
-    {"studentId":"3", "studentName": "Ashwithan"},
-    {"studentId":"4", "studentName": "Anrushan"},
-    {"studentId":"5", "studentName": "Tilac"}, 
-    {"studentId":"6", "studentName": "Elisa-Eve"},
-    {"studentId":"7", "studentName": "Michel"},
-    {"studentId":"8", "studentName": "Matthew"},
+    {"studentId":"3", "studentName": "Adil"},
+    {"studentId":"4", "studentName": "Amelie"},
+    {"studentId":"5", "studentName": "Lasse"}, 
+    {"studentId":"6", "studentName": "Emilie"},
+    {"studentId":"7", "studentName": "Michael"},
+    {"studentId":"8", "studentName": "Fahdah"},
     {"studentId":"9", "studentName": "Greg"},
     {"studentId":"10", "studentName": "Joe"}
   ],
   "classes":[
-    {"classId": "1", "className":"EMC", "attachedStudents": [1,2,3]},
-    {"classId": "2", "className":"West Norwoord", "attachedStudents": [4,5,6]},
-    {"classId": "3", "className":"Julians", "attachedStudents": [7,8,9]}
+    {"classId": "1", "className":"Biology", "attachedStudents": [1,2,3]},
+    {"classId": "2", "className":"Maths", "attachedStudents": [4,5,6]},
+    {"classId": "3", "className":"English", "attachedStudents": [7,8,9]}
   ],
   "lessons":[
     {"lessonId":"1", "attachedClass": "1", "lessonName": "Mon 24 Dec", "lessonDate":"Mon Dec 24 2018 10:33:30 GMT+0000", "attachedStudents":["1","2","3"]},
