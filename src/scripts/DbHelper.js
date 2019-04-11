@@ -207,6 +207,8 @@ export default class DbHelper {
   }
 
 
+  // modify resources (post)
+
   modifyClass({
     classId = undefined,
     className = undefined,
@@ -235,7 +237,20 @@ export default class DbHelper {
     return this.clientDataHelper.modifyStudent(arguments[0])
   }
 
-  // post methods (udpate) post TO somewhere
+
+  // delete resources
+
+  deleteClass( classId ){
+    return this.clientDataHelper.deleteClass( classId )
+  }
+
+  deleteLesson( lessonId ){
+    return this.clientDataHelper.deleteLesson( lessonId )
+  }
+
+  deleteStudent( studentId ){
+    return this.clientDataHelper.deleteStudent( studentId )
+  }
 
   // populate functions
 
