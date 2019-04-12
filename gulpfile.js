@@ -105,7 +105,7 @@ function prod_server(cb){
   app.set('port', PORT);
   app.use(express.static('./dist'))
   server = http.createServer(app);
-  server.listen(app.get('port'), ()=>(console.log(app.get('port'))))
+  server.listen(app.get('port'), ()=>(console.log( `Server running on ${app.get('port')}` )))
   cb()
 }
 
