@@ -4,7 +4,7 @@
   "description": "Web Recorder for evidencing childrens class experience",
   "main": "index.js",
   "scripts": {
-    "start": "gulp serve-prod",
+    "start": "gulp serve_prod",
     "test": "tap tests/*.js",
     "test-debug": "tape --inspect-brk tests/t_studentSelectModel.js",
     "post_install": "gulp build"
@@ -12,16 +12,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "browser-sync": "^2.26.3",
-    "gulp": "^4.0.0",
-    "gulp-insert": "^0.5.0",
-    "gulp-sass": "^4.0.2",
-    "gulp-serve": "^1.4.0",
     "tape": "^4.9.2"
   },
   "dependencies": {
     "express": "^4.16.4",
     "http": "0.0.0",
-    "idb": "^3.0.2"
+    "idb": "^3.0.2",
+    "gulp": "^4.0.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-serve": "^1.4.0",
+    "browser-sync": "^2.26.3"
   }
 }
