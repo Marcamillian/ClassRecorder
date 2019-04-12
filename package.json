@@ -4,7 +4,7 @@
   "description": "Web Recorder for evidencing childrens class experience",
   "main": "index.js",
   "scripts": {
-    "start": "gulp serve-prod",
+    "start": "gulp serve_prod",
     "test": "tap tests/*.js",
     "test-debug": "tape --inspect-brk tests/t_studentSelectModel.js",
     "post_install": "gulp build"
