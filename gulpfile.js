@@ -98,7 +98,7 @@ function watchFiles(){
 
 
 
-function serve_prod(cb){
+function prod_server(cb){
   var app = express();
   var server;
   
@@ -119,6 +119,6 @@ serve_dev = parallel( watchFiles, browserSync )
 exports.build = build_files;
 exports.build_images = build_images;
 exports.serve_dev = serve_dev;
-exports.serve_prod = serve_prod;
+exports.serve_prod = series(build_files, prod_server);
 
 exports.default = series( build_files, serve_dev)
