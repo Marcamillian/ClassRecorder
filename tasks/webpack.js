@@ -5,7 +5,8 @@ import process from 'process'
 const isProduction = (process.env.NODE_ENV === 'production')
 
 let config = {
-  entry: ['./js/main.js'],
+  mode: 'development',
+  entry: ['./src/react/main.js'],
   output: {
     filename: 'bundle.js',
   },

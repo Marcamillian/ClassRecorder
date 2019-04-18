@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import TitleBar from '../components/title-bar';
+import TitleBar from './components/title-bar';
 
 ReactDOM.render(
   <TitleBar />

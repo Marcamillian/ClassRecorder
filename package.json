@@ -7,7 +7,9 @@
     "start": "gulp serve_prod",
     "test": "tap tests/*.js",
     "test-debug": "tape --inspect-brk tests/t_studentSelectModel.js",
-    "post_install": "gulp build"
+    "post_install": "gulp build",
+    "react_build": "gulp build --require @babel/register --gulpfile tasks",
+    "react_dev": "gulp --require @babel/register --gulpfile tasks"
   },
   "author": "",
   "license": "ISC",
