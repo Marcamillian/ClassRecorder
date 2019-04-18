@@ -16,13 +16,11 @@ class TitleBar extends Component{
 
   componentDidMount(){
     this.props.testAction("redux setting value")
-    console.log("something happening here")
   }
 
 }
 
 function mapStateToProps(state, ownProps){
-  console.log("mapping state" , state);
   const testValue = state.testData.testValue || "didn't work";
   return { testValue }
 }
