@@ -9,15 +9,16 @@ import promise from 'redux-promise';
 
 import reducers from './reducers';
 
-
 // import components
 import TitleBar from './components/title-bar';
+import RecordTagSelect from './components/record-tag-select';
 
 const createStoreWithMiddleware = applyMiddleware(promise)(createStore);
 
 ReactDOM.render(
   <Provider store={ createStoreWithMiddleware(reducers) }>
     <TitleBar />
+    <RecordTagSelect />
   </Provider>
 
 ,document.querySelector('.container'))
