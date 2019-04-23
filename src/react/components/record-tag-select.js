@@ -36,22 +36,45 @@ class RecordTagSelect extends Component{
       optionCallbacks["classes"] = function(){
 
         let classId = this.props.value;
+        let updatedTags = { classId }
 
-        setSelectedTags({ classId })
-        setTagOptions({ classId })
+        setSelectedTags( updatedTags )
+        setTagOptions( updatedTags )
       }
     }
     if(options.lessonOptions){
       optionButtonData["lessons"] = options.lessonOptions.map( ({ lessonId, lessonName }) =>{ return { value: lessonId, labelText: lessonName }} )
       optionCallbacks["lessons"] = function(){
         let lessonId = this.props.value;
-        setSelectedTags({ lessonId })
-        //setTagOptions({ lessonId }) 
+        let updatedTags = {
+          classId: selectedTags.classId,
+          lessonId
+        }
+
+        setSelectedTags( updatedTags )
+        setTagOptions( updatedTags ) 
       }
     }
     if(options.studentOptions){
       optionButtonData["students"] = options.studentOptions.map( ({studentId, studentName}) =>{ return { value: studentId, labelText: studentName }} )
-      optionCallbacks["students"] = function(){ console.log( "Student Selected:",this.props.value ) }
+      optionCallbacks["students"] = function(){
+
+        let buttonStudentId = this.props.value;
+        let updatedTags = {
+          classId: selectedTags.classId,
+          lessonId: selectedTags.lessonId,
+          studentIds: selectedTags.studentIds
+        }
+        
+        if(updatedTags.studentIds.includes( buttonStudentId )){
+          updatedTags.studentIds = updatedTags.studentIds.filter( studentId => studentId != buttonStudentId)
+        }else{
+          updatedTags.studentIds.push( buttonStudentId )
+        }
+
+        setSelectedTags( updatedTags )
+      
+      }
     }
 
     try{
@@ -143,6 +166,7 @@ class RecordTagSelect extends Component{
 }
 
 function mapStateToProps( state ){  
+  console.log(state.recordPage.tagsSelected)
   return {
     tagOptions: state.recordPage.tagOptions,
     tagsSelected: state.recordPage.tagsSelected
