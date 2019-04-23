@@ -34,8 +34,10 @@ class RecordTagSelect extends Component{
     if (options.classOptions){
       optionButtonData["classes"] = options.classOptions.map(({classId, className})=>{ return { value:classId, labelText:className} })
       optionCallbacks["classes"] = function(){
+        let newValue = this.props.value;
 
-        let classId = this.props.value;
+        // if the clicked value was already active - set nothing active
+        let classId = (selectedTags.classId != newValue) ? newValue : undefined;
         let updatedTags = { classId }
 
         setSelectedTags( updatedTags )
@@ -45,7 +47,10 @@ class RecordTagSelect extends Component{
     if(options.lessonOptions){
       optionButtonData["lessons"] = options.lessonOptions.map( ({ lessonId, lessonName }) =>{ return { value: lessonId, labelText: lessonName }} )
       optionCallbacks["lessons"] = function(){
-        let lessonId = this.props.value;
+        let newValue = this.props.value;
+        
+        // if the clicked value was already active - set nothing active
+        let lessonId = (selectedTags.lessonId != newValue) ? newValue : undefined;
         let updatedTags = {
           classId: selectedTags.classId,
           lessonId
@@ -169,6 +174,7 @@ class RecordTagSelect extends Component{
 }
 
 function mapStateToProps( state ){  
+  console.log(state.recordPage.tagsSelected)
   return {
     tagOptions: state.recordPage.tagOptions,
     tagsSelected: state.recordPage.tagsSelected
