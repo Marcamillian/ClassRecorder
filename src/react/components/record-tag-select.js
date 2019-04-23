@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { setRecordTagOptions } from '../actions';
+import {
+  setRecordTagOptions,
+  setRecordSelectedTags
+} from '../actions';
+
+import OptionButton from './option-button';
+
 import { isRegExp } from 'util';
 
 class RecordTagSelect extends Component{
@@ -10,13 +16,107 @@ class RecordTagSelect extends Component{
       <div>
         <h1> Tag Options</h1>
         <div>
-          {this.doSomething()}
+          { this.renderTagOptionList() }
         </div>
       </div>
     )
   }
 
-  doSomething(){
+  renderTagOptionList(){
+    const options = this.props.tagOptions || {};
+    const optionButtonData = {};
+    const optionCallbacks = {};
+    const selectedTags = this.props.tagsSelected;
+
+    const setSelectedTags = this.props.setRecordSelectedTags;
+    const setTagOptions = this.props.setRecordTagOptions;
+
+    if (options.classOptions){
+      optionButtonData["classes"] = options.classOptions.map(({classId, className})=>{ return { value:classId, labelText:className} })
+      optionCallbacks["classes"] = function(){
+
+        let classId = this.props.value;
+
+        setSelectedTags({ classId })
+        setTagOptions({ classId })
+      }
+    }
+    if(options.lessonOptions){
+      optionButtonData["lessons"] = options.lessonOptions.map( ({ lessonId, lessonName }) =>{ return { value: lessonId, labelText: lessonName }} )
+      optionCallbacks["lessons"] = function(){
+        let lessonId = this.props.value;
+        setSelectedTags({ lessonId })
+        //setTagOptions({ lessonId }) 
+      }
+    }
+    if(options.studentOptions){
+      optionButtonData["students"] = options.studentOptions.map( ({studentId, studentName}) =>{ return { value: studentId, labelText: studentName }} )
+      optionCallbacks["students"] = function(){ console.log( "Student Selected:",this.props.value ) }
+    }
+
+    try{
+      return(
+        <div>
+          {this.renderTagSection({
+            sectionLabel:"class",
+            sectionTitle:"Classes",
+            sectionOptionData: optionButtonData["classes"] || [],
+            selectedValues: [selectedTags.classId] || [],
+            selectCallback: optionCallbacks["classes"]
+          })}
+          {this.renderTagSection({
+            sectionLabel:"lesson", 
+            sectionTitle:"Lessons", 
+            sectionOptionData: optionButtonData["lessons"] || [],
+            selectedValues: [selectedTags.lessonId ] || [],
+            selectCallback: optionCallbacks["lessons"]
+          })}
+          {this.renderTagSection({
+            sectionLabel:"students",
+            sectionTitle:"Students",
+            sectionOptionData: optionButtonData["students"] || [],
+            selectedValues: selectedTags.studentIds || [],
+            selectCallback: optionCallbacks["students"]
+          })}
+        </div>
+      )
+    }catch(error){
+      console.error(error)
+      return "nothing to show"
+    }
+    
+    
+  }
+
+  renderTagSection({ sectionLabel, sectionTitle, sectionOptionData, selectedValues = [], selectCallback = ()=>{console.log("clicked")} }){
+        
+    let optionItems = sectionOptionData.map( ({value, labelText})=>{
+
+      return (
+        <li key={`${sectionLabel}__${value}`}>
+          { this.renderTagOptionButton({ value, labelText, selectCallback }) }
+        </li>
+      )
+    })
+
+    return(
+      <section>
+        <h1> {sectionTitle} </h1>
+        <ul>
+          { optionItems }
+        </ul>
+      </section>
+    )
+  }
+
+  renderTagOptionButton( { value, labelText, selectCallback } ){
+
+    return (
+      <OptionButton  label_text={ labelText } value={ value } changeFunction={ selectCallback }/>
+    )
+  }
+
+  showClassNames(){
     let classList = []
     
     if(this.props.tagOptions){
@@ -30,16 +130,23 @@ class RecordTagSelect extends Component{
     return classList;
   }
 
+  getSelectedTags(){
+    if(this.props.tagsSelected) return this.props.tagsSelected
+    else return undefined
+  }
+
+
   componentDidMount(){
     this.props.setRecordTagOptions();
-    
+    this.props.setRecordSelectedTags()
   }
 }
 
-function mapStateToProps( state ){
+function mapStateToProps( state ){  
   return {
-    tagOptions: state.recordPage.tagOptions
+    tagOptions: state.recordPage.tagOptions,
+    tagsSelected: state.recordPage.tagsSelected
   }
 }
 
-export default connect( mapStateToProps, {setRecordTagOptions})(RecordTagSelect)
+export default connect( mapStateToProps, { setRecordTagOptions, setRecordSelectedTags })(RecordTagSelect)

@@ -2,6 +2,7 @@ import DbHelper from '../modules/DbHelper';
 
 export const TEST_ACTION = 'test_action';
 export const SET_RECORD_TAG_OPTIONS = 'set_record_tag_options';
+export const SET_RECORD_SELECTED_TAGS = 'set_record_selected_tags';
 
 const dbHelper = new DbHelper();
 
@@ -37,4 +38,16 @@ export function setRecordTagOptions({
     payload: tagOptions
   }
 
+}
+
+export function setRecordSelectedTags({
+  classId = undefined,
+  lessonId = undefined,
+  studentIds = []
+}={}){
+
+  return{
+    type: SET_RECORD_SELECTED_TAGS,
+    payload: {data: {classId, lessonId, studentIds}}
+  }
 }
