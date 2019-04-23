@@ -22,7 +22,17 @@ export function setRecordTagOptions({
   // fetch options from dbHelper
   optionPromises.push( dbHelper.getClasses() )
   if ( classId != undefined ){ optionPromises.push( dbHelper.getLessons({ attachedClass: classId }) ) }
-  if ( lessonId != undefined) { optionPromises.push( dbHelper.getStudents({ attachedLesson: lessonId }) ) }
+  if ( lessonId != undefined) {
+    let studentPromises = dbHelper.getClass({ classId })
+    .then( classObject =>{
+      let studentPromises = classObject.attachedStudents.map( studentId =>{
+        return dbHelper.getStudent({ studentId })
+      })
+      return Promise.all(studentPromises)
+    })
+    
+    optionPromises.push( studentPromises )
+  }
 
   // get all the options in a promise
   let tagOptions = Promise.all( optionPromises )

@@ -166,7 +166,6 @@ class RecordTagSelect extends Component{
 }
 
 function mapStateToProps( state ){  
-  console.log(state.recordPage.tagsSelected)
   return {
     tagOptions: state.recordPage.tagOptions,
     tagsSelected: state.recordPage.tagsSelected
