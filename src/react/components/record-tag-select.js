@@ -112,12 +112,15 @@ class RecordTagSelect extends Component{
   }
 
   renderTagSection({ sectionLabel, sectionTitle, sectionOptionData, selectedValues = [], selectCallback = ()=>{console.log("clicked")} }){
-        
+    
+    // build a list of the option buttons for section
     let optionItems = sectionOptionData.map( ({value, labelText})=>{
-
+      // check id option buttons should be selected
+      let isSelected = selectedValues.includes(value)
+      // put the options inside a list item
       return (
         <li key={`${sectionLabel}__${value}`}>
-          { this.renderTagOptionButton({ value, labelText, selectCallback }) }
+          { this.renderTagOptionButton({ value, labelText, selectCallback, isSelected }) }
         </li>
       )
     })
@@ -132,10 +135,10 @@ class RecordTagSelect extends Component{
     )
   }
 
-  renderTagOptionButton( { value, labelText, selectCallback } ){
+  renderTagOptionButton( { value, labelText, selectCallback, isSelected } ){
 
     return (
-      <OptionButton  label_text={ labelText } value={ value } changeFunction={ selectCallback }/>
+      <OptionButton  label_text={ labelText } value={ value } changeFunction={ selectCallback } selected= {isSelected}/>
     )
   }
 

@@ -11,7 +11,7 @@ class OptionButton extends Component{
 
     return(
       <div>
-        <input type="checkbox" value={targetId} checked={this.checked} onChange={changeFunction}></input>
+        <input type="checkbox" value={targetId} checked={this.checked} onChange={changeFunction} checked={isSelected}></input>
         <label> {labelText} </label>
       </div>
     )
