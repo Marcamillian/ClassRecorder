@@ -13,7 +13,7 @@ import { isRegExp } from 'util';
 class RecordTagSelect extends Component{
   render(){
     return(
-      <div>
+      <div className="record-tag-select">
         <h1> Tag Options</h1>
         <div>
           { this.renderTagOptionList() }
@@ -122,10 +122,12 @@ class RecordTagSelect extends Component{
     let optionItems = sectionOptionData.map( ({value, labelText})=>{
       // check id option buttons should be selected
       let isSelected = selectedValues.includes(value)
+      let optionId = `${sectionLabel}__${value}`;
+
       // put the options inside a list item
       return (
-        <li key={`${sectionLabel}__${value}`}>
-          { this.renderTagOptionButton({ value, labelText, selectCallback, isSelected }) }
+        <li key={ optionId }>
+          { this.renderTagOptionButton({ value, labelText, selectCallback, isSelected, optionId }) }
         </li>
       )
     })
@@ -140,10 +142,10 @@ class RecordTagSelect extends Component{
     )
   }
 
-  renderTagOptionButton( { value, labelText, selectCallback, isSelected } ){
+  renderTagOptionButton( { value, labelText, selectCallback, isSelected, optionId } ){
 
     return (
-      <OptionButton  label_text={ labelText } value={ value } changeFunction={ selectCallback } selected= {isSelected}/>
+      <OptionButton  option_id={optionId} label_text={ labelText } value={ value } changeFunction={ selectCallback } selected= {isSelected}/>
     )
   }
 
@@ -174,7 +176,6 @@ class RecordTagSelect extends Component{
 }
 
 function mapStateToProps( state ){  
-  console.log(state.recordPage.tagsSelected)
   return {
     tagOptions: state.recordPage.tagOptions,
     tagsSelected: state.recordPage.tagsSelected

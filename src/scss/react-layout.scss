@@ -1,0 +1,10 @@
+.record-tag-select .option-button{
+  input[type="checkbox"]{
+    display:none;
+  }
+
+  input[type="checkbox"]:checked+label{
+    color:blue;
+  }
+
+}
