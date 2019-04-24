@@ -1,8 +1,13 @@
 import DbHelper from '../modules/DbHelper';
+import RecordHelper from '../modules/RecordHelper';
+
 
 export const TEST_ACTION = 'test_action';
 export const SET_RECORD_TAG_OPTIONS = 'set_record_tag_options';
 export const SET_RECORD_SELECTED_TAGS = 'set_record_selected_tags';
+export const CREATE_RECORDER = 'create-recorder';
+export const REMOVE_RECORDER = 'remove-recorder';
+
 
 const dbHelper = new DbHelper();
 
@@ -59,5 +64,27 @@ export function setRecordSelectedTags({
   return{
     type: SET_RECORD_SELECTED_TAGS,
     payload: {data: {classId, lessonId, studentIds}}
+  }
+}
+
+export function createRecorder( ){
+
+  let recorderPromise = RecordHelper.createRecorder()
+  .then( recorder =>{
+    recorder.start()
+    return {data: recorder}
+  })
+
+  return{
+    type: CREATE_RECORDER,
+    payload: recorderPromise
+  }
+
+}
+
+export function removeRecorder(){
+  return{
+    type: REMOVE_RECORDER,
+    payload: {data: { recorder: undefined}}
   }
 }

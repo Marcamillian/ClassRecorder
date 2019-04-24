@@ -14,7 +14,7 @@ class OptionButton extends Component{
       <div className="option-button">
         
         <input id={optionId} type="checkbox" value={targetId} onChange={changeFunction} checked={isSelected}></input>
-        <label for={optionId}> {labelText} </label>
+        <label htmlFor={optionId}> {labelText} </label>
       </div>
     )
 
