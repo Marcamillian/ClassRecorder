@@ -26,7 +26,7 @@ class RecordTagSelect extends Component{
     const options = this.props.tagOptions || {};
     const optionButtonData = {};
     const optionCallbacks = {};
-    const selectedTags = this.props.tagsSelected;
+    const selectedTags = this.props.tagsSelected || {};
 
     const setSelectedTags = this.props.setRecordSelectedTags;
     const setTagOptions = this.props.setRecordTagOptions;

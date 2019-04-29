@@ -7,6 +7,8 @@ export const SET_RECORD_TAG_OPTIONS = 'set_record_tag_options';
 export const SET_RECORD_SELECTED_TAGS = 'set_record_selected_tags';
 export const CREATE_RECORDER = 'create-recorder';
 export const REMOVE_RECORDER = 'remove-recorder';
+export const STORE_AUDIO_CHUNK = 'store-audio-chunk';
+export const CLEAR_AUDIO_CHUNKS = 'clear-audio-chunks';
 
 
 const dbHelper = new DbHelper();
@@ -67,9 +69,9 @@ export function setRecordSelectedTags({
   }
 }
 
-export function createRecorder( ){
+export function createRecorder({ storeAudioCallback }){
 
-  let recorderPromise = RecordHelper.createRecorder()
+  let recorderPromise = RecordHelper.createRecorder(storeAudioCallback)
   .then( recorder =>{
     recorder.start()
     return {data: recorder}
@@ -86,5 +88,26 @@ export function removeRecorder(){
   return{
     type: REMOVE_RECORDER,
     payload: {data: { recorder: undefined}}
+  }
+}
+
+
+// TODO - does this make it back to the actions?
+export function storeAudioChunk(audioChunk){
+  console.log("Storing a chunk")
+  return{
+    type: STORE_AUDIO_CHUNK,
+    payload: {data: { audioChunk }}
+  }
+}
+
+export function saveAudioClip({ audioChunks, attachedClass, attachedLesson, attachedStudents }){
+  let audioData = new Blob(audioChunks, {'type':'audio/ogg; codecs=opus'})
+
+  dbHelper.addClip({ attachedClass, attachedLesson, attachedStudents, audioData })
+
+  return{
+    type:CLEAR_AUDIO_CHUNKS,
+    payload: {data: undefined}
   }
 }

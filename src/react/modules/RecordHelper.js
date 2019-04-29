@@ -15,22 +15,15 @@ export default class RecordHelper{
   }
 
   // function to create a recorderObject
-  static createRecorder(){
+  static createRecorder( storeDataCallback = ()=>{console.log("storing some data")} ){
     
     return RecordHelper._getStream()
     .then( stream =>{
       let recorder = new MediaRecorder(stream)
-      let chunks = [];
 
       // event listener for each chunk ready
       recorder.ondataavailable = (e)=>{
-        chunks.push(e.data)
-      }
-
-      // when the recording is done
-      recorder.onstop = (e)=>{
-        var blob = new Blob(chunks, {'type':'audio/ogg; codexs=opus'});
-        console.log(blob)
+        storeDataCallback(e.data)
       }
 
       return recorder
