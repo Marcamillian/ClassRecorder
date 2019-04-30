@@ -9,7 +9,7 @@ class OptionButton extends Component{
     const isSelected = this.props.selected || false;
     const optionId = this.props.option_id;
     const changeFunction = this.props.changeFunction.bind(this)
-
+    
     return(
       <div className="option-button">
         

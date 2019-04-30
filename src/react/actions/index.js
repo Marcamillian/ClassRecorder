@@ -70,7 +70,6 @@ export function setRecordSelectedTags({
 }
 
 export function createRecorder({ storeAudioCallback }){
-
   let recorderPromise = RecordHelper.createRecorder(storeAudioCallback)
   .then( recorder =>{
     recorder.start()
@@ -94,7 +93,6 @@ export function removeRecorder(){
 
 // TODO - does this make it back to the actions?
 export function storeAudioChunk(audioChunk){
-  console.log("Storing a chunk")
   return{
     type: STORE_AUDIO_CHUNK,
     payload: {data: { audioChunk }}

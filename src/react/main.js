@@ -10,8 +10,6 @@ import promise from 'redux-promise';
 import reducers from './reducers';
 
 // import components
-import RecordTagSelect from './components/record-tag-select';
-import RecordButton from './components/record-button';
 import RecordView from './components/record-view';
 
 const createStoreWithMiddleware = applyMiddleware(promise)(createStore);
