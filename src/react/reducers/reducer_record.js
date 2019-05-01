@@ -24,7 +24,6 @@ export default function( state={}, action ){
     case STORE_AUDIO_CHUNK:
       let currentChunks = state.audioChunks || [];
       currentChunks.push( action.payload.data )
-
       return {...state, ['audioChunks']: currentChunks }
     case CLEAR_AUDIO_CHUNKS:
       return {...state, ['audioChunks']: undefined}

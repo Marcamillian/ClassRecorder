@@ -11,12 +11,13 @@ import reducers from './reducers';
 
 // import components
 import RecordView from './components/record-view';
+import ListenView from './components/listen-view';
 
 const createStoreWithMiddleware = applyMiddleware(promise)(createStore);
 
 ReactDOM.render(
   <Provider store={ createStoreWithMiddleware(reducers) }>
-    <RecordView />
+    <ListenView />
   </Provider>
 
 ,document.querySelector('.container'))
