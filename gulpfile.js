@@ -115,7 +115,7 @@ function prod_server(cb){
 build_files = parallel(  build_markup, build_styles, build_scripts, build_sw, get_IDBScript, build_images, build_data );
 serve_dev = parallel( watchFiles, browserSync )
 
-
+exports.build_styles = build_styles;
 exports.build = build_files;
 exports.build_images = build_images;
 exports.serve_dev = serve_dev;
