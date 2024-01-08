@@ -56,3 +56,5 @@ Three Javascript classes are used in the recorder app
 `app.js` contains
 - functions that render the HTML for the page from the relevant StudentSelect/Filter Models
 - event listener declarations on various interactive pieces of the page
+
+
