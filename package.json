@@ -7,21 +7,35 @@
     "start": "gulp serve_prod",
     "test": "tap tests/*.js",
     "test-debug": "tape --inspect-brk tests/t_studentSelectModel.js",
-    "post_install": "gulp build"
+    "post_install": "gulp build",
+    "react_build": "gulp build --require @babel/register --gulpfile tasks",
+    "react_dev": "gulp --require @babel/register --gulpfile tasks"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "tape": "^4.9.2"
-  },
-  "dependencies": {
-    "express": "^4.16.4",
-    "http": "0.0.0",
-    "idb": "^3.0.2",
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.4.0",
+    "babel-loader": "^8.0.5",
+    "browser-sync": "^2.26.3",
     "gulp": "^4.0.0",
     "gulp-insert": "^0.5.0",
     "gulp-sass": "^4.0.2",
     "gulp-serve": "^1.4.0",
-    "browser-sync": "^2.26.3"
+    "idb": "^3.0.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-redux": "^7.0.2",
+    "redux": "^4.0.1",
+    "redux-promise": "^0.6.0",
+    "tape": "^4.9.2",
+    "webpack": "^4.30.0",
+    "webpack-dev-middleware": "^3.6.2"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "http": "0.0.0"
   }
 }
