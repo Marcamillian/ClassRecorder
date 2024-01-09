@@ -2,7 +2,7 @@
 
 const { series, parallel, src, dest, watch }  = require('gulp')
 const insert = require('gulp-insert');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require(`dart-sass`));
 
 const browsersync = require("browser-sync").create();
 
